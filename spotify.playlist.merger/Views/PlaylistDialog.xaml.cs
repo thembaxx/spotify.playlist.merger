@@ -2,7 +2,7 @@
 
 // The Content Dialog item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace spotify.playlist.merger.ViewModels
+namespace spotify.playlist.merger.Views
 {
     public sealed partial class PlaylistDialog : ContentDialog
     {

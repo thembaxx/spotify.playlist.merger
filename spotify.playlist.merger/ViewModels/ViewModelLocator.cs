@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Views;
+using spotify.playlist.merger.Views;
 
 namespace spotify.playlist.merger.ViewModels
 {

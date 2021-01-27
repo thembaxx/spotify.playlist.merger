@@ -7,7 +7,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml.Controls;
 
-namespace spotify.playlist.merger.Model
+namespace spotify.playlist.merger.Models
 {
     public class Helpers
     {

@@ -1,4 +1,5 @@
-﻿using spotify.playlist.merger.Model;
+﻿using GalaSoft.MvvmLight.Messaging;
+using spotify.playlist.merger.Models;
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,27 @@ namespace spotify.playlist.merger.Data
 {
     public class DataSource
     {
-        public static DataSource Current = null;
+        private PrivateUser _loggedInUserProfile;
+        public static DataSource _current;
+        public static DataSource Current 
+        {
+            get 
+            { 
+                if(_current == null)
+                {
+                    _current = new DataSource();
+                }
+                return _current;
+            }
+            set { _current = value; }
+        }
 
         public DataSource() { Current = this; }
+
+        public async void Initialize()
+        {
+            await SpotifyApi.IsAuthenticated();
+        }
 
         public List<Playlist> ConvertPlaylists(IEnumerable<FullPlaylist> playlists)
         {
@@ -20,6 +39,7 @@ namespace spotify.playlist.merger.Data
                 List<Playlist> results = new List<Playlist>();
                 User owner = null;
                 int itemsCount = 0;
+                PlaylistCategoryType type = PlaylistCategoryType.Default;
 
                 foreach (var item in playlists)
                 {
@@ -28,10 +48,21 @@ namespace spotify.playlist.merger.Data
                         owner = new User(item.Owner.Id,
                             item.Owner.DisplayName,
                             item.Owner.Uri,
-                            item.Owner.Images.FirstOrDefault().Url);
+                            "",
+                            false);
+
+                        if (_loggedInUserProfile != null)
+                        {
+                            if (item.Owner.Id == _loggedInUserProfile.Id)
+                                type = PlaylistCategoryType.MyPlaylist;
+                            else if (item.Owner.DisplayName.ToLower() == "spotify")
+                                type = PlaylistCategoryType.Spotify;
+                            else
+                                type = PlaylistCategoryType.Following;
+                        }
                     }
 
-                    //if (item.Tracks != null) itemsCount = item.Tracks.Total;
+                    if (item.Tracks != null && item.Tracks.Total.HasValue) itemsCount = item.Tracks.Total.Value;
 
                     results.Add(new Playlist(item.Id,
                         item.Name,
@@ -39,9 +70,12 @@ namespace spotify.playlist.merger.Data
                         item.Images.FirstOrDefault().Url,
                         item.Description,
                         itemsCount,
-                        "0"));
+                        "0",
+                        owner,
+                        type));
 
                     itemsCount = 0;
+                    type = PlaylistCategoryType.Default;
                 }
                 return results;
             }
@@ -58,6 +92,7 @@ namespace spotify.playlist.merger.Data
                 List<Playlist> results = new List<Playlist>();
                 User owner = null;
                 int itemsCount = 0;
+                PlaylistCategoryType type = PlaylistCategoryType.Default;
 
                 foreach (var item in playlists)
                 {
@@ -66,10 +101,19 @@ namespace spotify.playlist.merger.Data
                         owner = new User(item.Owner.Id,
                             item.Owner.DisplayName,
                             item.Owner.Uri,
-                            item.Owner.Images.FirstOrDefault().Url);
-                    }
+                            "", false);
 
-                    //if (item.Tracks != null) itemsCount = item.Tracks.Total;
+                        if (_loggedInUserProfile != null)
+                        {
+                            if (item.Owner.Id == _loggedInUserProfile.Id)
+                                type = PlaylistCategoryType.MyPlaylist;
+                            else if (item.Owner.DisplayName.ToLower() == "spotify")
+                                type = PlaylistCategoryType.Spotify;
+                            else
+                                type = PlaylistCategoryType.Following;
+                        }
+                    }
+                    if (item.Tracks != null && item.Tracks.Total.HasValue) itemsCount = item.Tracks.Total.Value;
 
                     results.Add(new Playlist(item.Id,
                         item.Name,
@@ -77,9 +121,12 @@ namespace spotify.playlist.merger.Data
                         item.Images.FirstOrDefault().Url,
                         item.Description,
                         itemsCount,
-                        "0"));
+                        "0",
+                        owner,
+                        type));
 
                     itemsCount = 0;
+                    type = PlaylistCategoryType.Default;
                 }
                 return results;
             }
@@ -100,7 +147,9 @@ namespace spotify.playlist.merger.Data
             try
             {
                 var user = await SpotifyApi.GetProfile();
-                return new User(user.Id, user.DisplayName, user.Uri, user.Images.FirstOrDefault().Url);
+                _loggedInUserProfile = user;
+                bool isPremium = (user.Product == "premium");
+                return new User(user.Id, user.DisplayName, user.Uri, user.Images.FirstOrDefault().Url, isPremium);
             }
             catch (Exception e)
             {
@@ -108,6 +157,55 @@ namespace spotify.playlist.merger.Data
                 return null;
             }
         }
+
+        /// <summary>
+        /// Merges 2 or more playlists into 1 new playlist.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the new playlist.
+        /// </param>
+        /// <param name="playlists">
+        /// The list of playlists to merge.
+        /// </param>
+        /// <param name="base64Jpg">
+        /// The playlist cover in base64 string format (Optional). 
+        /// </param>
+        /// <param name="img">
+        /// The cover image if using a custom cover image for the playlist.
+        /// </param>
+        /// <returns>
+        /// The newly create playlist.
+        /// </returns>
+        public async Task<Playlist> MergeSpotifyPlaylists(string name, string description, IEnumerable<Playlist> playlists, string base64Jpg = null)
+        {
+            try
+            {
+                if (playlists.Count() <= 1)
+                    return null;
+
+                List<string> trackIds = new List<string>();
+                foreach (var playlist in playlists)
+                {
+                    var items = await GetTrackIds(playlist.Id);
+                    if (items != null)
+                    {
+                        foreach (var trackId in items)
+                        {
+                            if (!trackIds.Contains(trackId))
+                            {
+                                trackIds.Add(trackId);
+                            }
+                        }
+                    }
+                }
+                return await CreateSpotifyPlaylist(name, description, trackIds, base64Jpg);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
 
         /// <summary>
         /// Creates a new playlist for current user.
@@ -119,7 +217,7 @@ namespace spotify.playlist.merger.Data
         /// The tracks to add to the newly created playlist (Optional).
         /// </param>
         /// <returns></returns>
-        public async Task<Playlist> CreateSpotifyPlaylist(string name, string description, IEnumerable<string> trackIds, string base64Jpg = null)
+        private async Task<Playlist> CreateSpotifyPlaylist(string name, string description, IEnumerable<string> trackIds, string base64Jpg = null)
         {
             try
             {
@@ -146,6 +244,12 @@ namespace spotify.playlist.merger.Data
         /// </returns>
         public async Task<bool> GetPlaylists()
         {
+            Messenger.Default.Send(new MessengerHelper
+            {
+                Item = true,
+                Action = MessengerAction.IsLoading,
+            });
+
             if (startIndex == 0)
             {
                 page = await SpotifyApi.GetInitialPlaylist(limit);
@@ -172,8 +276,11 @@ namespace spotify.playlist.merger.Data
 
             startIndex = 0;
 
-
-            //add to collection
+            Messenger.Default.Send(new MessengerHelper
+            {
+                Item = false,
+                Action = MessengerAction.IsLoading,
+            });
             return true;
         }
 

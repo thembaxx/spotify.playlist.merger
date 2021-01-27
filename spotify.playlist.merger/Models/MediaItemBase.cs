@@ -1,24 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace spotify.playlist.merger.Model
+namespace spotify.playlist.merger.Models
 {
     public class MediaItemBase : NotificationBase
     {
-        public MediaItemBase () { }
-        public MediaItemBase (string id, string title, string uri, string imgUrl)
+        public MediaItemBase() { }
+        public MediaItemBase(string id, string title, string uri, string imgUrl)
         {
             Id = id;
             Title = title;
             Uri = uri;
             SetImage(imgUrl);
         }
-       
+
         private string _id;
         public string Id
         {

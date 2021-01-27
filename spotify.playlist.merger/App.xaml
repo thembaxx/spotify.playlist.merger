@@ -10,10 +10,17 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
+            <vm:ViewModelLocator xmlns:vm="using:spotify.playlist.merger.ViewModels" x:Key="Locator" />
+            <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#3C3C43" Opacity=".6"/>
+            <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="White" Opacity=".03"/>
+            <SolidColorBrush x:Key="PlaceHolderTextThemeBrush" Color="WhiteSmoke" Opacity=".3"/>
+            <SolidColorBrush x:Key="ApplicationPageBackgroundThemeBrush" Color="#010101"/>
+            <SolidColorBrush x:Key="InputBoxHoverThemeBrush" Color="#767680" Opacity="0.1"/>
             <SolidColorBrush x:Key="BrandColorThemeBrush" Color="#1f299c"/>
-            <Color x:Key="BrandColorThemeColor">#1131fd</Color>
+            <Color x:Key="BrandColorThemeColor">#1f299c</Color>
+            <Color x:Key="Status-bar-color">#000</Color>
+            <Color x:Key="Status-bar-foreground">#FFDDDDDD</Color>
             <SolidColorBrush x:Key="ItemBackgroundThemeBrush" Color="#161618"/>
             <SolidColorBrush x:Key="SecondaryItemBackgroundThemeBrush" Color="#1D1D20"/>
             <SolidColorBrush x:Key="InputBoxThemeBrush" Color="#767680" Opacity="0.24"/>
@@ -22,7 +29,6 @@
                                 TintColor="#000000" Opacity="0.7"
                                 TintOpacity="0.90" 
                                 FallbackColor="#161618"/>
-            <vm:ViewModelLocator xmlns:vm="using:spotify.playlist.merger.ViewModels" x:Key="Locator" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

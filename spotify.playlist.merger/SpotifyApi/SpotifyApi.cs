@@ -133,13 +133,13 @@ namespace spotify.playlist.merger.Data
             {
                 if (string.IsNullOrEmpty(clientId))
                 {
-                    Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_ID", "de354ca4295141c6ad3a7a07086fbd32");
+                    Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_ID", "");
                     clientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
                 }
 
                 if (string.IsNullOrEmpty(clientSecret))
                 {
-                    Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_SECRET", "474efaae7656470b81a4266bebbfc4ad");
+                    Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_SECRET", "");
                     clientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
                 }
             }
