@@ -12,12 +12,15 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
             <vm:ViewModelLocator xmlns:vm="using:spotify.playlist.merger.ViewModels" x:Key="Locator" />
+            <SolidColorBrush x:Key="PrimaryForeground" Color="#ffffff" Opacity=".87"/>
+            <SolidColorBrush x:Key="SecondaryForeground" Color="#ffffff" Opacity=".6"/>
             <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#3C3C43" Opacity=".6"/>
             <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="White" Opacity=".03"/>
             <SolidColorBrush x:Key="PlaceHolderTextThemeBrush" Color="WhiteSmoke" Opacity=".3"/>
             <SolidColorBrush x:Key="ApplicationPageBackgroundThemeBrush" Color="#010101"/>
             <SolidColorBrush x:Key="InputBoxHoverThemeBrush" Color="#767680" Opacity="0.1"/>
             <SolidColorBrush x:Key="BrandColorThemeBrush" Color="#1f299c"/>
+            <SolidColorBrush x:Key="BrandColorThemeBrushSecondary" Color="#82aaff"/>
             <Color x:Key="BrandColorThemeColor">#1f299c</Color>
             <Color x:Key="Status-bar-color">#000</Color>
             <Color x:Key="Status-bar-foreground">#FFDDDDDD</Color>

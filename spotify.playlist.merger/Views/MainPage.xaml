@@ -213,7 +213,6 @@
                                     <VisualState x:Name="ButtonCollapsed"/>
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
-                            <FontIcon HorizontalAlignment="Left" Margin="8,0" FontSize="12" Grid.RowSpan="1" Grid.Row="1" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE721;" Foreground="{ThemeResource PlaceHolderTextThemeBrush}"/>
                             <Border x:Name="BorderElement" CornerRadius="10" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Grid.ColumnSpan="3" Grid.RowSpan="1" Grid.Row="1"/>
                             <ContentPresenter x:Name="HeaderContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" Grid.ColumnSpan="3" FontWeight="Normal" Foreground="{ThemeResource TextControlHeaderForeground}" Margin="{ThemeResource AutoSuggestBoxTopHeaderMargin}" Grid.Row="0" TextWrapping="Wrap" Visibility="Collapsed" x:DeferLoadStrategy="Lazy"/>
                             <ScrollViewer x:Name="ContentElement" CornerRadius="10" AutomationProperties.AccessibilityView="Raw" HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}" HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}" IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}" IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}" IsTabStop="False" IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}" Margin="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" Grid.Row="1" VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}" VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}" ZoomMode="Disabled"/>
@@ -221,6 +220,7 @@
                             <Button x:Name="DeleteButton" AutomationProperties.AccessibilityView="Raw" BorderThickness="{TemplateBinding BorderThickness}" Grid.Column="1" FontSize="{TemplateBinding FontSize}" IsTabStop="False" MinWidth="34" Grid.Row="1" Style="{StaticResource DeleteButtonStyle}" VerticalAlignment="Stretch" Visibility="Collapsed" Width="{TemplateBinding Height}"/>
                             <Button x:Name="QueryButton" AutomationProperties.AccessibilityView="Raw" BorderThickness="{TemplateBinding BorderThickness}" Grid.Column="2" FontSize="{TemplateBinding FontSize}" IsTabStop="False" MinWidth="34" Grid.Row="1" Style="{StaticResource QueryButtonStyle}" VerticalAlignment="Stretch" Width="{TemplateBinding Height}"/>
                             <ContentPresenter x:Name="DescriptionPresenter" AutomationProperties.AccessibilityView="Raw" Content="{TemplateBinding Description}" Grid.ColumnSpan="3" Foreground="{ThemeResource SystemControlDescriptionTextForegroundBrush}" Grid.Row="2" x:Load="False"/>
+                            <FontIcon HorizontalAlignment="Left" Margin="8,0" FontSize="12" Grid.RowSpan="1" Grid.Row="1" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE721;" Foreground="#ffffff" Opacity=".3"/>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -338,18 +338,150 @@
         </Grid.ColumnDefinitions>
         <Grid x:Name="LeftBar"
               Background="#0D0D0D"
-              Padding="0,0,0,48"
+              Padding="0,0,0,24"
               Width="64">
             <StackPanel VerticalAlignment="Bottom">
                 <Button x:Name="SettingsButton"
                         extensions:Mouse.Cursor="Hand"
                         FontSize="16"
+                        Foreground="{ThemeResource SecondaryForeground}"
                         Height="48"
                         HorizontalAlignment="Stretch"
                         Style="{StaticResource TextBlockButtonStyle}">
-                    <Button.Foreground>
-                        <SolidColorBrush Color="White" Opacity=".7"/>
-                    </Button.Foreground>
+                    <Button.Flyout>
+                        <Flyout Placement="Right">
+                            <Flyout.FlyoutPresenterStyle>
+                                <Style TargetType="FlyoutPresenter">
+                                    <Setter Property="Padding" Value="24, 8"/>
+                                    <Setter Property="CornerRadius" Value="12"/>
+                                    <Setter Property="Background" Value="#0D0D0D"/>
+                                    <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled"/>
+                                    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+                                    <Setter Property="IsTabStop" Value="True"/>
+                                    <Setter Property="TabNavigation" Value="Cycle"/>
+                                </Style>
+                            </Flyout.FlyoutPresenterStyle>
+                            <StackPanel Width="300">
+                                <StackPanel Orientation="Horizontal"
+                                            Height="44"
+                                            Margin="0,0,0,16">
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;" Margin="0,0,12,0" VerticalAlignment="Center" Foreground="{ThemeResource BrandColorThemeBrushSecondary}"/>
+                                    <TextBlock Text="Settings"
+                                               FontSize="16"
+                                               FontWeight="SemiBold"
+                                               Foreground="{ThemeResource PrimaryForeground}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid Margin="0,0,0,16">
+                                        <TextBlock Text="ACCOUNT"
+                                                   FontSize="11"
+                                                   Foreground="{ThemeResource SecondaryForeground}"/>
+                                    </Grid>
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Background="#242424"
+                                                CornerRadius="50"
+                                                Margin="0,0,12,0"
+                                                Height="48"
+                                                Width="48"
+                                                VerticalAlignment="Top">
+                                            <Image Source="{Binding Profile.Image}"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock FontSize="14"
+                                                           Text="Logged in as"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="{ThemeResource SecondaryForeground}"
+                                                           Margin="0,0,4,0"/>
+                                                <TextBlock FontSize="14"
+                                                           FontWeight="SemiBold"
+                                                           Text="{Binding Profile.Title, FallbackValue=Title}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="{ThemeResource PrimaryForeground}"
+                                                           Margin="0,0,0,8"/>
+                                            </StackPanel>
+                                            <Button Background="#131313"
+                                                    Foreground="{ThemeResource PrimaryForeground}"
+                                                    extensions:Mouse.Cursor="Hand"
+                                                    Command="{Binding LogoutCommand}"
+                                                    Height="28"
+                                                    Content="Log out"
+                                                    VerticalContentAlignment="Center"
+                                                    FontSize="12"
+                                                    FontWeight="SemiBold"
+                                                    Padding="16, 0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                                <Line X1="220" Stroke="White" Opacity=".15" StrokeThickness="1" Fill="White" Margin="0,24,0,0"/>
+                                <Grid Margin="0,24,0,16">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid Margin="0,0,0,16">
+                                        <TextBlock Text="DEVELOPER"
+                                                   FontSize="11"
+                                                   Foreground="{ThemeResource SecondaryForeground}"/>
+                                    </Grid>
+                                    <StackPanel Grid.Row="1">
+                                        <TextBox BorderThickness="0"
+                                                 CornerRadius="8"
+                                                 PlaceholderText="Your Spotify Client ID"
+                                                 Margin="0,0,0,8"
+                                                 Height="36"
+                                                 Padding="12,8"
+                                                 Text="{Binding ClientID, Mode=TwoWay}">
+                                            <TextBox.Background>
+                                                <SolidColorBrush Color="#767680" Opacity=".15"/>
+                                            </TextBox.Background>
+                                            <TextBox.PlaceholderForeground>
+                                                <SolidColorBrush Color="White" Opacity=".2"/>
+                                            </TextBox.PlaceholderForeground>
+                                        </TextBox>
+                                        <TextBox BorderThickness="0"
+                                                 CornerRadius="8"
+                                                 PlaceholderText="Your Client Spotify Secret"
+                                                 Margin="0,0,0,8"
+                                                 Height="36"
+                                                 Padding="12,8"
+                                                 Text="{Binding ClientSecret, Mode=TwoWay}">
+                                            <TextBox.Background>
+                                                <SolidColorBrush Color="#767680" Opacity=".15"/>
+                                            </TextBox.Background>
+                                            <TextBox.PlaceholderForeground>
+                                                <SolidColorBrush Color="White" Opacity=".2"/>
+                                            </TextBox.PlaceholderForeground>
+                                        </TextBox>
+                                        <Button Content="Save credentials"
+                                                Background="#00897b"
+                                                Command="{Binding SaveCredentialsCommand}"
+                                                extensions:Mouse.Cursor="Hand"
+                                                HorizontalAlignment="Stretch"
+                                                CornerRadius="8"
+                                                Height="36"
+                                                Margin="0,0,0,8">
+
+                                        </Button>
+                                        <TextBlock TextWrapping="WrapWholeWords" Foreground="{ThemeResource SecondaryForeground}">
+                                            <Span xml:space="preserve"><Run>Visit </Run><Hyperlink TextDecorations="None" FontWeight="Medium" NavigateUri="http://www.contoso.com" Foreground="{ThemeResource BrandColorThemeBrush}">Spotify Developer</Hyperlink><Run> portal in your browser for more help.</Run></Span>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;"/>
                 </Button>
                 <Button x:Name="UserAccountButton"
@@ -370,7 +502,7 @@
                                 CornerRadius="50"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom"
-                                Margin="6"
+                                Margin="4"
                                 Padding="2"
                                 Height="18"
                                 Width="18">
@@ -388,27 +520,31 @@
               Padding="16,40,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <ProgressBar Foreground="White"
-                         Height="2px"
-                         Grid.ColumnSpan="100"
-                         Grid.RowSpan="100"
-                         VerticalAlignment="Top"
-                         Margin="0, -16, 36, 0"
-                         IsIndeterminate="{Binding IsLoading}"
-                         Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <muxc:ProgressBar Foreground="White"
+                              Height="2"
+                              Grid.ColumnSpan="100"
+                              Grid.RowSpan="100"
+                              VerticalAlignment="Top"
+                              Margin="0, -16, 16, 0"
+                              IsIndeterminate="{Binding IsLoading}" 
+                              ShowPaused="False" 
+                              ShowError="False" 
+                              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <Grid x:Name="Header"
                   Height="44"
                   Margin="0, 8, 16, 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="auto" MinWidth="250"/>
+                    <ColumnDefinition Width="auto" MinWidth="256"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock x:Name="ContentTitle"
                                FontSize="20"
                                FontWeight="Black"
+                               Foreground="{ThemeResource PrimaryForeground}"
                                Text="Playlist Manager"
                                Margin="0,0, 12, 0"
                                VerticalAlignment="Center"/>
@@ -431,23 +567,26 @@
                     <ComboBox x:Name="PlaylistCategory"
                               extensions:Mouse.Cursor="Hand"
                               BorderThickness="0"
+                              Foreground="{ThemeResource PrimaryForeground}"
                               Margin="0, 0, 12, 0"
                               Padding="12, 0"
+                              Width="140"
                               VerticalAlignment="Stretch"
                               PlaceholderText="Default"
                               ItemsSource="{Binding PlaylistCategoryCollection}"
                               SelectedItem="{Binding SelectedPlaylistCategory, Mode=TwoWay}">
-                        <Grid/>
+                        
                         <ComboBox.ItemTemplate>
                             <DataTemplate x:DataType="model:PlaylistCategory">
                                 <TextBlock Text="{Binding Title}"
                                            FontSize="16"
-                                           FontWeight="Normal"/>
+                                           FontWeight="Normal" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
                     <Button x:Name="RefreshPlaylistButton"
                             extensions:Mouse.Cursor="Hand"
+                            Command="{Binding RefreshCommand}"
                             Foreground="#FDA500"
                             Width="44"
                             VerticalAlignment="Stretch"
@@ -470,8 +609,44 @@
                     </AutoSuggestBox>
                 </Grid>
             </Grid>
+            <Grid x:Name="ContentMeta"
+                  Grid.Row="1"
+                  Height="24"
+                  Margin="0, 8, 16, 0">
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource BrandColorThemeBrushSecondary}" Margin="0,0,8,0"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource SecondaryForeground}"
+                               Margin="0,0,4,0"
+                               Text="There are"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource PrimaryForeground}"
+                               Margin="0,0,2,0"
+                               Text="{Binding AdvancedCollectionView.Count, FallbackValue=0}"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource PrimaryForeground}"
+                               Margin="0,0,4,0"
+                               Text="playlists"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource SecondaryForeground}"
+                               Margin="0,0,4,0"
+                               Text="with"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource PrimaryForeground}"
+                               Margin="0,0,2,0"
+                               Text="{Binding TotalTracks, FallbackValue=0}"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource PrimaryForeground}"
+                               Margin="0,0,4,0"
+                               Text="tracks"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource SecondaryForeground}"
+                               Text="in your library."/>
+                </StackPanel>
+            </Grid>
             <Grid x:Name="MainContent"
-                  Grid.Row="1">
+                  Grid.Row="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
@@ -481,7 +656,7 @@
                       Margin="0, 8"
                       Padding="0,0,16,0">
                     <Grid Background="#0C0C0C"
-                          Height="40"
+                          Height="36"
                           Padding="16,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -540,11 +715,11 @@
                               SelectionMode="None"
                               ItemsSource="{Binding AdvancedCollectionView}"
                               ItemContainerStyle="{StaticResource ListViewItemContainerStyle1}">
-                        <Grid/>
-                        <Grid/>
+                      
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="model:Playlist">
                                 <Grid Height="64"
+                                      Background="Transparent"
                                       extensions:Mouse.Cursor="Hand">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -566,9 +741,8 @@
                                               Width="24"
                                               Margin="0,0,16,0">
                                             <TextBlock FontSize="16"
-                                                       FontWeight="SemiBold"
                                                        Text="{Binding Position}"
-                                                       Opacity=".7"
+                                                       Foreground="{ThemeResource PrimaryForeground}"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center">
                                                 
@@ -590,19 +764,21 @@
                                                 <RowDefinition Height="auto"/>
                                             </Grid.RowDefinitions>
                                             <TextBlock x:Name="Title"
-                                                       FontSize="18"
+                                                       FontSize="16"
                                                        FontWeight="SemiBold"
                                                        Text="{Binding Title, FallbackValue=Title}"
                                                        TextTrimming="CharacterEllipsis"
+                                                       Foreground="{ThemeResource PrimaryForeground}"
                                                        Margin="0,0,0,2"/>
                                             <StackPanel Grid.Row="1"
-                                                        Orientation="Horizontal"
-                                                        Opacity=".6">
+                                                        Orientation="Horizontal">
                                                 <TextBlock FontSize="16"
+                                                           Foreground="{ThemeResource SecondaryForeground}"
                                                            Text="By"
                                                            Margin="0,0,4,0"/>
                                                 <TextBlock x:Name="Owner"
                                                            FontSize="16"
+                                                           Foreground="{ThemeResource SecondaryForeground}"
                                                            Text="{Binding Owner.Title, FallbackValue=Owner}"
                                                            TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
@@ -613,8 +789,9 @@
                                           Height="24"
                                           Margin="12,0">
                                         <TextBlock x:Name="ItemsCount"
-                                                   FontSize="16"
+                                                   FontSize="14"
                                                    FontWeight="Normal"
+                                                   Foreground="{ThemeResource SecondaryForeground}"
                                                    Text="{Binding Count, FallbackValue=0}"/>
                                     </Grid>
                                     <Grid Grid.Column="2"
@@ -639,18 +816,20 @@
         <Grid x:Name="RightBar"
               Grid.Column="2"
               Background="#0C0C0C"
-              Padding="16, 40"
+              Padding="16, 40, 16, 16"
               Width="390">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
             <Grid x:Name="RightBarHeader"
                   Margin="0, 8">
                 <Grid Height="44">
-                    <TextBlock Text="SELECTED PLAYLIST"
-                               FontSize="16"
-                               FontWeight="Bold"
+                    <TextBlock Text="Selected playlists"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Foreground="{ThemeResource PrimaryForeground}"
                                VerticalAlignment="Center"/>
                 </Grid>
             </Grid>
@@ -673,12 +852,11 @@
                         <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Center">
                             <TextBlock Text="{Binding SelectedPlaylistCollection.Count, FallbackValue=0}"
-                                       FontSize="15"
-                                       FontWeight="Medium"
-                                       Margin="0,0,2,0"/>
-                            <TextBlock Text="selected items"
-                                       FontSize="15"
-                                       FontWeight="Medium"
+                                       FontSize="14"
+                                       Margin="0,0,4,0"/>
+                            <TextBlock Text="Selected items"
+                                       FontSize="14"
+                                       Foreground="{ThemeResource PrimaryForeground}"
                                        Margin="0,0,16,0"/>
                         </StackPanel>
                         <Button x:Name="ClearSelectedButton2"
@@ -686,7 +864,7 @@
                                 extensions:Mouse.Cursor="Hand"
                                 Command="{Binding ClearSelectedCommand}"
                                 Foreground="#FDA500"
-                                Height="40"
+                                Height="40" Opacity=".87"
                                 Content="Clear"
                                 FontWeight="SemiBold"
                                 Padding="16,0"
@@ -697,15 +875,14 @@
                 </Grid>
                 <ListView x:Name="SelectedContentView"
                           Grid.Row="1"
-                          Padding="0,0,16,0"
                           SelectionMode="None"
                           ItemsSource="{Binding SelectedPlaylistCollection}"
                           ItemContainerStyle="{StaticResource ListViewItemContainerStyle1}">
-                    <Grid/>
-                    <Grid/>
+            
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="model:Playlist">
                             <Grid Height="56"
+                                  Background="Transparent"
                                   extensions:Mouse.Cursor="Hand"
                                   Padding="8,0,8,0">
                                 <Grid.ColumnDefinitions>
@@ -722,9 +899,8 @@
                                           Width="24"
                                           Margin="0,0,12,0">
                                         <TextBlock FontSize="14"
-                                                   FontWeight="SemiBold"
                                                    Text="{Binding PositionAlt, FallbackValue=0}"
-                                                   Opacity=".7"
+                                                   Foreground="{ThemeResource PrimaryForeground}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center">
 
@@ -748,18 +924,20 @@
                                         <TextBlock x:Name="Title"
                                                    FontSize="14"
                                                    FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource PrimaryForeground}"
                                                    Text="{Binding Title, FallbackValue=Title}"
                                                    TextTrimming="CharacterEllipsis"
                                                    TextWrapping="NoWrap"
                                                    Margin="0,0,0,0"/>
                                         <StackPanel Grid.Row="1"
-                                                        Orientation="Horizontal"
-                                                        Opacity=".6">
+                                                        Orientation="Horizontal">
                                             <TextBlock FontSize="14"
+                                                       Foreground="{ThemeResource SecondaryForeground}"
                                                            Text="By"
                                                            Margin="0,0,4,0"/>
                                             <TextBlock x:Name="Owner"
                                                            FontSize="14"
+                                                       Foreground="{ThemeResource SecondaryForeground}"
                                                            Text="{Binding Owner.Title, FallbackValue=Owner}"
                                                            TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
@@ -769,7 +947,7 @@
                                     <Button x:Name="RemoveSelectedButton"
                                             VerticalAlignment="Stretch"
                                             Padding="16,0"
-                                            Foreground="WhiteSmoke"
+                                            Foreground="{ThemeResource SecondaryForeground}"
                                             Command="{Binding ElementName=page, Path=DataContext.UnselectPlaylistCommand}" 
                                             CommandParameter="{Binding}"
                                             Style="{StaticResource TextBlockButtonStyle}">
@@ -780,6 +958,80 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
+            </Grid>
+            <Grid x:Name="RightBarActions"
+                  Grid.Row="2"
+                  Height="36">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="MergeButton"
+                        extensions:Mouse.Cursor="Hand"
+                        CornerRadius="3"
+                        IsEnabled="{Binding CanMerge}"
+                        Command="{Binding ShowMergeDialogCommand}"
+                        Background="{ThemeResource BrandColorThemeBrush}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Style="{StaticResource ButtonRevealStyle}"
+                        Margin="0,0,4,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Merge playlists"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="PlayButton"
+                        extensions:Mouse.Cursor="Hand"
+                        Grid.Column="1"
+                        Background="#121212"
+                        Foreground="{ThemeResource PrimaryForeground}"
+                        Command="{Binding PlaySelectedCommand}"
+                        CornerRadius="3"
+                        IsEnabled="{Binding CanPlay}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Margin="4,0,4,0"
+                        Style="{StaticResource ButtonRevealStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Play"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="UnfollowButton"
+                        extensions:Mouse.Cursor="Hand"
+                        Grid.Column="2"
+                        Background="#C62828"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource PrimaryForeground}"
+                        Command="{Binding UnfollowSelectedCommand}"
+                        CornerRadius="3"
+                        IsEnabled="{Binding CanPlay}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Margin="4,0,0,0"
+                        Style="{StaticResource ButtonRevealStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Unfollow"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+            <Grid x:Name="RightBarLoading"
+                  Grid.RowSpan="100"
+                  Margin="-16, -40, -16, -16"
+                  Visibility="{Binding IsRightBarBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.Background>
+                    <media:AcrylicBrush
+                      BackgroundSource="Backdrop"
+                      TintColor="#010101"
+                      TintOpacity="0.70"
+                      BlurAmount="12"/>
+
+                </Grid.Background>
+                <muxc:ProgressRing IsActive="{Binding IsRightBarBusy}" 
+                                   Height="40" Width="40"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="WhiteSmoke"/>
             </Grid>
         </Grid>
         <Grid Height="32" 
@@ -794,6 +1046,51 @@
                 <!--<TextBlock Text="Spotify companion" Margin="8,8,0,0" />-->
 
             </Grid>
+        </Grid>
+        <Grid x:Name="LoginView"
+              Grid.ColumnSpan="100"
+              Grid.RowSpan="100"
+              Visibility="{Binding ShowLogin, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.Background>
+                <media:AcrylicBrush
+                      BackgroundSource="Backdrop"
+                      TintColor="#010101"
+                      TintOpacity="0.75"
+                      BlurAmount="12"/>
+            </Grid.Background>
+            <StackPanel MaxWidth="220" VerticalAlignment="Center">
+                <TextBlock Text="Connect the app with your Spotify account to continue." 
+                           FontSize="16" 
+                           TextAlignment="Center"
+                           TextWrapping="WrapWholeWords"/>
+                <Button RequestedTheme="Dark" 
+                        Background="{ThemeResource BrandColorThemeBrush}"
+                        Margin="0 12" 
+                        HorizontalAlignment="Center"
+                        Command="{Binding ConnectSpotifyCommand}"
+                        Padding="16 0 10 2" 
+                        CornerRadius="10" 
+                        Height="36"
+                        IsEnabled="{Binding IsLoading, Converter={StaticResource BoolNegationConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Height="16" 
+                               VerticalAlignment="Center"
+                               Margin="0 0 8 0"
+                               Source="/Assets/Spotify_Icon_RGB_White.png"/>
+                        <TextBlock Text="Connect Spotify Premium"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+
+            <ProgressBar Grid.ColumnSpan="100"
+                     IsIndeterminate="{Binding IsLoading}"
+                     Foreground="White" 
+                         Margin="36"
+                     VerticalAlignment="Top"
+                     Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
         </Grid>
     </Grid>
 </Page>

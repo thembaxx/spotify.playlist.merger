@@ -14,15 +14,24 @@ namespace spotify.playlist.merger.Data
 {
     public class SpotifyApi
     {
-        public static SpotifyClient SpotifyClient { get; set; }
-        private static PrivateUser _user;
-
-        #region Authentication
 
         private static readonly string CredentialsPath = ApplicationData.Current.LocalFolder.Path + "\\credentials.json";
         private static string clientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
         private static string clientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
         private static readonly EmbedIOAuthServer _server = new EmbedIOAuthServer(new Uri("http://localhost:5000/callback"), 5000);
+
+        public static SpotifyClient SpotifyClient { get; set; }
+        private static PrivateUser _user;
+
+        public static bool LogOut()
+        {
+            SpotifyClient = null;
+            _user = null;
+            File.Delete(CredentialsPath);
+            return true;
+        }
+
+        #region Authentication
 
         /// <summary>
         /// Checks if user is authenticated
@@ -61,6 +70,8 @@ namespace spotify.playlist.merger.Data
             if (SpotifyClient == null)
                 await Authenticate();
 
+            if (clientId == null || clientSecret == null)
+                return null;
             //check if client is valid
             try
             {
@@ -262,6 +273,31 @@ namespace spotify.playlist.merger.Data
         {
             var spotify = await GetSpotifyClientAsync();
             return await spotify.PaginateAll(page);
+        }
+
+        public static async Task<bool> PlayMedia(List<string> uris, int index = 0, bool shuffle = false)
+        {
+            var spotify = await GetSpotifyClientAsync();
+            if (spotify == null) return false;
+            PlayerResumePlaybackRequest request = new PlayerResumePlaybackRequest
+            {
+                Uris = uris,
+                OffsetParam = new PlayerResumePlaybackRequest.Offset { Position = index },
+            };
+
+            return await spotify.Player.ResumePlayback(request);
+            //if (shuffle) await spotify.Player.SetShuffle(new PlayerShuffleRequest(true));
+        }
+
+        public static async Task<Paging<SavedTrack>> GetSavedTracks(int startIndex, int limit)
+        {
+            var spotify = await GetSpotifyClientAsync();
+            LibraryTracksRequest request = new LibraryTracksRequest
+            {
+                Offset = startIndex,
+                Limit = limit,
+            };
+            return await spotify.Library.GetTracks(request);
         }
     }
 

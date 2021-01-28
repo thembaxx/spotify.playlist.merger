@@ -10,5 +10,6 @@
     {
         ScrollToItem,
         IsLoading,
+        ShowSettings,
     }
 }
