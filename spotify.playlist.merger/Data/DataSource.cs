@@ -10,7 +10,7 @@ namespace spotify.playlist.merger.Data
 {
     public class DataSource
     {
-        private PrivateUser _loggedInUserProfile;
+        private User _loggedInUserProfile;
         private int startIndex = 0;
         private readonly int limit = 20;
         private Paging<SimplePlaylist> page;
@@ -31,11 +31,17 @@ namespace spotify.playlist.merger.Data
 
         public DataSource() { Current = this; }
 
-        public async void Initialize()
+        public async Task Initialize()
         {
             try
             {
-                await SpotifyApi.IsAuthenticated();
+                if(await SpotifyApi.IsAuthenticated())
+                {
+                    //get playlists
+                } else
+                {
+                    await SpotifyApi.Authenticate();
+                }
             }
             catch (Exception)
             {
@@ -61,12 +67,15 @@ namespace spotify.playlist.merger.Data
         {
             try
             {
-                var user = await SpotifyApi.GetProfile();
-                if (user == null) return null;
-                _loggedInUserProfile = user;
-                bool isPremium = (user.Product == "premium");
-                var imgUrl = (user.Images != null && user.Images.FirstOrDefault() != null) ? user.Images.FirstOrDefault().Url : "";
-                return new User(user.Id, user.DisplayName, user.Uri, imgUrl, isPremium);
+                if (_loggedInUserProfile == null)
+                {
+                    var user = await SpotifyApi.GetProfile();
+                    if (user == null) return null;
+                    bool isPremium = (user.Product == "premium");
+                    var imgUrl = (user.Images != null && user.Images.FirstOrDefault() != null) ? user.Images.FirstOrDefault().Url : "";
+                    _loggedInUserProfile = new User(user.Id, user.DisplayName, user.Uri, imgUrl, isPremium);
+                }
+                return _loggedInUserProfile;
             }
             catch (Exception e)
             {

@@ -12,21 +12,31 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
             <vm:ViewModelLocator xmlns:vm="using:spotify.playlist.merger.ViewModels" x:Key="Locator" />
-            <SolidColorBrush x:Key="PrimaryForeground" Color="#ffffff" Opacity=".87"/>
-            <SolidColorBrush x:Key="SecondaryForeground" Color="#ffffff" Opacity=".6"/>
+            
+            <!--override defaults-->
             <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#3C3C43" Opacity=".6"/>
             <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="White" Opacity=".03"/>
             <SolidColorBrush x:Key="PlaceHolderTextThemeBrush" Color="WhiteSmoke" Opacity=".3"/>
             <SolidColorBrush x:Key="ApplicationPageBackgroundThemeBrush" Color="#010101"/>
             <SolidColorBrush x:Key="InputBoxHoverThemeBrush" Color="#767680" Opacity="0.1"/>
+            <SolidColorBrush x:Key="InputBoxThemeBrush" Color="#767680" Opacity="0.24"/>
+
+            <SolidColorBrush x:Key="PrimaryForeground" Color="#ffffff" Opacity=".87"/>
+            <SolidColorBrush x:Key="SecondaryForeground" Color="#ffffff" Opacity=".6"/>
+            
             <SolidColorBrush x:Key="BrandColorThemeBrush" Color="#1f299c"/>
-            <SolidColorBrush x:Key="BrandColorThemeBrushSecondary" Color="#82aaff"/>
             <Color x:Key="BrandColorThemeColor">#1f299c</Color>
+            
+            <SolidColorBrush x:Key="PrimaryThemeBrush" Color="#1f299c"/>
+            <SolidColorBrush x:Key="SecondaryThemeBrush" Color="#82aaff"/>
+            <SolidColorBrush x:Key="DangerThemeBrush" Color="#C62828"/>
+            <SolidColorBrush x:Key="WarningThemeBrush" Color="#FDA500"/>
+            <SolidColorBrush x:Key="SuccessThemeBrush" Color="#00897b"/>
+            
             <Color x:Key="Status-bar-color">#000</Color>
             <Color x:Key="Status-bar-foreground">#FFDDDDDD</Color>
             <SolidColorBrush x:Key="ItemBackgroundThemeBrush" Color="#161618"/>
             <SolidColorBrush x:Key="SecondaryItemBackgroundThemeBrush" Color="#1D1D20"/>
-            <SolidColorBrush x:Key="InputBoxThemeBrush" Color="#767680" Opacity="0.24"/>
             <AcrylicBrush x:Key="LoadingBackgroundThemeBrush"
                                 BackgroundSource="Backdrop"
                                 TintColor="#000000" Opacity="0.7"

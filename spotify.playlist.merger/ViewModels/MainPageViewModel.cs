@@ -25,11 +25,12 @@ namespace spotify.playlist.merger.ViewModels
         private async void Initialize()
         {
             IsLoading = true;
-            DataSource.Current.Initialize();
-            Profile = await DataSource.Current.GetProfile();
+
             ClientID = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
             ClientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
-            if (Profile != null && Profile.IsPremium)
+            await DataSource.Current.Initialize();
+            Profile = await DataSource.Current.GetProfile();
+            if (Profile != null)
             {
                 ShowLogin = false;
                 PopulateFilterCollection();
@@ -149,7 +150,7 @@ namespace spotify.playlist.merger.ViewModels
 
         #region Fields
 
-        private bool _showLogin = true;
+        private bool _showLogin;
         public bool ShowLogin
         {
             get => _showLogin;
@@ -183,6 +184,17 @@ namespace spotify.playlist.merger.ViewModels
         }
 
         private string _base64JpegData;
+
+        private bool _showImageSizeError;
+        public bool ShowImageSizeError
+        {
+            get => _showImageSizeError;
+            set
+            {
+                _showImageSizeError = value;
+                RaisePropertyChanged("ShowImageSizeError");
+            }
+        }
 
         private bool _isLoading;
         public bool IsLoading
@@ -427,9 +439,22 @@ namespace spotify.playlist.merger.ViewModels
                         var file = await Helpers.ImageFileDialogPicker();
                         if (file != null)
                         {
-                            //load Base64JpegData
-                            MergeImageFilePath = file.Path;
-                            _base64JpegData = await Helpers.ImageToBase64(file);
+                            //max size 4mb
+                            var props = await file.GetBasicPropertiesAsync();
+                            var sizeInMB = props.Size / 1024 / 1024;
+                            if (sizeInMB < 4)
+                            {
+                                ShowImageSizeError = false;
+                                //load Base64JpegData
+                                MergeImageFilePath = file.Path;
+                                _base64JpegData = await Helpers.ImageToBase64(file);
+                            }
+                            else
+                            {
+                                ShowImageSizeError = true;
+                                MergeImageFilePath = null;
+                                _base64JpegData = null;
+                            }
                         }
 
                         IsLoading = false;
@@ -468,6 +493,11 @@ namespace spotify.playlist.merger.ViewModels
                             SelectedPlaylistCollection.Add(item);
                         else if (item.IsSelected && SelectedPlaylistCollection.Where(c => c.Id == item.Id).FirstOrDefault() != null)
                             SelectedPlaylistCollection.Remove(item);
+
+                        foreach (var it in SelectedPlaylistCollection)
+                        {
+                            it.PositionAlt = SelectedPlaylistCollection.IndexOf(it) + 1;
+                        }
                     });
                 }
                 return _playlistItemClickCommand;
@@ -485,6 +515,11 @@ namespace spotify.playlist.merger.ViewModels
                     {
                         if (SelectedPlaylistCollection.Where(c => c.Id == item.Id).FirstOrDefault() != null)
                             SelectedPlaylistCollection.Remove(item);
+
+                        foreach (var it in SelectedPlaylistCollection)
+                        {
+                            it.PositionAlt = SelectedPlaylistCollection.IndexOf(it) + 1;
+                        }
                     });
                 }
                 return _unselectPlaylistCommand;
@@ -667,11 +702,11 @@ namespace spotify.playlist.merger.ViewModels
                 }
 
                 //update position
-                foreach (var item in e.OldItems)
-                {
-                    if (item is Playlist playlist)
-                        playlist.PositionAlt = SelectedPlaylistCollection.IndexOf(playlist) + 1;
-                }
+                //foreach (var item in e.OldItems)
+                //{
+                //    if (item is Playlist playlist)
+                //        playlist.PositionAlt = SelectedPlaylistCollection.IndexOf(playlist) + 1;
+                //}
             }
 
             if(e.NewItems != null)
@@ -681,7 +716,7 @@ namespace spotify.playlist.merger.ViewModels
                     if (item is Playlist playlist)
                     {
                         playlist.IsSelected = true;
-                        playlist.PositionAlt = SelectedPlaylistCollection.IndexOf(playlist) + 1;
+                        
                     }
                 }
             }

@@ -6,6 +6,7 @@
                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+               xmlns:extensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
                xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
                mc:Ignorable="d"
                RequestedTheme="Dark" 
@@ -251,7 +252,6 @@
             </Setter>
         </Style>
         <Style x:Key="PrimaryDialogButtonStyle1" TargetType="Button">
-            <Setter Property="Background" Value="#00897b"/>
             <Setter Property="BackgroundSizing" Value="OuterBorderEdge"/>
             <Setter Property="Foreground" Value="{ThemeResource ButtonForeground}"/>
             <Setter Property="BorderBrush" Value="{ThemeResource ButtonBorderBrush}"/>
@@ -386,6 +386,7 @@
                            Margin="0 0 0 8"
                            Style="{StaticResource SubtitleTextBlockStyle}"/>
                 <Button Height="36"
+                        extensions:Mouse.Cursor="Hand"
                         Command="{Binding MergeImagePickerCommand}"
                         CornerRadius="10"
                         HorizontalAlignment="Stretch"
@@ -402,7 +403,16 @@
                         <FontIcon Grid.Column="1" FontFamily="Segoe MDL2 Assets" Glyph="&#xE838;" FontSize="16"/>
                     </Grid>
                 </Button>
-                <TextBlock Text="Image must be jpg and have a max size of 4MB." FontSize="12" Foreground="{ThemeResource SecondaryForeground}" Margin="0 4 0 0"/>
+                <Grid Height="24"
+                      Margin="0, 4, 0, 0">
+                    <Grid Height="24">
+                        <TextBlock Text="Image must be jpg and have a max size of 4MB." VerticalAlignment="Center" FontSize="12" Foreground="{ThemeResource SecondaryForeground}"/>
+                    </Grid>
+                    <Grid Height="24" Background="{ThemeResource ItemBackgroundThemeBrush}"
+                          Visibility="{Binding ShowImageSizeError, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="Please select a smaller file (less than 4MB)" Foreground="{ThemeResource WarningThemeBrush}" VerticalAlignment="Center" FontSize="12"/>
+                    </Grid>
+                </Grid>
                 <Grid Grid.Row="2"
                   Height="36"
                   Margin="0,12,0,0">
@@ -421,6 +431,8 @@
                 </Grid.ColumnDefinitions>
                 <Grid>
                     <Button Content="Save and merge"
+                            Background="{ThemeResource SuccessThemeBrush}"
+                            extensions:Mouse.Cursor="Hand"
                             Command="{Binding MergeSelectedPlaylistCommand}"
                             HorizontalAlignment="Stretch"
                             Foreground="{ThemeResource PrimaryForeground}"
@@ -430,6 +442,7 @@
                 </Grid>
                 <Button Content="Cancel" 
                     Grid.Column="2"
+                        extensions:Mouse.Cursor="Hand"
                         Foreground="{ThemeResource PrimaryForeground}"
                     Command="{Binding CancelMergeCommand}"
                     HorizontalAlignment="Stretch"

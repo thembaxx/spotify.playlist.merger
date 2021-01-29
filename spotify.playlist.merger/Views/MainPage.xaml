@@ -365,7 +365,7 @@
                                 <StackPanel Orientation="Horizontal"
                                             Height="44"
                                             Margin="0,0,0,16">
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;" Margin="0,0,12,0" VerticalAlignment="Center" Foreground="{ThemeResource BrandColorThemeBrushSecondary}"/>
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;" Margin="0,0,12,0" VerticalAlignment="Center" Foreground="{ThemeResource SecondaryThemeBrush}"/>
                                     <TextBlock Text="Settings"
                                                FontSize="16"
                                                FontWeight="SemiBold"
@@ -615,7 +615,7 @@
                   Margin="0, 8, 16, 0">
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
-                    <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource BrandColorThemeBrushSecondary}" Margin="0,0,8,0"/>
+                    <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource SecondaryThemeBrush}" Margin="0,0,8,0"/>
                     <TextBlock FontSize="14"
                                Foreground="{ThemeResource SecondaryForeground}"
                                Margin="0,0,4,0"
@@ -972,7 +972,7 @@
                         CornerRadius="3"
                         IsEnabled="{Binding CanMerge}"
                         Command="{Binding ShowMergeDialogCommand}"
-                        Background="{ThemeResource BrandColorThemeBrush}"
+                        Background="{ThemeResource PrimaryThemeBrush}"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         Style="{StaticResource ButtonRevealStyle}"
@@ -1000,7 +1000,7 @@
                 <Button x:Name="UnfollowButton"
                         extensions:Mouse.Cursor="Hand"
                         Grid.Column="2"
-                        Background="#C62828"
+                        Background="{ThemeResource DangerThemeBrush}"
                         FontWeight="SemiBold"
                         Foreground="{ThemeResource PrimaryForeground}"
                         Command="{Binding UnfollowSelectedCommand}"
@@ -1058,26 +1058,32 @@
                       TintOpacity="0.75"
                       BlurAmount="12"/>
             </Grid.Background>
-            <StackPanel MaxWidth="220" VerticalAlignment="Center">
+            <StackPanel MaxWidth="300" VerticalAlignment="Center">
                 <TextBlock Text="Connect the app with your Spotify account to continue." 
-                           FontSize="16" 
+                           FontSize="24" 
+                           FontFamily="Segoe UI"
                            TextAlignment="Center"
+                           HorizontalAlignment="Left"
                            TextWrapping="WrapWholeWords"/>
-                <Button RequestedTheme="Dark" 
-                        Background="{ThemeResource BrandColorThemeBrush}"
-                        Margin="0 12" 
-                        HorizontalAlignment="Center"
-                        Command="{Binding ConnectSpotifyCommand}"
-                        Padding="16 0 10 2" 
-                        CornerRadius="10" 
-                        Height="36"
+                    <Button RequestedTheme="Dark" 
+                            Background="White"
+                            Margin="0 24" 
+                            FontSize="18"
+                            Foreground="#010101"
+                            HorizontalAlignment="Center"
+                            Command="{Binding ConnectSpotifyCommand}"
+                            Padding="16 0 24 0" 
+                            CornerRadius="18" 
+                            Height="48"
+                            Width="250"
                         IsEnabled="{Binding IsLoading, Converter={StaticResource BoolNegationConverter}}">
                     <StackPanel Orientation="Horizontal">
-                        <Image Height="16" 
+                        <Image Height="24" 
                                VerticalAlignment="Center"
-                               Margin="0 0 8 0"
-                               Source="/Assets/Spotify_Icon_RGB_White.png"/>
-                        <TextBlock Text="Connect Spotify Premium"
+                               Margin="0 0 12 0"
+                               Source="/Assets/Spotify_Icon_RGB_Green.png"/>
+                        <TextBlock Text="Connect Spotify"
+                                   FontWeight="SemiBold"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
