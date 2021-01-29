@@ -861,6 +861,7 @@ namespace spotify.playlist.merger.ViewModels
                 }
             }
 
+            TotalTracks = _filteredPlaylistCollection.Sum(c => c.Count);
             UpdateItemPosition();
         }
 

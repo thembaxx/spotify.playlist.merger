@@ -18,6 +18,12 @@
     <Page.Resources>
         <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:EmptyStringToObjectConverter x:Key="EmptyStringToObjectConverter" 
+                                                 EmptyValue="Collapsed"
+                                                 NotEmptyValue="Visible"/>
+        <converters:EmptyStringToObjectConverter x:Key="EmptyStringToObjectInverseConverter" 
+                                                 EmptyValue="Visible"
+                                                 NotEmptyValue="Collapsed"/>
         <Style x:Key="AutoSuggestBoxTextBoxStyle" TargetType="TextBox">
             <Setter Property="MinWidth" Value="0"/>
             <Setter Property="MinHeight" Value="0"/>
@@ -613,7 +619,8 @@
                   Grid.Row="1"
                   Height="24"
                   Margin="0, 8, 16, 0">
-                <StackPanel Orientation="Horizontal"
+                <StackPanel Orientation="Horizontal" 
+                            Visibility="{Binding SearchText, Converter={StaticResource EmptyStringToObjectInverseConverter}}"
                             VerticalAlignment="Center">
                     <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource SecondaryThemeBrush}" Margin="0,0,8,0"/>
                     <TextBlock FontSize="14"
@@ -643,6 +650,47 @@
                     <TextBlock FontSize="14"
                                Foreground="{ThemeResource SecondaryForeground}"
                                Text="in your library."/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding SearchText, Converter={StaticResource EmptyStringToObjectConverter}}">
+                    <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource SecondaryThemeBrush}" Margin="0,0,8,0"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource SecondaryForeground}"
+                               Margin="0,0,4,0"
+                               Text="Showing"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource PrimaryForeground}"
+                               Margin="0,0,2,0"
+                               Text="{Binding AdvancedCollectionView.Count, FallbackValue=0}"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource PrimaryForeground}"
+                               Margin="0,0,4,0"
+                               Text="playlists"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource SecondaryForeground}"
+                               Margin="0,0,4,0"
+                               Text="with"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource PrimaryForeground}"
+                               Margin="0,0,2,0"
+                               Text="{Binding TotalTracks, FallbackValue=0}"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource PrimaryForeground}"
+                               Margin="0,0,4,0"
+                               Text="tracks"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource SecondaryForeground}"
+                               Margin="0,0,2,0"
+                               Text="for “"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource SecondaryThemeBrush}"
+                               Margin="0,0,2,0"
+                               Text="{Binding SearchText, FallbackValue=fk}"/>
+                    <TextBlock FontSize="14"
+                               Foreground="{ThemeResource SecondaryForeground}"
+                               Margin="0,0,0,0"
+                               Text="”"/>
                 </StackPanel>
             </Grid>
             <Grid x:Name="MainContent"
