@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.System;
 using Windows.UI.Xaml.Controls;
 
 namespace spotify.playlist.merger.Models
@@ -77,5 +78,71 @@ namespace spotify.playlist.merger.Models
                 return null;
             }
         }
+
+        #region Playback
+
+        public static async Task<bool> OpenSpotifyAppAsync(string url, string webUrl)
+        {
+            //"packageFamilyName": "SpotifyAB.SpotifyMusic_zpdnekdrzrea0",
+            //"packageIdentityName": "SpotifyAB.SpotifyMusic",
+            //"windowsPhoneLegacyId": "caac1b9d-621b-4f96-b143-e10e1397740a",
+            //"publisherCertificateName": "CN=453637B3-4E12-4CDF-B0D3-2A3C863BF6EF"
+            try
+            {
+                ContentDialog dialog = new ContentDialog()
+                {
+                    Title = "No active devices",
+                    Content = "There are currently no active devices, open on spotify?",
+                    CloseButtonText = "Cancel",
+                    PrimaryButtonText = "Open Spotify App",
+                    SecondaryButtonText = "Open Web player"
+                };
+
+                var result = await dialog.ShowAsync();
+                if (result == ContentDialogResult.Primary)
+                {
+                    var uri = new Uri(url);
+                    //Set the recommended app
+                    var options = new LauncherOptions
+                    {
+                        PreferredApplicationPackageFamilyName = "SpotifyAB.SpotifyMusic_zpdnekdrzrea0",
+                        PreferredApplicationDisplayName = "Spotify Music"
+                    };
+                    return await Launcher.LaunchUriAsync(uri, options);
+                }
+                else if (result == ContentDialogResult.Secondary && !string.IsNullOrEmpty(webUrl))
+                {
+                    return await Launcher.LaunchUriAsync(new Uri(webUrl));
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                DisplayDialog("Error eccured", "Could not open link, please try again");
+                return false;
+            }
+        }
+
+        public static async Task<bool> OpenInSpotifyAppAsync(Uri uri)
+        {
+            try
+            {
+                //Set the recommended app
+                var options = new LauncherOptions
+                {
+                    PreferredApplicationPackageFamilyName = "SpotifyAB.SpotifyMusic_zpdnekdrzrea0",
+                    PreferredApplicationDisplayName = "Spotify Music"
+                };
+                return await Launcher.LaunchUriAsync(uri, options);
+            }
+            catch (Exception)
+            {
+                DisplayDialog("Error eccured", "Could not open link, please try again");
+                return false;
+            }
+        }
+
+        #endregion
+
     }
 }

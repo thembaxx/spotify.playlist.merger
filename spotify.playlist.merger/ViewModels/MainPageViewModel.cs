@@ -22,24 +22,68 @@ namespace spotify.playlist.merger.ViewModels
             Initialize();
         }
 
-        public async void Initialize()
+        private async void Initialize()
         {
             IsLoading = true;
-            DataSource.Current.Initialize();
+
+            ClientID = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
+            ClientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
+            await DataSource.Current.Initialize();
             Profile = await DataSource.Current.GetProfile();
-            if (Profile != null && Profile.IsPremium)
+            if (Profile != null)
             {
+                ShowLogin = false;
                 PopulateFilterCollection();
                 await DataSource.Current.GetPlaylists();
                 SelectedPlaylistCollection.CollectionChanged += SelectedPlaylistCollection_CollectionChanged;
-                
-            } else
+
+            }
+            else if (Profile != null)
             {
                 //show message that this needs a premium account
                 Helpers.DisplayDialog("Premium account required", "A premium account is required to use the features provided by this app.");
+                //logout
+                DataSource.Current.Logout();
+                Profile = null;
+                ShowLogin = true;
+            } else if (string.IsNullOrEmpty(ClientID) || string.IsNullOrEmpty(ClientSecret))
+            {
+                //show settings
+                Messenger.Default.Send(new MessengerHelper
+                {
+                    Action = MessengerAction.ShowSettings,
+                });
+                //check client id and secret
+                ShowLogin = true;
+            } 
+            else
+            {
+                ShowLogin = true;
             }
             IsLoading = false;
         }
+
+        private void Refresh(bool init = true)
+        {
+            IsLoading = true;
+
+            Profile = null;
+            ClientID = null;
+            ClientSecret = null;
+            ResetCreatePlaylistDialog();
+            UnfollowAfterMerge = false;
+            _playlistCollectionCopy.Clear();
+            _filteredPlaylistCollection.Clear();
+            AdvancedCollectionView = null;
+            TotalTracks = 0;
+            SelectedPlaylistCollection.CollectionChanged -= SelectedPlaylistCollection_CollectionChanged;
+            SelectedPlaylistCollection.Clear();
+            PlaylistCategoryCollection.Clear();
+            SelectedPlaylistCategory = null;
+            if(init) Initialize();
+
+            IsLoading = false;
+        } 
 
         private void RegisterMessenger()
         {
@@ -57,7 +101,7 @@ namespace spotify.playlist.merger.ViewModels
             }
         }
 
-        private void ManageDialogResult(DialogResult result)
+        private async void ManageDialogResult(DialogResult result)
         {
             if (result.ResultType == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
             {
@@ -66,13 +110,93 @@ namespace spotify.playlist.merger.ViewModels
                     case DialogType.Merge:
                         MergePlaylist();
                         break;
+                    case DialogType.Unfollow:
+                        IsRightBarBusy = true;
+                        var playlistIds = SelectedPlaylistCollection.Select(c => c.Id).ToList();
+                        var succesfulItems = await DataSource.Current.UnfollowSpotifyPlaylist(playlistIds);
+                        if (succesfulItems != null)
+                        {
+                            foreach (var id in succesfulItems)
+                            {
+                                var match = playlistIds.Find(c => c == id);
+                                if (match != null)
+                                {
+                                    playlistIds.Remove(match);
+                                    var item = SelectedPlaylistCollection.Where(c => c.Id == id).FirstOrDefault();
+                                    if(item != null) SelectedPlaylistCollection.Remove(item);
+
+                                    item = _playlistCollectionCopy.Where(c => c.Id == id).FirstOrDefault();
+                                    if (item != null) _playlistCollectionCopy.Remove(item);
+                                    
+                                    item = _filteredPlaylistCollection.Where(c => c.Id == id).FirstOrDefault();
+                                    if (item != null) _filteredPlaylistCollection.Remove(item);
+
+                                    var it = AdvancedCollectionView.Where(c => ((Playlist)c).Id == id).FirstOrDefault();
+                                    if (it != null) AdvancedCollectionView.Remove(it);
+                                    UpdateItemPosition();
+                                }
+                            }
+                        }
+                        
+                        if (playlistIds.Count > 0)
+                        {
+                            //what to do about items that failed?
+                        }
+                        IsRightBarBusy = false;
+                        break;
                 }
+            }
+        }
+
+        #region Fields
+
+        private bool _showLogin;
+        public bool ShowLogin
+        {
+            get => _showLogin;
+            set
+            {
+                _showLogin = value;
+                RaisePropertyChanged("ShowLogin");
+            }
+        }
+
+        private string _clientSecret;
+        public string ClientSecret
+        {
+            get => _clientSecret;
+            set
+            {
+                _clientSecret = value;
+                RaisePropertyChanged("ClientSecret");
+            }
+        }
+
+        private string _clientID;
+        public string ClientID
+        {
+            get => _clientID;
+            set
+            {
+                _clientID = value;
+                RaisePropertyChanged("ClientID");
             }
         }
 
         private string _base64JpegData;
 
-        private bool _isLoading = false;
+        private bool _showImageSizeError;
+        public bool ShowImageSizeError
+        {
+            get => _showImageSizeError;
+            set
+            {
+                _showImageSizeError = value;
+                RaisePropertyChanged("ShowImageSizeError");
+            }
+        }
+
+        private bool _isLoading;
         public bool IsLoading
         {
             get => _isLoading;
@@ -80,6 +204,17 @@ namespace spotify.playlist.merger.ViewModels
             {
                 _isLoading = value;
                 RaisePropertyChanged("IsLoading");
+            }
+        }
+
+        private bool _isRightBarBusy;
+        public bool IsRightBarBusy
+        {
+            get => _isRightBarBusy;
+            set
+            {
+                _isRightBarBusy = value;
+                RaisePropertyChanged("IsRightBarBusy");
             }
         }
 
@@ -157,6 +292,39 @@ namespace spotify.playlist.merger.ViewModels
             }
         }
 
+        private bool _canPlay;
+        public bool CanPlay
+        {
+            get => _canPlay;
+            set
+            {
+                _canPlay = value;
+                RaisePropertyChanged("CanPlay");
+            }
+        }
+
+        private bool _canMerge;
+        public bool CanMerge
+        {
+            get => _canMerge;
+            set
+            {
+                _canMerge = value;
+                RaisePropertyChanged("CanMerge");
+            }
+        }
+
+        private int _totalTracks;
+        public int TotalTracks
+        {
+            get => _totalTracks;
+            set
+            {
+                _totalTracks = value;
+                RaisePropertyChanged("TotalTracks");
+            }
+        }
+
         private PlaylistCategory _selectedPlaylistCategory;
         public PlaylistCategory SelectedPlaylistCategory
         {
@@ -169,6 +337,34 @@ namespace spotify.playlist.merger.ViewModels
             }
         }
 
+        #endregion
+
+        #region Commands
+
+        private RelayCommand _saveCredentialsCommand;
+        public RelayCommand SaveCredentialsCommand
+        {
+            get
+            {
+                if (_saveCredentialsCommand == null)
+                {
+                    _saveCredentialsCommand = new RelayCommand(() =>
+                    {
+                        if (!string.IsNullOrEmpty(ClientID))
+                        {
+                            Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_ID", ClientID);
+                        }
+
+                        if (!string.IsNullOrEmpty(ClientSecret))
+                        {
+                            Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_SECRET", ClientSecret);
+                        }
+                    });
+                }
+                return _saveCredentialsCommand;
+            }
+        }
+
         private RelayCommand _mergeCommand;
         public RelayCommand MergeCommand
         {
@@ -178,7 +374,7 @@ namespace spotify.playlist.merger.ViewModels
                 {
                     _mergeCommand = new RelayCommand(() =>
                     {
-                        //merge
+                        MergePlaylist();
                     });
                 }
                 return _mergeCommand;
@@ -194,11 +390,14 @@ namespace spotify.playlist.merger.ViewModels
                 {
                     _showMergeDialogCommand = new RelayCommand(() =>
                     {
-                        Messenger.Default.Send(new DialogManager
+                        if(SelectedPlaylistCollection != null && SelectedPlaylistCollection.Count > 0)
                         {
-                            Type = DialogType.CreatePlaylist,
-                            Action = DialogAction.Show,
-                        });
+                            Messenger.Default.Send(new DialogManager
+                            {
+                                Type = DialogType.Merge,
+                                Action = DialogAction.Show,
+                            });
+                        }
                     });
                 }
                 return _showMergeDialogCommand;
@@ -240,9 +439,22 @@ namespace spotify.playlist.merger.ViewModels
                         var file = await Helpers.ImageFileDialogPicker();
                         if (file != null)
                         {
-                            //load Base64JpegData
-                            MergeImageFilePath = file.Path;
-                            _base64JpegData = await Helpers.ImageToBase64(file);
+                            //max size 4mb
+                            var props = await file.GetBasicPropertiesAsync();
+                            var sizeInMB = props.Size / 1024 / 1024;
+                            if (sizeInMB < 4)
+                            {
+                                ShowImageSizeError = false;
+                                //load Base64JpegData
+                                MergeImageFilePath = file.Path;
+                                _base64JpegData = await Helpers.ImageToBase64(file);
+                            }
+                            else
+                            {
+                                ShowImageSizeError = true;
+                                MergeImageFilePath = null;
+                                _base64JpegData = null;
+                            }
                         }
 
                         IsLoading = false;
@@ -281,6 +493,11 @@ namespace spotify.playlist.merger.ViewModels
                             SelectedPlaylistCollection.Add(item);
                         else if (item.IsSelected && SelectedPlaylistCollection.Where(c => c.Id == item.Id).FirstOrDefault() != null)
                             SelectedPlaylistCollection.Remove(item);
+
+                        foreach (var it in SelectedPlaylistCollection)
+                        {
+                            it.PositionAlt = SelectedPlaylistCollection.IndexOf(it) + 1;
+                        }
                     });
                 }
                 return _playlistItemClickCommand;
@@ -298,6 +515,11 @@ namespace spotify.playlist.merger.ViewModels
                     {
                         if (SelectedPlaylistCollection.Where(c => c.Id == item.Id).FirstOrDefault() != null)
                             SelectedPlaylistCollection.Remove(item);
+
+                        foreach (var it in SelectedPlaylistCollection)
+                        {
+                            it.PositionAlt = SelectedPlaylistCollection.IndexOf(it) + 1;
+                        }
                     });
                 }
                 return _unselectPlaylistCommand;
@@ -326,6 +548,120 @@ namespace spotify.playlist.merger.ViewModels
             }
         }
 
+        private RelayCommand _playSelectedCommand;
+        public RelayCommand PlaySelectedCommand
+        {
+            get
+            {
+                if (_playSelectedCommand == null)
+                {
+                    _playSelectedCommand = new RelayCommand(async() =>
+                    {
+                        IsRightBarBusy = true;
+
+                        var playlistIds = SelectedPlaylistCollection.Select(c => c.Id).ToList();
+                        var tracks = new List<string>();
+                        foreach (var item in playlistIds)
+                        {
+                            var items = await DataSource.Current.GetTrackIds(item);
+                            if (items != null)
+                            {
+                                foreach (var id in items)
+                                {
+                                    if (tracks.Find(c => c == id) == null) tracks.Add(id);
+                                }
+                            }
+                        }
+                        await DataSource.Current.PlaySpotifyMedia(tracks);
+
+
+                        IsRightBarBusy = false;
+                    });
+                }
+                return _playSelectedCommand;
+            }
+        }
+
+        private RelayCommand _unfollowSelectedCommand;
+        public RelayCommand UnfollowSelectedCommand
+        {
+            get
+            {
+                if (_unfollowSelectedCommand == null)
+                {
+                    _unfollowSelectedCommand = new RelayCommand(() =>
+                    {
+                        Messenger.Default.Send(new DialogManager
+                        {
+                            Type = DialogType.Unfollow,
+                            Action = DialogAction.Show,
+                            Title = "Unfollow playlists?",
+                            Message = "Are you sure you want to unfollow the selected playlists?",
+                            PrimaryButtonText = "Unfollow",
+                            SecondaryButtonText = "Cancel"
+                        });
+                    });
+                }
+                return _unfollowSelectedCommand;
+            }
+        }
+
+        private RelayCommand _refreshCommand;
+        public RelayCommand RefreshCommand
+        {
+            get
+            {
+                if (_refreshCommand == null)
+                {
+                    _refreshCommand = new RelayCommand(() =>
+                    {
+                        Refresh();
+                    });
+                }
+                return _refreshCommand;
+            }
+        }
+
+        private RelayCommand _logoutCommand;
+        public RelayCommand LogoutCommand
+        {
+            get
+            {
+                if (_logoutCommand == null)
+                {
+                    _logoutCommand = new RelayCommand(() =>
+                    {
+                        DataSource.Current.Logout();
+                        Refresh();
+                        ShowLogin = true;
+                    });
+                }
+                return _logoutCommand;
+            }
+        }
+
+        private RelayCommand _connectSpotifyCommand;
+        public RelayCommand ConnectSpotifyCommand
+        {
+            get
+            {
+                if (_connectSpotifyCommand == null)
+                {
+                    _connectSpotifyCommand = new RelayCommand(() =>
+                    {
+                        IsLoading = true;
+                        Initialize();
+                        IsLoading = false;
+                    });
+                }
+                return _connectSpotifyCommand;
+            }
+        }
+
+        #endregion
+
+        #region Collections
+
         private AdvancedCollectionView _advancedCollectionView;
         public AdvancedCollectionView AdvancedCollectionView
         {
@@ -351,6 +687,8 @@ namespace spotify.playlist.merger.ViewModels
         private void SelectedPlaylistCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             HasSelectedPlaylists = (SelectedPlaylistCollection.Count > 0);
+            CanPlay = (SelectedPlaylistCollection.Count > 0);
+            CanMerge = (SelectedPlaylistCollection.Count > 1);
 
             if(e.OldItems != null)
             {
@@ -362,6 +700,13 @@ namespace spotify.playlist.merger.ViewModels
                         playlist.PositionAlt = 0;
                     }
                 }
+
+                //update position
+                //foreach (var item in e.OldItems)
+                //{
+                //    if (item is Playlist playlist)
+                //        playlist.PositionAlt = SelectedPlaylistCollection.IndexOf(playlist) + 1;
+                //}
             }
 
             if(e.NewItems != null)
@@ -371,7 +716,7 @@ namespace spotify.playlist.merger.ViewModels
                     if (item is Playlist playlist)
                     {
                         playlist.IsSelected = true;
-                        playlist.PositionAlt = SelectedPlaylistCollection.IndexOf(playlist) + 1;
+                        
                     }
                 }
             }
@@ -397,6 +742,10 @@ namespace spotify.playlist.merger.ViewModels
                 RaisePropertyChanged("FilterCollection");
             }
         }
+
+        #endregion
+
+        #region Methods
 
         private void PopulateFilterCollection()
         {
@@ -511,6 +860,9 @@ namespace spotify.playlist.merger.ViewModels
                     }
                 }
             }
+
+            TotalTracks = _filteredPlaylistCollection.Sum(c => c.Count);
+            UpdateItemPosition();
         }
 
         private async void MergePlaylist()
@@ -534,6 +886,7 @@ namespace spotify.playlist.merger.ViewModels
                         Type = DialogType.Merge,
                         Action = DialogAction.Hide
                     });
+
                     ResetCreatePlaylistDialog();
                     var selected = SelectedPlaylistCollection.ToList();
                     foreach (var item in selected)
@@ -543,7 +896,9 @@ namespace spotify.playlist.merger.ViewModels
                     }
 
                     //add to first position, scroll to top
-                    AddToCollection(new List<Playlist> { playlist });
+                    AdvancedCollectionView.Insert(0, playlist);
+                    _playlistCollectionCopy.Add(playlist);
+                    UpdateItemPosition();
                 }
             }
 
@@ -576,6 +931,7 @@ namespace spotify.playlist.merger.ViewModels
             }
 
             _playlistCollectionCopy.AddRange(playlists);
+            TotalTracks = _playlistCollectionCopy.Sum(c => c.Count);
             UpdateItemPosition();
         }
 
@@ -589,5 +945,7 @@ namespace spotify.playlist.merger.ViewModels
                 }
             }
         }
+
+        #endregion
     }
 }

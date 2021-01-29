@@ -14,15 +14,24 @@ namespace spotify.playlist.merger.Data
 {
     public class SpotifyApi
     {
-        public static SpotifyClient SpotifyClient { get; set; }
-        private static PrivateUser _user;
-
-        #region Authentication
 
         private static readonly string CredentialsPath = ApplicationData.Current.LocalFolder.Path + "\\credentials.json";
         private static string clientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
         private static string clientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
         private static readonly EmbedIOAuthServer _server = new EmbedIOAuthServer(new Uri("http://localhost:5000/callback"), 5000);
+
+        public static SpotifyClient SpotifyClient { get; set; }
+        private static PrivateUser _user;
+
+        public static bool LogOut()
+        {
+            SpotifyClient = null;
+            _user = null;
+            File.Delete(CredentialsPath);
+            return true;
+        }
+
+        #region Authentication
 
         /// <summary>
         /// Checks if user is authenticated
@@ -30,11 +39,11 @@ namespace spotify.playlist.merger.Data
         /// <returns>
         /// Null if failed, Profile if successful
         /// </returns>
-        public static async Task<PrivateUser> IsAuthenticated()
+        public static async Task<bool> IsAuthenticated()
         {
             //check if file with token exists, if it does not exist, login will be shown
             if (!File.Exists(CredentialsPath))
-                return null;
+                return false;
 
             var json = await File.ReadAllTextAsync(CredentialsPath);
             var token = JsonConvert.DeserializeObject<AuthorizationCodeTokenResponse>(json);
@@ -42,36 +51,43 @@ namespace spotify.playlist.merger.Data
             CheckCliendSecretId();
 
             if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(clientSecret))
-                return null;
+                return false;
 
             var authenticator = new AuthorizationCodeAuthenticator(clientId, clientSecret, token);
             authenticator.TokenRefreshed += (sender, tokenx) => File.WriteAllText(CredentialsPath, JsonConvert.SerializeObject(tokenx));
-
+            
             //might throw an error if user revoked access to their spotify account
             var config = SpotifyClientConfig.CreateDefault()
               .WithAuthenticator(authenticator);
-
+            
             SpotifyClient = new SpotifyClient(config);
             //try and get user profile
-            return await SpotifyClient.UserProfile.Current();
+            _user = await SpotifyClient.UserProfile.Current();
+            return (_user != null);
         }
 
-        public static async Task<SpotifyClient> GetSpotifyClientAsync()
+        private static async Task<bool> IsClientValid()
+        {
+            try
+            {
+                _user = await SpotifyClient.UserProfile.Current();
+                return (_user != null);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private static async Task<SpotifyClient> GetSpotifyClientAsync()
         {
             if (SpotifyClient == null)
                 await Authenticate();
 
-            //check if client is valid
-            try
-            {
-                await SpotifyClient.UserProfile.Current();
-                return SpotifyClient;
-            }
-            catch (Exception)
-            {
-                //error, try to re-authenticate
-                return await Authenticate();
-            }
+            if (clientId == null || clientSecret == null)
+                return null;
+
+            return SpotifyClient;
         }
 
         public static async Task<SpotifyClient> Authenticate()
@@ -155,9 +171,40 @@ namespace spotify.playlist.merger.Data
         /// </returns>
         public static async Task<PrivateUser> GetProfile()
         {
-            var spotify = await GetSpotifyClientAsync();
-            _user = await spotify.UserProfile.Current();
-            return _user;
+            try
+            {
+                if (_user != null)
+                {
+                    return _user;
+                }
+                else
+                {
+                    _user = await SpotifyClient.UserProfile.Current();
+                    return _user;
+                }
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if(SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+
+                if (SpotifyClient != null && _user != null)
+                    return _user;
+                else if (SpotifyClient != null && _user == null)
+                {
+                    _user = await SpotifyClient.UserProfile.Current();
+                    return _user;
+                }
+                return null;
+            }
         }
 
         /// <summary>
@@ -172,24 +219,45 @@ namespace spotify.playlist.merger.Data
         /// <returns></returns>
         public static async Task<FullPlaylist> CreateSpotifyPlaylist(string name, string description, IEnumerable<string> trackIds, string base64Jpg = null)
         {
-            var spotify = await GetSpotifyClientAsync();
+            FullPlaylist playlist = null;
             PlaylistCreateRequest request = new PlaylistCreateRequest(name);
             if (!string.IsNullOrEmpty(description)) request.Description = description;
-            var playlist = await spotify.Playlists.Create(_user.Id, request);
 
-            var plRequest = new PlaylistAddItemsRequest(trackIds.ToList());
-            await spotify.Playlists.AddItems(playlist.Id, plRequest);
+            try
+            {
+                playlist = await SpotifyClient.Playlists.Create(_user.Id, request);
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                playlist = await SpotifyClient.Playlists.Create(_user.Id, request);
+            }
+
+            if (SpotifyClient != null && playlist != null)
+            {
+                var plRequest = new PlaylistAddItemsRequest(trackIds.ToList());
+                await SpotifyClient.Playlists.AddItems(playlist.Id, plRequest);
+            }
 
             try
             {
                 if (!string.IsNullOrEmpty(base64Jpg))
-                    await spotify.Playlists.UploadCover(playlist.Id, base64Jpg); //how to handle image data thats > 256kb?
+                    await SpotifyClient.Playlists.UploadCover(playlist.Id, base64Jpg); //how to handle image data thats > 256kb?
             }
             catch (Exception)
             {
 
             }
-            return await spotify.Playlists.Get(playlist.Id);
+            return await SpotifyClient.Playlists.Get(playlist.Id);
         }
 
         public static async Task<Paging<SimplePlaylist>> GetInitialPlaylist(int limit)
@@ -199,8 +267,25 @@ namespace spotify.playlist.merger.Data
                 Limit = limit
             };
 
-            var spotify = await GetSpotifyClientAsync();
-            return await spotify.Playlists.CurrentUsers(request);
+            try
+            {
+                return await SpotifyClient.Playlists.CurrentUsers(request);
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+
+                return await SpotifyClient.Playlists.CurrentUsers(request);
+            }
         }
 
         /// <summary>
@@ -245,23 +330,128 @@ namespace spotify.playlist.merger.Data
                 Offset = startIndex
             };
 
-            var spotify = await GetSpotifyClientAsync();
-            var result = await spotify.Playlists.CurrentUsers(request);
-
-            return result.Items;
+            try
+            {
+                return (await SpotifyClient.Playlists.CurrentUsers(request)).Items;
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                return (SpotifyClient != null) ? (await SpotifyClient.Playlists.CurrentUsers(request)).Items : null;
+            }
         }
 
         public static async Task<Paging<PlaylistTrack<IPlayableItem>>> GetTracksPage(string id)
         {
-            var spotify = await GetSpotifyClientAsync();
-            var fullPlaylist = await spotify.Playlists.Get(id);
-            return fullPlaylist.Tracks;
+            try
+            {
+                return (await SpotifyClient.Playlists.Get(id)).Tracks;
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                return (SpotifyClient != null) ? (await SpotifyClient.Playlists.Get(id)).Tracks : null;
+            }
         }
 
         public static async Task<IList<PlaylistTrack<IPlayableItem>>> GetTracks(Paging<PlaylistTrack<IPlayableItem>> page)
+        {            
+            try
+            {
+                return await SpotifyClient.PaginateAll(page);
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                return (SpotifyClient != null) ? await SpotifyClient.PaginateAll(page) : null;
+            }
+        }
+
+        public static async Task<bool> PlayMedia(List<string> uris, int index = 0, bool shuffle = false)
+        {
+            PlayerResumePlaybackRequest request = new PlayerResumePlaybackRequest
+            {
+                Uris = uris,
+                OffsetParam = new PlayerResumePlaybackRequest.Offset { Position = index },
+            };
+
+            try
+            {
+                return await SpotifyClient.Player.ResumePlayback(request);
+
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                return (SpotifyClient != null) && await SpotifyClient.Player.ResumePlayback(request);
+
+            }
+        }
+
+        public static async Task<Paging<SavedTrack>> GetSavedTracks(int startIndex, int limit)
         {
             var spotify = await GetSpotifyClientAsync();
-            return await spotify.PaginateAll(page);
+            LibraryTracksRequest request = new LibraryTracksRequest
+            {
+                Offset = startIndex,
+                Limit = limit,
+            };
+
+            try
+            {
+                return await spotify.Library.GetTracks(request);
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                return (SpotifyClient != null) ? await spotify.Library.GetTracks(request) : null;
+
+            }
         }
     }
 

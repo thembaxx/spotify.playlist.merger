@@ -6,6 +6,7 @@
                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+               xmlns:extensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
                xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
                mc:Ignorable="d"
                RequestedTheme="Dark" 
@@ -251,13 +252,12 @@
             </Setter>
         </Style>
         <Style x:Key="PrimaryDialogButtonStyle1" TargetType="Button">
-            <Setter Property="Background" Value="{ThemeResource BrandColorThemeBrush}"/>
             <Setter Property="BackgroundSizing" Value="OuterBorderEdge"/>
             <Setter Property="Foreground" Value="{ThemeResource ButtonForeground}"/>
             <Setter Property="BorderBrush" Value="{ThemeResource ButtonBorderBrush}"/>
             <Setter Property="BorderThickness" Value="{ThemeResource ButtonBorderThemeThickness}"/>
             <Setter Property="Padding" Value="{StaticResource ButtonPadding}"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}"/>
@@ -330,10 +330,27 @@
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
             <StackPanel Margin="0 0 0 24">
-                <TextBlock Text="Merge" 
-                           Margin="0 0 0 24"
+                <StackPanel Orientation="Horizontal"
+                            Margin="0 0 0 24">
+                    <TextBlock Text="Merge" 
+                               Margin="0 0 4 0"
                            FontWeight="Medium"
+                           Foreground="{ThemeResource PrimaryForeground}"
                            Style="{StaticResource TitleTextBlockStyle}"/>
+                    <TextBlock Text="(" 
+                           FontWeight="Normal"
+                           Foreground="{ThemeResource SecondaryForeground}"
+                           Style="{StaticResource TitleTextBlockStyle}"/>
+                    <TextBlock Text="{Binding SelectedPlaylistCollection.Count, FallbackValue=0}" 
+                           Margin="0 0 4 0"
+                           FontWeight="Normal"
+                           Foreground="{ThemeResource SecondaryForeground}"
+                           Style="{StaticResource TitleTextBlockStyle}"/>
+                    <TextBlock Text="playlists)" 
+                           FontWeight="Normal"
+                           Foreground="{ThemeResource SecondaryForeground}"
+                           Style="{StaticResource TitleTextBlockStyle}"/>
+                </StackPanel>
                 <TextBox Style="{StaticResource PlaylistDialogTextBoxStyle}" x:Name="PlaylistNameTextBox"
                          Text="{Binding NewPlaylistName, Mode=TwoWay}"
                          CornerRadius="10"
@@ -358,17 +375,18 @@
                          Background="{ThemeResource SecondaryItemBackgroundThemeBrush}"
                          IsEnabled="{Binding IsLoading, Converter={StaticResource BoolNegationConverter}}"/>
 
-                <TextBlock Text="Playlist thumbnail (Optional)"
+                <TextBlock Text="Cover Image (Optional)"
                        FontSize="16"
-                       FontWeight="Medium"
+                           Foreground="{ThemeResource PrimaryForeground}"
                        Style="{StaticResource CaptionTextBlockStyle}"/>
-                <TextBlock Text="Spotify automatically generates an image based on the playlist contents if no image is provided." 
-                           FontSize="14"
-                           MaxWidth="300"
+                <TextBlock Text="Spotify will automatically generate one if none is provided." 
+                           FontSize="12"
+                           Foreground="{ThemeResource SecondaryForeground}"
                            HorizontalAlignment="Left"
                            Margin="0 0 0 8"
                            Style="{StaticResource SubtitleTextBlockStyle}"/>
                 <Button Height="36"
+                        extensions:Mouse.Cursor="Hand"
                         Command="{Binding MergeImagePickerCommand}"
                         CornerRadius="10"
                         HorizontalAlignment="Stretch"
@@ -381,11 +399,29 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="{Binding MergeImageFilePath, FallbackValue=Upload image from computer}" MaxWidth="250" Margin="0 0 12 0" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding MergeImageFilePath, FallbackValue=Upload image from computer}" Margin="0 0 12 0" TextTrimming="CharacterEllipsis" Foreground="{ThemeResource PlaceHolderTextThemeBrush}"/>
                         <FontIcon Grid.Column="1" FontFamily="Segoe MDL2 Assets" Glyph="&#xE838;" FontSize="16"/>
                     </Grid>
                 </Button>
-                <TextBlock Text="Image must be jpg and have a max size of 4MB." FontSize="12" Margin="0 4 0 0"/>
+                <Grid Height="24"
+                      Margin="0, 4, 0, 0">
+                    <Grid Height="24">
+                        <TextBlock Text="Image must be jpg and have a max size of 4MB." VerticalAlignment="Center" FontSize="12" Foreground="{ThemeResource SecondaryForeground}"/>
+                    </Grid>
+                    <Grid Height="24" Background="{ThemeResource ItemBackgroundThemeBrush}"
+                          Visibility="{Binding ShowImageSizeError, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="Please select a smaller file (less than 4MB)" Foreground="{ThemeResource WarningThemeBrush}" VerticalAlignment="Center" FontSize="12"/>
+                    </Grid>
+                </Grid>
+                <Grid Grid.Row="2"
+                  Height="36"
+                  Margin="0,12,0,0">
+                    <CheckBox Content="Unfollow selected playlists after merging?"
+                          IsChecked="{Binding UnfollowAfterMerge, Mode=TwoWay}"
+                          IsEnabled="{Binding CanMerge, FallbackValue=false}"
+                          HorizontalAlignment="Stretch" 
+                          Padding="8,6,0,0"/>
+                </Grid>
             </StackPanel>
             <Grid Height="36" Grid.Row="1">
                 <Grid.ColumnDefinitions>
@@ -395,14 +431,19 @@
                 </Grid.ColumnDefinitions>
                 <Grid>
                     <Button Content="Save and merge"
+                            Background="{ThemeResource SuccessThemeBrush}"
+                            extensions:Mouse.Cursor="Hand"
                             Command="{Binding MergeSelectedPlaylistCommand}"
                             HorizontalAlignment="Stretch"
+                            Foreground="{ThemeResource PrimaryForeground}"
                             VerticalAlignment="Stretch"
                             Style="{StaticResource PrimaryDialogButtonStyle1}"
                             IsEnabled="{Binding IsLoading, Converter={StaticResource BoolNegationConverter}}"/>
                 </Grid>
                 <Button Content="Cancel" 
                     Grid.Column="2"
+                        extensions:Mouse.Cursor="Hand"
+                        Foreground="{ThemeResource PrimaryForeground}"
                     Command="{Binding CancelMergeCommand}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"

@@ -5,6 +5,7 @@ using System;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -17,6 +18,7 @@ namespace spotify.playlist.merger.Views
     {
         public static MainPage Current;
         private readonly PlaylistDialog playlistDialog = null;
+        private ContentDialog _dialog = null;
 
         public MainPage()
         {
@@ -24,6 +26,7 @@ namespace spotify.playlist.merger.Views
             Current = this;
             Window.Current.SetTitleBar(DragGrid);
             Initialize();
+            playlistDialog = new PlaylistDialog();
             RegisterMessenger();
         }
 
@@ -65,6 +68,18 @@ namespace spotify.playlist.merger.Views
                     else
                         playlistDialog.Hide();
                     break;
+                case DialogType.Unfollow:
+                    _dialog = new ContentDialog
+                    {
+                        Title = manager.Title,
+                        Content = manager.Message,
+                        PrimaryButtonText = manager.PrimaryButtonText,
+                        SecondaryButtonText = manager.SecondaryButtonText,
+                        DefaultButton = ContentDialogButton.Primary
+                    };
+
+                    Messenger.Default.Send(new DialogResult(DialogType.Unfollow, await _dialog.ShowAsync(), manager.Item));
+                    break;
             }
         }
 
@@ -72,7 +87,8 @@ namespace spotify.playlist.merger.Views
         {
             switch (helper.Action)
             {
-                case MessengerAction.ScrollToItem:
+                case MessengerAction.ShowSettings:
+                    FlyoutBase.ShowAttachedFlyout(SettingsButton);
                     break;
             }
         }
