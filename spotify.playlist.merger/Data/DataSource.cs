@@ -45,7 +45,7 @@ namespace spotify.playlist.merger.Data
             }
             catch (Exception)
             {
-                Helpers.DisplayDialog("Authentication Error", "An error occured, please restart app.");
+                await Helpers.DisplayDialog("Authentication Error", "An error occured, please restart app.");
             }
         }
 
@@ -79,7 +79,7 @@ namespace spotify.playlist.merger.Data
             }
             catch (Exception e)
             {
-                Helpers.DisplayDialog("Error", e.Message);
+                await  Helpers.DisplayDialog("Error", e.Message);
                 return null;
             }
         }
@@ -136,7 +136,7 @@ namespace spotify.playlist.merger.Data
         /// The tracks to add to the newly created playlist (Optional).
         /// </param>
         /// <returns></returns>
-        private async Task<Playlist> CreateSpotifyPlaylist(string name, string description, IEnumerable<string> trackIds, string base64Jpg = null)
+        public async Task<Playlist> CreateSpotifyPlaylist(string name, string description, IEnumerable<string> trackIds, string base64Jpg = null)
         {
             try
             {
@@ -146,7 +146,20 @@ namespace spotify.playlist.merger.Data
             }
             catch (Exception)
             {
-                Helpers.DisplayDialog("Error", "An error occured while creating your playlist");
+                await Helpers.DisplayDialog("Error", "An error occured while creating your playlist");
+                return null;
+            }
+        }
+
+        public async Task<Playlist> UpdatePlaylist(string id, string name, string description, string base64Jpg)
+        {
+            try
+            {
+                var updatedPlaylist = await SpotifyApi.UpdatePlaylist(id, name, description, base64Jpg);
+                return (ConvertPlaylists(new List<FullPlaylist> { updatedPlaylist })).FirstOrDefault();
+            }
+            catch (Exception)
+            {
                 return null;
             }
         }
@@ -159,7 +172,7 @@ namespace spotify.playlist.merger.Data
             }
             catch (Exception)
             {
-                Helpers.DisplayDialog("Error", "An error occured while creating your playlist");
+                await Helpers.DisplayDialog("Error", "An error occured while creating your playlist");
                 return null;
             }
         }
@@ -212,11 +225,11 @@ namespace spotify.playlist.merger.Data
             }
         }
 
-        public async Task<bool> PlaySpotifyMedia(List<string> uris, int index = 0, bool shuffle = false)
+        public async Task<bool> PlaySpotifyMedia(List<string> uris, int index = 0)
         {
             try
             {
-                if (await SpotifyApi.PlayMedia(uris, index, shuffle))
+                if (await SpotifyApi.PlayMedia(uris, index))
                 {
                     return true;
                 }
@@ -238,6 +251,7 @@ namespace spotify.playlist.merger.Data
                 List<Playlist> results = new List<Playlist>();
                 User owner = null;
                 int itemsCount = 0;
+                string imgUrl = null;
                 PlaylistCategoryType type = PlaylistCategoryType.Default;
 
                 foreach (var item in playlists)
@@ -262,11 +276,12 @@ namespace spotify.playlist.merger.Data
                     }
 
                     if (item.Tracks != null && item.Tracks.Total.HasValue) itemsCount = item.Tracks.Total.Value;
+                    if (item.Images != null && item.Images.FirstOrDefault() != null) imgUrl = item.Images.FirstOrDefault().Url;
 
                     results.Add(new Playlist(item.Id,
                         item.Name,
                         item.Uri,
-                        item.Images.FirstOrDefault().Url,
+                        imgUrl,
                         item.Description,
                         itemsCount,
                         "0",
@@ -291,6 +306,7 @@ namespace spotify.playlist.merger.Data
                 List<Playlist> results = new List<Playlist>();
                 User owner = null;
                 int itemsCount = 0;
+                string imgUrl = null;
                 PlaylistCategoryType type = PlaylistCategoryType.Default;
 
                 foreach (var item in playlists)
@@ -313,11 +329,12 @@ namespace spotify.playlist.merger.Data
                         }
                     }
                     if (item.Tracks != null && item.Tracks.Total.HasValue) itemsCount = item.Tracks.Total.Value;
+                    if (item.Images != null && item.Images.FirstOrDefault() != null) imgUrl = item.Images.FirstOrDefault().Url;
 
                     results.Add(new Playlist(item.Id,
                         item.Name,
                         item.Uri,
-                        item.Images.FirstOrDefault().Url,
+                        imgUrl,
                         item.Description,
                         itemsCount,
                         "0",
@@ -345,7 +362,7 @@ namespace spotify.playlist.merger.Data
                 {
                     if (item.Track is FullTrack track)
                     {
-                        if (items.Find(c => c == track.Id) == null) items.Add(track.Uri);
+                        if (items.Find(c => c == track.Uri) == null) items.Add(track.Uri);
                     }
                 }
 
@@ -356,7 +373,7 @@ namespace spotify.playlist.merger.Data
                     {
                         if (item.Track is FullTrack track)
                         {
-                            if (items.Find(c => c == track.Id) == null) items.Add(track.Uri);
+                            if (items.Find(c => c == track.Uri) == null) items.Add(track.Uri);
                         }
                     }
                 }
@@ -364,8 +381,50 @@ namespace spotify.playlist.merger.Data
             }
             catch (Exception)
             {
-                Helpers.DisplayDialog("Error", "An error occured, please give it another shot and make sure your internet connection is working");
+                await Helpers.DisplayDialog("Error", "An error occured, please give it another shot and make sure your internet connection is working");
                 return null;
+            }
+        }
+
+        public async Task<List<string>> GetPlaylistTrackUris(string id, int total)
+        {
+            try
+            {
+                startIndex = 0;
+                var page = await SpotifyApi.GetPlaylistTrackUris(id, startIndex, limit);
+                if (page != null && page.Items != null)
+                {
+                    startIndex += page.Items.Count;
+                    List<string> items = new List<string>();
+                    foreach (var item in page.Items)
+                    {
+                        if (item.Track is FullTrack track)
+                        {
+                            if (!items.Contains(track.Uri)) items.Add(track.Uri);
+                        }
+                    }
+
+                    while(startIndex < total)
+                    {
+                        var _page = await SpotifyApi.GetPlaylistTrackUris(id, startIndex, limit);
+                        startIndex += page.Items.Count;
+
+                        foreach (var item in _page.Items)
+                        {
+                            if (item.Track is FullTrack track)
+                            {
+                                if(!items.Contains(track.Uri)) items.Add(track.Uri);
+                            }
+                        }
+                    }
+                    return items;
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 

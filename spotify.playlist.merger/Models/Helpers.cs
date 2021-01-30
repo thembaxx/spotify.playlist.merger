@@ -12,7 +12,7 @@ namespace spotify.playlist.merger.Models
 {
     public class Helpers
     {
-        public static async void DisplayDialog(string title, string message)
+        public static async Task DisplayDialog(string title, string message)
         {
             try
             {
@@ -118,7 +118,7 @@ namespace spotify.playlist.merger.Models
             }
             catch (Exception)
             {
-                DisplayDialog("Error eccured", "Could not open link, please try again");
+                await DisplayDialog("Error eccured", "Could not open link, please try again");
                 return false;
             }
         }
@@ -137,7 +137,7 @@ namespace spotify.playlist.merger.Models
             }
             catch (Exception)
             {
-                DisplayDialog("Error eccured", "Could not open link, please try again");
+                await DisplayDialog("Error eccured", "Could not open link, please try again");
                 return false;
             }
         }

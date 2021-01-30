@@ -149,13 +149,13 @@ namespace spotify.playlist.merger.Data
             {
                 if (string.IsNullOrEmpty(clientId))
                 {
-                    Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_ID", "");
+                    Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_ID", "de354ca4295141c6ad3a7a07086fbd32");
                     clientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
                 }
 
                 if (string.IsNullOrEmpty(clientSecret))
                 {
-                    Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_SECRET", "");
+                    Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_SECRET", "474efaae7656470b81a4266bebbfc4ad");
                     clientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
                 }
             }
@@ -217,9 +217,9 @@ namespace spotify.playlist.merger.Data
         /// The tracks to add to the newly created playlist (Optional).
         /// </param>
         /// <returns></returns>
-        public static async Task<FullPlaylist> CreateSpotifyPlaylist(string name, string description, IEnumerable<string> trackIds, string base64Jpg = null)
+        public static async Task<FullPlaylist> CreateSpotifyPlaylist(string name, string description, IEnumerable<string> trackUris, string base64Jpg = null)
         {
-            FullPlaylist playlist = null;
+            FullPlaylist playlist;
             PlaylistCreateRequest request = new PlaylistCreateRequest(name);
             if (!string.IsNullOrEmpty(description)) request.Description = description;
 
@@ -244,8 +244,15 @@ namespace spotify.playlist.merger.Data
 
             if (SpotifyClient != null && playlist != null)
             {
-                var plRequest = new PlaylistAddItemsRequest(trackIds.ToList());
-                await SpotifyClient.Playlists.AddItems(playlist.Id, plRequest);
+                var plRequest = new PlaylistAddItemsRequest(trackUris.ToList());
+                try
+                {
+                    await SpotifyClient.Playlists.AddItems(playlist.Id, plRequest);
+                }
+                catch (Exception)
+                {
+
+                }
             }
 
             try
@@ -258,6 +265,48 @@ namespace spotify.playlist.merger.Data
 
             }
             return await SpotifyClient.Playlists.Get(playlist.Id);
+        }
+
+        public static async Task<FullPlaylist> UpdatePlaylist(string id, string name, string description, string base64Jpg = null)
+        {
+            bool success;
+            PlaylistChangeDetailsRequest request = new PlaylistChangeDetailsRequest();
+
+            if (!string.IsNullOrEmpty(name)) request.Name = name;
+
+            if (!string.IsNullOrEmpty(description)) request.Description = description;
+
+            try
+            {
+                success = await SpotifyClient.Playlists.ChangeDetails(id, request);
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+
+                try
+                {
+                    if (!string.IsNullOrEmpty(base64Jpg))
+                        await SpotifyClient.Playlists.UploadCover(id, base64Jpg); //how to handle image data thats > 256kb?
+                }
+                catch (Exception)
+                {
+
+                }
+
+                success = await SpotifyClient.Playlists.ChangeDetails(id, request);
+            }
+
+            return (success) ? await SpotifyClient.Playlists.Get(id) : null;
         }
 
         public static async Task<Paging<SimplePlaylist>> GetInitialPlaylist(int limit)
@@ -376,6 +425,10 @@ namespace spotify.playlist.merger.Data
         {            
             try
             {
+            //    PlaylistGetItemsRequest r = new PlaylistGetItemsRequest
+            //{
+            //    Offset
+            //}
                 return await SpotifyClient.PaginateAll(page);
             }
             catch (Exception)
@@ -394,7 +447,36 @@ namespace spotify.playlist.merger.Data
             }
         }
 
-        public static async Task<bool> PlayMedia(List<string> uris, int index = 0, bool shuffle = false)
+        public static async Task<Paging<PlaylistTrack<IPlayableItem>>> GetPlaylistTrackUris(string id, int startIndex, int limit)
+        {
+            PlaylistGetItemsRequest r = new PlaylistGetItemsRequest
+            {
+                Offset = startIndex,
+                Limit = limit,
+            };
+
+            try
+            {
+                r.Fields.Add("items(track)");
+                return await SpotifyClient.Playlists.GetItems(id, r);
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                return (SpotifyClient != null) ? await SpotifyClient.Playlists.GetItems(id, r) : null;
+            }
+        }
+
+        public static async Task<bool> PlayMedia(List<string> uris, int index = 0)
         {
             PlayerResumePlaybackRequest request = new PlayerResumePlaybackRequest
             {

@@ -17,6 +17,9 @@
     
     <Page.Resources>
         <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
+        <converters:BoolToObjectConverter x:Key="BoolToVisibilityInverseConverter"
+                                          TrueValue="Collapsed"
+                                          FalseValue="Visible"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:EmptyStringToObjectConverter x:Key="EmptyStringToObjectConverter" 
                                                  EmptyValue="Collapsed"
@@ -747,7 +750,7 @@
                         </Grid>
                         <Grid Grid.Column="1"
                               Height="24"
-                              Margin="0,0,89,0">
+                              Margin="0,0,190,0">
                             <FontIcon Glyph="&#xEC4F;" 
                                       FontSize="16"
                                       Opacity=".3"/>
@@ -771,6 +774,7 @@
                                       extensions:Mouse.Cursor="Hand">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="auto"/>
                                         <ColumnDefinition Width="auto"/>
                                         <ColumnDefinition Width="auto"/>
                                     </Grid.ColumnDefinitions>
@@ -842,18 +846,91 @@
                                                    Foreground="{ThemeResource SecondaryForeground}"
                                                    Text="{Binding Count, FallbackValue=0}"/>
                                     </Grid>
-                                    <Grid Grid.Column="2"
-                                          Margin="12,0,48,0"
-                                          Height="24"
-                                          Width="24">
-                                        <Grid x:Name="Selected"
-                                              Background="{ThemeResource BrandColorThemeBrush}"
-                                              CornerRadius="24"
-                                              
-                                              Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <FontIcon Glyph="&#xE73E;" FontSize="14"/>
+                                    <Button x:Name="ToggleSelectionButton"
+                                            Grid.Column="2"
+                                            extensions:Mouse.Cursor="Hand"
+                                            CommandParameter="{Binding}"
+                                            Command="{Binding ElementName=page, Path=DataContext.ToggleSelectedPlaylistCommand}"
+                                            Margin="64,0,8,0"
+                                            VerticalAlignment="Stretch"
+                                            Width="64"
+                                            Style="{StaticResource TextBlockButtonStyle}">
+                                        <Grid Grid.Column="2"
+                                              Height="24"
+                                              Width="24">
+                                            <Grid x:Name="Selected"
+                                                  BorderThickness="2"
+                                                  BorderBrush="{ThemeResource BrandColorThemeBrush}"
+                                                  CornerRadius="24"
+                                                  Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <Grid.Background>
+                                                    <SolidColorBrush Color="{ThemeResource BrandColorThemeColor}" Opacity=".5"/>
+                                                </Grid.Background>
+                                                <FontIcon Glyph="&#xE73E;" FontSize="14" Foreground="White"/>
+                                            </Grid>
+                                            <Grid x:Name="NotSelected"
+                                                  BorderThickness="2"
+                                                  CornerRadius="24"
+                                                  Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityInverseConverter}, FallbackValue=collapsed}">
+                                                <Grid.BorderBrush>
+                                                    <SolidColorBrush Color="White" Opacity=".1"/>
+                                                </Grid.BorderBrush>
+                                            
+                                            </Grid>
                                         </Grid>
-                                    </Grid>
+                                    </Button>
+                                    <Button x:Name="PlaylistOptions"
+                                            extensions:Mouse.Cursor="Hand"
+                                            Grid.Column="3"
+                                            Foreground="{ThemeResource SecondaryForeground}"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalAlignment="Stretch"
+                                            Width="48"
+                                            Style="{StaticResource TextBlockButtonStyle}">
+                                        <Button.Flyout>
+                                            <MenuFlyout>
+                                                <MenuFlyout.MenuFlyoutPresenterStyle>
+                                                    <Style TargetType="FlyoutPresenter">
+                                                        <Setter Property="Padding" Value="24"/>
+                                                        <Setter Property="CornerRadius" Value="10"/>
+                                                        <Setter Property="Background" Value="#0D0D0D"/>
+                                                        <Setter Property="BorderThickness" Value="0"/>
+                                                        <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled"/>
+                                                        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+                                                    </Style>
+                                                </MenuFlyout.MenuFlyoutPresenterStyle>
+                                                <MenuFlyoutItem Text="Play">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE102;"/>
+                                                    </MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+                                                <MenuFlyoutItem Text="Edit" 
+                                                                Command="{Binding DataContext.ShowEditPlaylistDialogCommand, ElementName=page}" 
+                                                                CommandParameter="{Binding}"
+                                                                Visibility="{Binding CanModify, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE104;"/>
+                                                    </MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+                                                <MenuFlyoutItem Text="Clone"
+                                                                Command="{Binding DataContext.ShowCloneDialogCommand, ElementName=page}" 
+                                                                CommandParameter="{Binding}"
+                                                                Visibility="{Binding CanModify, Converter={StaticResource BoolToVisibilityInverseConverter}}">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE8AF;"/>
+                                                    </MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+                                                <MenuFlyoutItem Text="Unfollow" 
+                                                                CommandParameter="{Binding}" 
+                                                                Command="{Binding DataContext.UnfollowPlaylistCommand, ElementName=page}">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE10A;"/>
+                                                    </MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+                                            </MenuFlyout>
+                                        </Button.Flyout>
+                                        <FontIcon Glyph="&#xE10C;" FontSize="16"/>
+                                    </Button>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -924,6 +1001,7 @@
                 <ListView x:Name="SelectedContentView"
                           Grid.Row="1"
                           SelectionMode="None"
+                          IsItemClickEnabled="True"
                           ItemsSource="{Binding SelectedPlaylistCollection}"
                           ItemContainerStyle="{StaticResource ListViewItemContainerStyle1}">
             
@@ -1009,7 +1087,7 @@
             </Grid>
             <Grid x:Name="RightBarActions"
                   Grid.Row="2"
-                  Height="36">
+                  Height="32">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -1017,7 +1095,7 @@
                 </Grid.ColumnDefinitions>
                 <Button x:Name="MergeButton"
                         extensions:Mouse.Cursor="Hand"
-                        CornerRadius="3"
+                        CornerRadius="10"
                         IsEnabled="{Binding CanMerge}"
                         Command="{Binding ShowMergeDialogCommand}"
                         Background="{ThemeResource PrimaryThemeBrush}"
@@ -1026,7 +1104,7 @@
                         Style="{StaticResource ButtonRevealStyle}"
                         Margin="0,0,4,0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Merge playlists"/>
+                        <TextBlock Text="Merge"/>
                     </StackPanel>
                 </Button>
                 <Button x:Name="PlayButton"
@@ -1035,7 +1113,7 @@
                         Background="#121212"
                         Foreground="{ThemeResource PrimaryForeground}"
                         Command="{Binding PlaySelectedCommand}"
-                        CornerRadius="3"
+                        CornerRadius="10"
                         IsEnabled="{Binding CanPlay}"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
@@ -1049,10 +1127,9 @@
                         extensions:Mouse.Cursor="Hand"
                         Grid.Column="2"
                         Background="{ThemeResource DangerThemeBrush}"
-                        FontWeight="SemiBold"
                         Foreground="{ThemeResource PrimaryForeground}"
                         Command="{Binding UnfollowSelectedCommand}"
-                        CornerRadius="3"
+                        CornerRadius="10"
                         IsEnabled="{Binding CanPlay}"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
