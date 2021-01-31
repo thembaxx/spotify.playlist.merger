@@ -16,11 +16,11 @@ namespace spotify.playlist.merger.Data
         private Paging<SimplePlaylist> page;
 
         public static DataSource _current;
-        public static DataSource Current 
+        public static DataSource Current
         {
-            get 
-            { 
-                if(_current == null)
+            get
+            {
+                if (_current == null)
                 {
                     _current = new DataSource();
                 }
@@ -35,10 +35,11 @@ namespace spotify.playlist.merger.Data
         {
             try
             {
-                if(await SpotifyApi.IsAuthenticated())
+                if (await SpotifyApi.IsAuthenticated())
                 {
                     //get playlists
-                } else
+                }
+                else
                 {
                     await SpotifyApi.Authenticate();
                 }
@@ -79,7 +80,7 @@ namespace spotify.playlist.merger.Data
             }
             catch (Exception e)
             {
-                await  Helpers.DisplayDialog("Error", e.Message);
+                await Helpers.DisplayDialog("Error", e.Message);
                 return null;
             }
         }
@@ -404,7 +405,7 @@ namespace spotify.playlist.merger.Data
                         }
                     }
 
-                    while(startIndex < total)
+                    while (startIndex < total)
                     {
                         var _page = await SpotifyApi.GetPlaylistTrackUris(id, startIndex, limit);
                         startIndex += page.Items.Count;
@@ -413,7 +414,7 @@ namespace spotify.playlist.merger.Data
                         {
                             if (item.Track is FullTrack track)
                             {
-                                if(!items.Contains(track.Uri)) items.Add(track.Uri);
+                                if (!items.Contains(track.Uri)) items.Add(track.Uri);
                             }
                         }
                     }
@@ -446,6 +447,11 @@ namespace spotify.playlist.merger.Data
 
                 throw;
             }
+        }
+
+        public async Task<bool> PlaybackMediaItem(MediaItemBase item, int index = 0)
+        {
+            return await SpotifyApi.PlaybackMediaItem(item.Uri, index);
         }
     }
 }

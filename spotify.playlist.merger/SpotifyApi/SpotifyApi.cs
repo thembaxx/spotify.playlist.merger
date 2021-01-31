@@ -55,11 +55,11 @@ namespace spotify.playlist.merger.Data
 
             var authenticator = new AuthorizationCodeAuthenticator(clientId, clientSecret, token);
             authenticator.TokenRefreshed += (sender, tokenx) => File.WriteAllText(CredentialsPath, JsonConvert.SerializeObject(tokenx));
-            
+
             //might throw an error if user revoked access to their spotify account
             var config = SpotifyClientConfig.CreateDefault()
               .WithAuthenticator(authenticator);
-            
+
             SpotifyClient = new SpotifyClient(config);
             //try and get user profile
             _user = await SpotifyClient.UserProfile.Current();
@@ -191,7 +191,7 @@ namespace spotify.playlist.merger.Data
                 {
                     SpotifyClient = await Authenticate();
                 }
-                else if(SpotifyClient == null && !await IsAuthenticated())
+                else if (SpotifyClient == null && !await IsAuthenticated())
                 {
                     SpotifyClient = await Authenticate();
                 }
@@ -422,13 +422,13 @@ namespace spotify.playlist.merger.Data
         }
 
         public static async Task<IList<PlaylistTrack<IPlayableItem>>> GetTracks(Paging<PlaylistTrack<IPlayableItem>> page)
-        {            
+        {
             try
             {
-            //    PlaylistGetItemsRequest r = new PlaylistGetItemsRequest
-            //{
-            //    Offset
-            //}
+                //    PlaylistGetItemsRequest r = new PlaylistGetItemsRequest
+                //{
+                //    Offset
+                //}
                 return await SpotifyClient.PaginateAll(page);
             }
             catch (Exception)
@@ -533,6 +533,24 @@ namespace spotify.playlist.merger.Data
                 }
                 return (SpotifyClient != null) ? await spotify.Library.GetTracks(request) : null;
 
+            }
+        }
+
+        public static async Task<bool> PlaybackMediaItem(string uri, int index = 0)
+        {
+            try
+            {
+                PlayerResumePlaybackRequest request = new PlayerResumePlaybackRequest
+                {
+                    ContextUri = uri,
+                    OffsetParam = new PlayerResumePlaybackRequest.Offset { Position = index },
+                };
+
+                return await SpotifyClient.Player.ResumePlayback(request);
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
     }

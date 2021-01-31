@@ -47,7 +47,8 @@ namespace spotify.playlist.merger.ViewModels
                 DataSource.Current.Logout();
                 Profile = null;
                 ShowLogin = true;
-            } else if (string.IsNullOrEmpty(ClientID) || string.IsNullOrEmpty(ClientSecret))
+            }
+            else if (string.IsNullOrEmpty(ClientID) || string.IsNullOrEmpty(ClientSecret))
             {
                 //show settings
                 Messenger.Default.Send(new MessengerHelper
@@ -56,7 +57,7 @@ namespace spotify.playlist.merger.ViewModels
                 });
                 //check client id and secret
                 ShowLogin = true;
-            } 
+            }
             else
             {
                 ShowLogin = true;
@@ -81,10 +82,10 @@ namespace spotify.playlist.merger.ViewModels
             SelectedPlaylistCollection.Clear();
             PlaylistCategoryCollection.Clear();
             SelectedPlaylistCategory = null;
-            if(init) Initialize();
+            if (init) Initialize();
 
             IsLoading = false;
-        } 
+        }
 
         private void RegisterMessenger()
         {
@@ -297,7 +298,7 @@ namespace spotify.playlist.merger.ViewModels
 
                         foreach (var it in SelectedPlaylistCollection)
                         {
-                            it.PositionAlt = SelectedPlaylistCollection.IndexOf(it) + 1;
+                            it.IndexB = SelectedPlaylistCollection.IndexOf(it) + 1;
                         }
                     });
                 }
@@ -319,7 +320,7 @@ namespace spotify.playlist.merger.ViewModels
 
                         foreach (var it in SelectedPlaylistCollection)
                         {
-                            it.PositionAlt = SelectedPlaylistCollection.IndexOf(it) + 1;
+                            it.IndexB = SelectedPlaylistCollection.IndexOf(it) + 1;
                         }
                     });
                 }
@@ -340,7 +341,7 @@ namespace spotify.playlist.merger.ViewModels
                         foreach (var item in selected)
                         {
                             item.IsSelected = false;
-                            item.PositionAlt = 0;
+                            item.IndexB = 0;
                             SelectedPlaylistCollection.Remove(item);
                         }
                     });
@@ -356,7 +357,7 @@ namespace spotify.playlist.merger.ViewModels
             {
                 if (_playSelectedCommand == null)
                 {
-                    _playSelectedCommand = new RelayCommand(async() =>
+                    _playSelectedCommand = new RelayCommand(async () =>
                     {
                         IsRightBarBusy = true;
 
@@ -380,6 +381,26 @@ namespace spotify.playlist.merger.ViewModels
                     });
                 }
                 return _playSelectedCommand;
+            }
+        }
+
+        private RelayCommand<MediaItemBase> _playItemCommand;
+        public RelayCommand<MediaItemBase> PlayItemCommand
+        {
+            get
+            {
+                if (_playItemCommand == null)
+                {
+                    _playItemCommand = new RelayCommand<MediaItemBase>(async (item) =>
+                    {
+                        IsLoading = true;
+
+                        await DataSource.Current.PlaybackMediaItem(item, 0);
+
+                        IsLoading = false;
+                    });
+                }
+                return _playItemCommand;
             }
         }
 
@@ -467,14 +488,14 @@ namespace spotify.playlist.merger.ViewModels
             CanPlay = (SelectedPlaylistCollection.Count > 0);
             CanMerge = (SelectedPlaylistCollection.Count > 1);
 
-            if(e.OldItems != null)
+            if (e.OldItems != null)
             {
                 foreach (var item in e.OldItems)
                 {
                     if (item is Playlist playlist)
                     {
                         playlist.IsSelected = false;
-                        playlist.PositionAlt = 0;
+                        playlist.IndexB = 0;
                     }
                 }
 
@@ -486,14 +507,14 @@ namespace spotify.playlist.merger.ViewModels
                 //}
             }
 
-            if(e.NewItems != null)
+            if (e.NewItems != null)
             {
                 foreach (var item in e.NewItems)
                 {
                     if (item is Playlist playlist)
                     {
                         playlist.IsSelected = true;
-                        
+
                     }
                 }
             }
@@ -518,14 +539,14 @@ namespace spotify.playlist.merger.ViewModels
             }
             else
             {
-                foreach (var item in playlists)
+
+                using (AdvancedCollectionView.DeferRefresh())
                 {
-                    AdvancedCollectionView.Add(item);
+                    foreach (var item in playlists)
+                    {
+                        AdvancedCollectionView.Add(item);
+                    }
                 }
-                //using (AdvancedCollectionView.DeferRefresh())
-                //{
-                    
-                //}
             }
 
             _playlistCollectionCopy.AddRange(playlists);
@@ -537,9 +558,9 @@ namespace spotify.playlist.merger.ViewModels
         {
             foreach (var item in AdvancedCollectionView)
             {
-                if(item is Playlist playlist)
+                if (item is Playlist playlist)
                 {
-                    playlist.Position = AdvancedCollectionView.IndexOf(item) + 1;
+                    playlist.IndexA = AdvancedCollectionView.IndexOf(item) + 1;
                 }
             }
         }
@@ -733,7 +754,18 @@ namespace spotify.playlist.merger.ViewModels
 
         #endregion
 
-        #region PlaylistDialog
+        #region Dialog
+
+        private bool _isDialogOpen;
+        public bool IsDialogOpen
+        {
+            get => _isDialogOpen;
+            set
+            {
+                _isDialogOpen = value;
+                RaisePropertyChanged("IsDialogOpen");
+            }
+        }
 
         private string _playlistDialogTitle;
         public string PlaylistDialogTitle
@@ -846,11 +878,7 @@ namespace spotify.playlist.merger.ViewModels
                     _cancelPlaylistDialogCommand = new RelayCommand(() =>
                     {
                         ResetPlaylistDialog();
-                        Messenger.Default.Send(new DialogManager
-                        {
-                            Type = DialogType.Merge,
-                            Action = DialogAction.Hide
-                        });
+                        HidePlaylistDialog(DialogType.Merge);
                     });
                 }
                 return _cancelPlaylistDialogCommand;
@@ -927,6 +955,22 @@ namespace spotify.playlist.merger.ViewModels
                 Action = DialogAction.Show,
             });
 
+            IsDialogOpen = true;
+        }
+
+        private void HidePlaylistDialog(DialogType dialogType)
+        {
+            Messenger.Default.Send(new DialogManager
+            {
+                Type = dialogType,
+                Action = DialogAction.Hide
+            });
+
+            IsDialogOpen = false;
+            IsMergeMode = false;
+            IsEditMode = false;
+            IsCloneMode = false;
+            ResetPlaylistDialog();
         }
 
         private void ResetPlaylistDialog()
@@ -1021,11 +1065,7 @@ namespace spotify.playlist.merger.ViewModels
                         UnfollowAfterMerge = false;
                     }
 
-                    Messenger.Default.Send(new DialogManager
-                    {
-                        Type = DialogType.Merge,
-                        Action = DialogAction.Hide
-                    });
+                    HidePlaylistDialog(DialogType.Merge);
 
                     ResetPlaylistDialog();
                     var selected = SelectedPlaylistCollection.ToList();
@@ -1095,11 +1135,8 @@ namespace spotify.playlist.merger.ViewModels
                 CurrentPlaylist.Description = updatedPlaylist.Description;
                 updatedPlaylist.Image = updatedPlaylist.Image;
                 ResetPlaylistDialog();
-                Messenger.Default.Send(new DialogManager
-                {
-                    Type = DialogType.Merge,
-                    Action = DialogAction.Hide
-                });
+
+                HidePlaylistDialog(DialogType.Merge);
             }
 
             IsDialogBusy = false;
@@ -1146,7 +1183,7 @@ namespace spotify.playlist.merger.ViewModels
             {
                 if (_clonePlaylistCommand == null)
                 {
-                    _clonePlaylistCommand = new RelayCommand<Playlist>(async(item) =>
+                    _clonePlaylistCommand = new RelayCommand<Playlist>(async (item) =>
                     {
                         IsDialogBusy = true;
 
@@ -1172,11 +1209,7 @@ namespace spotify.playlist.merger.ViewModels
                             RemoveItems(await DataSource.Current.UnfollowSpotifyPlaylist(new List<string> { CurrentPlaylist.Id }));
                         }
 
-                        Messenger.Default.Send(new DialogManager
-                        {
-                            Type = DialogType.Clone,
-                            Action = DialogAction.Hide
-                        });
+                        HidePlaylistDialog(DialogType.Clone);
                         ResetPlaylistDialog();
 
                         IsDialogBusy = false;
@@ -1238,11 +1271,7 @@ namespace spotify.playlist.merger.ViewModels
                 {
                     _cancelUnfollowCommand = new RelayCommand(() =>
                     {
-                        Messenger.Default.Send(new DialogManager
-                        {
-                            Type = DialogType.Unfollow,
-                            Action = DialogAction.Hide
-                        });
+                        HidePlaylistDialog(DialogType.Unfollow);
                         UnfollowPlaylistCollection.Clear();
                         UnfollowTotalTracks = 0;
                     });
@@ -1281,23 +1310,17 @@ namespace spotify.playlist.merger.ViewModels
                         var it = SelectedPlaylistCollection.Where(c => c.Id == item.Id).FirstOrDefault();
                         if (it != null) SelectedPlaylistCollection.Remove(it);
 
-                        //update item position
-                        foreach (var pl in UnfollowPlaylistCollection)
-                        {
-                            pl.IndexC = UnfollowPlaylistCollection.IndexOf(pl) + 1;
-                        }
-
                         if (UnfollowPlaylistCollection.Count == 0)
                         {
-                            Messenger.Default.Send(new DialogManager
-                            {
-                                Type = DialogType.Unfollow,
-                                Action = DialogAction.Hide
-                            });
+                            HidePlaylistDialog(DialogType.Unfollow);
                             UnfollowTotalTracks = 0;
                         }
 
                         UnfollowTotalTracks = UnfollowPlaylistCollection.Sum(c => c.Count);
+                        foreach (var pl in SelectedPlaylistCollection)
+                        {
+                            pl.IndexB = SelectedPlaylistCollection.IndexOf(pl) + 1;
+                        }
                     });
                 }
                 return _removePlaylistFromUnfollowCommand;
@@ -1323,10 +1346,8 @@ namespace spotify.playlist.merger.ViewModels
         private void ShowUnfollowDialog()
         {
             UnfollowTotalTracks = UnfollowPlaylistCollection.Sum(c => c.Count);
-            foreach (var pl in UnfollowPlaylistCollection)
-            {
-                pl.IndexC = UnfollowPlaylistCollection.IndexOf(pl) + 1;
-            }
+
+            IsDialogOpen = true;
             Messenger.Default.Send(new DialogManager
             {
                 Type = DialogType.Unfollow,
@@ -1375,11 +1396,7 @@ namespace spotify.playlist.merger.ViewModels
                 //what to do about items that failed?
             }
 
-            Messenger.Default.Send(new DialogManager
-            {
-                Type = DialogType.Unfollow,
-                Action = DialogAction.Hide
-            });
+            HidePlaylistDialog(DialogType.Unfollow);
             UnfollowPlaylistCollection.Clear();
             UnfollowTotalTracks = 0;
             IsDialogBusy = false;

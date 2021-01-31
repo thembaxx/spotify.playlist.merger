@@ -440,14 +440,14 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid>
-                    <Button Content="Save and merge"
+                    <Button Content="Merge"
                             Background="{ThemeResource PrimaryThemeBrush}"
                             extensions:Mouse.Cursor="Hand"
                             Command="{Binding MergeSelectedPlaylistCommand}"
                             HorizontalAlignment="Stretch"
                             Foreground="{ThemeResource PrimaryForeground}"
                             VerticalAlignment="Stretch"
-                            Style="{StaticResource PrimaryDialogButtonStyle1}"
+                            CornerRadius="10"
                             IsEnabled="{Binding IsDialogBusy, Converter={StaticResource BoolNegationConverter}}"
                             Visibility="{Binding IsMergeMode, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     <Button Content="Update"
@@ -457,7 +457,7 @@
                             HorizontalAlignment="Stretch"
                             Foreground="{ThemeResource PrimaryForeground}"
                             VerticalAlignment="Stretch"
-                            Style="{StaticResource PrimaryDialogButtonStyle1}"
+                            CornerRadius="10"
                             IsEnabled="{Binding IsDialogBusy, Converter={StaticResource BoolNegationConverter}}"
                             Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     <Button Content="Clone"
@@ -467,18 +467,19 @@
                             HorizontalAlignment="Stretch"
                             Foreground="{ThemeResource PrimaryForeground}"
                             VerticalAlignment="Stretch"
-                            Style="{StaticResource PrimaryDialogButtonStyle1}"
+                            CornerRadius="10"
                             IsEnabled="{Binding IsDialogBusy, Converter={StaticResource BoolNegationConverter}}"
                             Visibility="{Binding IsCloneMode, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 </Grid>
                 <Button Content="Cancel" 
                         Grid.Column="2"
                         extensions:Mouse.Cursor="Hand"
+                        Background="{ThemeResource SecondaryItemBackgroundThemeBrush}"
                         Foreground="{ThemeResource PrimaryForeground}"
                         Command="{Binding CancelPlaylistDialogCommand}"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
-                        Style="{StaticResource SecondaryDialogButtonStyle}"
+                        CornerRadius="10"
                         IsEnabled="{Binding IsDialogBusy, Converter={StaticResource BoolNegationConverter}}"/>
             </Grid>
         </Grid>

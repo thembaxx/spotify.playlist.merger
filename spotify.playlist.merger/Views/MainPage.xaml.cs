@@ -88,7 +88,14 @@ namespace spotify.playlist.merger.Views
             switch (helper.Action)
             {
                 case MessengerAction.ShowSettings:
-                    FlyoutBase.ShowAttachedFlyout(SettingsButton);
+                    try
+                    {
+                        FlyoutBase.ShowAttachedFlyout(SettingsButton);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
                     break;
             }
         }
