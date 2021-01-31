@@ -17,8 +17,8 @@ namespace spotify.playlist.merger.Views
     public sealed partial class MainPage : Page
     {
         public static MainPage Current;
-        private readonly PlaylistDialog playlistDialog = null;
-        private ContentDialog _dialog = null;
+        private readonly PlaylistDialog playlistDialog;
+        private UnfollowDialog _unfollowDialog;
 
         public MainPage()
         {
@@ -27,6 +27,7 @@ namespace spotify.playlist.merger.Views
             Window.Current.SetTitleBar(DragGrid);
             Initialize();
             playlistDialog = new PlaylistDialog();
+            _unfollowDialog = new UnfollowDialog();
             RegisterMessenger();
         }
 
@@ -62,6 +63,8 @@ namespace spotify.playlist.merger.Views
         {
             switch (manager.Type)
             {
+                case DialogType.Clone:
+                case DialogType.EditPlaylist:
                 case DialogType.Merge:
                     if (manager.Action == DialogAction.Show)
                         await playlistDialog.ShowAsync();
@@ -69,16 +72,13 @@ namespace spotify.playlist.merger.Views
                         playlistDialog.Hide();
                     break;
                 case DialogType.Unfollow:
-                    _dialog = new ContentDialog
+                    if (manager.Action == DialogAction.Show)
                     {
-                        Title = manager.Title,
-                        Content = manager.Message,
-                        PrimaryButtonText = manager.PrimaryButtonText,
-                        SecondaryButtonText = manager.SecondaryButtonText,
-                        DefaultButton = ContentDialogButton.Primary
-                    };
-
-                    Messenger.Default.Send(new DialogResult(DialogType.Unfollow, await _dialog.ShowAsync(), manager.Item));
+                        if (_unfollowDialog == null) _unfollowDialog = new UnfollowDialog();
+                        await _unfollowDialog.ShowAsync();
+                    }
+                    else if (_unfollowDialog != null)
+                        _unfollowDialog.Hide();
                     break;
             }
         }
@@ -88,7 +88,14 @@ namespace spotify.playlist.merger.Views
             switch (helper.Action)
             {
                 case MessengerAction.ShowSettings:
-                    FlyoutBase.ShowAttachedFlyout(SettingsButton);
+                    try
+                    {
+                        FlyoutBase.ShowAttachedFlyout(SettingsButton);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
                     break;
             }
         }

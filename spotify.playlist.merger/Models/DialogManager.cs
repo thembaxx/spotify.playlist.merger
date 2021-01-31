@@ -63,6 +63,7 @@ namespace spotify.playlist.merger.Models
         Default,
         Unfollow,
         AddToPlaylist,
-        EditPlaylist
+        EditPlaylist,
+        Clone
     }
 }

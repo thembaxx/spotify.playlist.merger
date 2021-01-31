@@ -11,6 +11,7 @@
             Duration = duration;
             Owner = owner;
             Type = type;
+            if (type == PlaylistCategoryType.MyPlaylist) CanModify = true;
         }
 
         private string _description;
@@ -34,18 +35,25 @@
             set => _ = SetProperty(_type, value, () => _type = value);
         }
 
-        private int _position;
-        public int Position
+        private int _indexA;
+        public int IndexA
         {
-            get => _position;
-            set => _ = SetProperty(_position, value, () => _position = value);
+            get => _indexA;
+            set => _ = SetProperty(_indexA, value, () => _indexA = value);
         }
 
-        private int _positionAlt;
-        public int PositionAlt
+        private int _indexB;
+        public int IndexB
         {
-            get => _positionAlt;
-            set => _ = SetProperty(_positionAlt, value, () => _positionAlt = value);
+            get => _indexB;
+            set => _ = SetProperty(_indexB, value, () => _indexB = value);
+        }
+
+        private int _indexC;
+        public int IndexC
+        {
+            get => _indexC;
+            set => _ = SetProperty(_indexC, value, () => _indexC = value);
         }
 
         private string _duration = "0";
@@ -60,6 +68,13 @@
         {
             get { return _isSelected; }
             set { SetProperty(this._isSelected, value, () => this._isSelected = value); }
+        }
+
+        private bool _canModify;
+        public bool CanModify
+        {
+            get { return _canModify; }
+            set { SetProperty(this._canModify, value, () => this._canModify = value); }
         }
 
         private User _owner;
