@@ -1648,7 +1648,11 @@ namespace spotify.playlist.merger.ViewModels
                             ShowNotification(NotificationType.Error, "An error occured while trying to play selected track(s), please check your internet connection");
                         } else
                         {
-                            SelectedTracks.Clear();
+                            var items = SelectedTracks.ToList();
+                            foreach (var item in items)
+                            {
+                                SelectedTracks.Remove(item);
+                            }
                         }
 
                         IsTracksViewBusy = false;
