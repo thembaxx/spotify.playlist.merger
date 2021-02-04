@@ -1583,7 +1583,7 @@
 
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="model:Track">
-                            <Grid Height="56" CornerRadius="10"
+                            <Grid Height="56"
                                   Background="Transparent"
                                   extensions:Mouse.Cursor="Hand"
                                   Padding="8,0,8,0">
