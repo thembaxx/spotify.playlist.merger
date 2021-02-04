@@ -79,6 +79,45 @@ namespace spotify.playlist.merger.Models
             }
         }
 
+        public static string MillisecondsToStringAlt(int milliSeconds)
+        {
+            string result = "0";
+            TimeSpan t = TimeSpan.FromMilliseconds(milliSeconds);
+            if (t.Hours > 0)
+            {
+                if (t.Minutes > 0)
+                {
+                    if (t.Minutes > 9)
+                        result = t.Hours + ":" + t.Minutes;
+                    else
+                        result = t.Hours + ":0" + t.Minutes;
+                }
+                else
+                    result = t.Hours + ":00";
+            }
+            else if (t.Minutes > 0)
+            {
+                if (t.Seconds > 0)
+                {
+                    if (t.Seconds > 9)
+                        result = t.Minutes + ":" + t.Seconds;
+                    else
+                        result = t.Minutes + ":0" + t.Seconds;
+                }
+                else
+                    result = t.Minutes + ":00";
+            }
+            else if (t.Seconds > 0)
+            {
+                if (t.Seconds > 9)
+                    result = "0:" + t.Seconds; //3s > 0:03, 12s 0:12
+                else
+                    result = "0:0" + t.Seconds;
+            }
+
+            return result;
+        }
+
         #region Playback
 
         public static async Task<bool> OpenSpotifyAppAsync(string url, string webUrl)

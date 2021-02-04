@@ -56,5 +56,19 @@ namespace spotify.playlist.merger.Models
                 _image = new BitmapImage(uri);
             }
         }
+
+        private int _indexA;
+        public int IndexA
+        {
+            get => _indexA;
+            set => _ = SetProperty(_indexA, value, () => _indexA = value);
+        }
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set { SetProperty(this._isSelected, value, () => this._isSelected = value); }
+        }
     }
 }
