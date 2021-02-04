@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.UI.Extensions;
 using spotify.playlist.merger.Models;
 using System;
+using System.Linq;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -95,6 +96,13 @@ namespace spotify.playlist.merger.Views
                     catch (Exception)
                     {
 
+                    }
+                    break;
+                case MessengerAction.ScrollToItem:
+                    if(helper.Target == TargetView.Tracks)
+                    {
+                        if (helper.Item == null && TracksContentView.Items != null) helper.Item = TracksContentView.Items.FirstOrDefault();
+                        TracksContentView.ScrollIntoView(helper.Item, ScrollIntoViewAlignment.Leading);
                     }
                     break;
             }

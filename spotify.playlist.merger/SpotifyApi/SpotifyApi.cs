@@ -378,7 +378,7 @@ namespace spotify.playlist.merger.Data
                 Limit = limit,
                 Offset = startIndex
             };
-
+           
             try
             {
                 return (await SpotifyClient.Playlists.CurrentUsers(request)).Items;
@@ -536,6 +536,40 @@ namespace spotify.playlist.merger.Data
             }
         }
 
+        public static async Task<SnapshotResponse> RemoveFromPlaylist(string playlistId, IEnumerable<string> uris)
+        {
+            List<PlaylistRemoveItemsRequest.Item> items = new List<PlaylistRemoveItemsRequest.Item>();
+            foreach (var uri in uris)
+            {
+                items.Add(new PlaylistRemoveItemsRequest.Item { Uri = uri });
+            }
+            PlaylistRemoveItemsRequest request = new PlaylistRemoveItemsRequest
+            {
+                Tracks = items
+            };
+
+            try
+            {
+                return await SpotifyClient.Playlists.RemoveItems(playlistId, request);
+
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                return (SpotifyClient != null) ? await SpotifyClient.Playlists.RemoveItems(playlistId, request) : null;
+
+            }
+        }
+
         public static async Task<bool> PlaybackMediaItem(string uri, int index = 0)
         {
             try
@@ -545,12 +579,58 @@ namespace spotify.playlist.merger.Data
                     ContextUri = uri,
                     OffsetParam = new PlayerResumePlaybackRequest.Offset { Position = index },
                 };
+               
 
                 return await SpotifyClient.Player.ResumePlayback(request);
             }
             catch (Exception)
             {
                 return false;
+            }
+        }
+
+        public static async Task<bool> PlaybackItems(List<string> uris, int index = 0)
+        {
+            try
+            {
+                PlayerResumePlaybackRequest request = new PlayerResumePlaybackRequest
+                {
+                    Uris = uris,
+                    OffsetParam = new PlayerResumePlaybackRequest.Offset { Position = index },
+                };
+
+
+                return await SpotifyClient.Player.ResumePlayback(request);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static async Task<bool> AddToQueue(string uri)
+        {
+            PlayerAddToQueueRequest request = new PlayerAddToQueueRequest(uri);
+
+            try
+            {
+                return await SpotifyClient.Player.AddToQueue(request);
+
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                return (SpotifyClient != null) && await SpotifyClient.Player.AddToQueue(request);
+
             }
         }
     }

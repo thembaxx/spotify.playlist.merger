@@ -35,13 +35,6 @@
             set => _ = SetProperty(_type, value, () => _type = value);
         }
 
-        private int _indexA;
-        public int IndexA
-        {
-            get => _indexA;
-            set => _ = SetProperty(_indexA, value, () => _indexA = value);
-        }
-
         private int _indexB;
         public int IndexB
         {
@@ -61,13 +54,6 @@
         {
             get { return _duration; }
             set { SetProperty(_duration, value, () => _duration = value); }
-        }
-
-        private bool _isSelected;
-        public bool IsSelected
-        {
-            get { return _isSelected; }
-            set { SetProperty(this._isSelected, value, () => this._isSelected = value); }
         }
 
         private bool _canModify;
