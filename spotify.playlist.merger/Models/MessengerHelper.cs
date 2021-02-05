@@ -18,5 +18,6 @@
     {
         Playlist,
         Tracks,
+        AddToList,
     }
 }

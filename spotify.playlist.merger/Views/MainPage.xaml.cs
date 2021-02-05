@@ -19,6 +19,7 @@ namespace spotify.playlist.merger.Views
     {
         public static MainPage Current;
         private readonly PlaylistDialog playlistDialog;
+        private readonly AddToPlaylistDialog addToPlaylistDialog;
         private UnfollowDialog _unfollowDialog;
 
         public MainPage()
@@ -29,6 +30,7 @@ namespace spotify.playlist.merger.Views
             Initialize();
             playlistDialog = new PlaylistDialog();
             _unfollowDialog = new UnfollowDialog();
+            addToPlaylistDialog = new AddToPlaylistDialog();
             RegisterMessenger();
         }
 
@@ -81,6 +83,14 @@ namespace spotify.playlist.merger.Views
                     else if (_unfollowDialog != null)
                         _unfollowDialog.Hide();
                     break;
+                case DialogType.AddToPlaylist:
+                    if (manager.Action == DialogAction.Show)
+                    {
+                        await addToPlaylistDialog.ShowAsync();
+                    }
+                    else if (addToPlaylistDialog != null)
+                        addToPlaylistDialog.Hide();
+                    break;
             }
         }
 
@@ -96,13 +106,6 @@ namespace spotify.playlist.merger.Views
                     catch (Exception)
                     {
 
-                    }
-                    break;
-                case MessengerAction.ScrollToItem:
-                    if(helper.Target == TargetView.Tracks)
-                    {
-                        if (helper.Item == null && TracksContentView.Items != null) helper.Item = TracksContentView.Items.FirstOrDefault();
-                        TracksContentView.ScrollIntoView(helper.Item, ScrollIntoViewAlignment.Leading);
                     }
                     break;
             }

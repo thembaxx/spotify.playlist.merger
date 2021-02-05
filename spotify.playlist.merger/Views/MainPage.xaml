@@ -31,246 +31,6 @@
         <converters:EmptyStringToObjectConverter x:Key="EmptyStringToObjectInverseConverter" 
                                                  EmptyValue="Visible"
                                                  NotEmptyValue="Collapsed"/>
-        <Style x:Key="AutoSuggestBoxTextBoxStyle" TargetType="TextBox">
-            <Setter Property="MinWidth" Value="0"/>
-            <Setter Property="MinHeight" Value="0"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="Foreground" Value="{ThemeResource TextControlForeground}"/>
-            <Setter Property="Background" Value="{ThemeResource InputBoxThemeBrush}"/>
-            <Setter Property="SelectionHighlightColor" Value="{ThemeResource BrandColorThemeBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}"/>
-            <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}"/>
-            <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Auto"/>
-            <Setter Property="ScrollViewer.VerticalScrollMode" Value="Auto"/>
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
-            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
-            <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="False"/>
-            <Setter Property="Padding" Value="{ThemeResource TextControlThemePadding}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Grid>
-                            <Grid.Resources>
-                                <Style x:Name="DeleteButtonStyle" TargetType="Button">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Grid x:Name="ButtonLayoutGrid" Background="{ThemeResource TextControlButtonBackground}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{ThemeResource TextControlButtonBorderBrush}">
-                                                    <VisualStateManager.VisualStateGroups>
-                                                        <VisualStateGroup x:Name="CommonStates">
-                                                            <VisualState x:Name="Normal"/>
-                                                            <VisualState x:Name="PointerOver">
-                                                                <Storyboard>
-                                                                    <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonLayoutGrid" Storyboard.TargetProperty="Background">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonBackgroundPointerOver}"/>
-                                                                    </ObjectAnimationUsingKeyFrames>
-                                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonLayoutGrid" Storyboard.TargetProperty="BorderBrush">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonBorderBrushPointerOver}"/>
-                                                                    </ObjectAnimationUsingKeyFrames>-->
-                                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="GlyphElement" Storyboard.TargetProperty="Foreground">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource BrandColorThemeBrush}"/>
-                                                                    </ObjectAnimationUsingKeyFrames>
-                                                                </Storyboard>
-                                                            </VisualState>
-                                                            <VisualState x:Name="Pressed">
-                                                                <Storyboard>
-                                                                    <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonLayoutGrid" Storyboard.TargetProperty="Background">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource BrandColorThemeBrush}"/>
-                                                                    </ObjectAnimationUsingKeyFrames>
-                                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonLayoutGrid" Storyboard.TargetProperty="BorderBrush">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource BrandColorThemeBrush}"/>
-                                                                    </ObjectAnimationUsingKeyFrames>-->
-                                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="GlyphElement" Storyboard.TargetProperty="Foreground">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="Gray"/>
-                                                                    </ObjectAnimationUsingKeyFrames>
-                                                                </Storyboard>
-                                                            </VisualState>
-                                                            <VisualState x:Name="Disabled">
-                                                                <Storyboard>
-                                                                    <DoubleAnimation Duration="0" Storyboard.TargetName="ButtonLayoutGrid" Storyboard.TargetProperty="Opacity" To="0"/>
-                                                                </Storyboard>
-                                                            </VisualState>
-                                                        </VisualStateGroup>
-                                                    </VisualStateManager.VisualStateGroups>
-                                                    <TextBlock x:Name="GlyphElement" AutomationProperties.AccessibilityView="Raw" FontStyle="Normal" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="{ThemeResource TextControlButtonForeground}" FontSize="{ThemeResource AutoSuggestBoxIconFontSize}" HorizontalAlignment="Center" Text="&#xE10A;" VerticalAlignment="Center"/>
-                                                </Grid>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                                <Style x:Name="QueryButtonStyle" TargetType="Button">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <ContentPresenter x:Name="ContentPresenter" AutomationProperties.AccessibilityView="Raw" BackgroundSizing="{TemplateBinding BackgroundSizing}" Background="{ThemeResource TextControlButtonBackground}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{ThemeResource TextControlButtonBorderBrush}" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentTransitions="{TemplateBinding ContentTransitions}" FontSize="{ThemeResource AutoSuggestBoxIconFontSize}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}">
-                                                    <VisualStateManager.VisualStateGroups>
-                                                        <VisualStateGroup x:Name="CommonStates">
-                                                            <VisualState x:Name="Normal"/>
-                                                            <VisualState x:Name="PointerOver">
-                                                                <Storyboard>
-                                                                    <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonBackgroundPointerOver}"/>
-                                                                    </ObjectAnimationUsingKeyFrames>
-                                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonBorderBrushPointerOver}"/>
-                                                                    </ObjectAnimationUsingKeyFrames>-->
-                                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource BrandColorThemeBrush}"/>
-                                                                    </ObjectAnimationUsingKeyFrames>
-                                                                </Storyboard>
-                                                            </VisualState>
-                                                            <VisualState x:Name="Pressed">
-                                                                <Storyboard>
-                                                                    <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Background">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource BrandColorThemeBrush}"/>
-                                                                    </ObjectAnimationUsingKeyFrames>
-                                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="BorderBrush">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource BrandColorThemeBrush}"/>
-                                                                    </ObjectAnimationUsingKeyFrames>-->
-                                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="Gray"/>
-                                                                    </ObjectAnimationUsingKeyFrames>
-                                                                </Storyboard>
-                                                            </VisualState>
-                                                            <VisualState x:Name="Disabled">
-                                                                <Storyboard>
-                                                                    <DoubleAnimation Duration="0" Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Opacity" To="0"/>
-                                                                </Storyboard>
-                                                            </VisualState>
-                                                        </VisualStateGroup>
-                                                    </VisualStateManager.VisualStateGroups>
-                                                </ContentPresenter>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Grid.Resources>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Disabled">
-                                        <Storyboard>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HeaderContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlHeaderForegroundDisabled}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderElement" Storyboard.TargetProperty="Background">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlBackgroundDisabled}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderElement" Storyboard.TargetProperty="BorderBrush">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlBorderBrushDisabled}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentElement" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlForegroundDisabled}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="Normal"/>
-                                    <VisualState x:Name="PointerOver">
-                                        <Storyboard>
-                                            <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderElement" Storyboard.TargetProperty="BorderBrush">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource InputBoxHoverThemeBrush}"/>
-                                            </ObjectAnimationUsingKeyFrames>-->
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderElement" Storyboard.TargetProperty="Background">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource InputBoxHoverThemeBrush}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentElement" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlForegroundPointerOver}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="Focused">
-                                        <Storyboard>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderElement" Storyboard.TargetProperty="BorderThickness">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="2"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderElement" Storyboard.TargetProperty="Background">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlBackgroundFocused}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderElement" Storyboard.TargetProperty="BorderBrush">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource BrandColorThemeBrush}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentElement" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlForegroundFocused}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentElement" Storyboard.TargetProperty="RequestedTheme">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Light"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="QueryButton" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlButtonForeground}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                                <VisualStateGroup x:Name="ButtonStates">
-                                    <VisualState x:Name="ButtonVisible">
-                                        <Storyboard>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="DeleteButton" Storyboard.TargetProperty="Visibility">
-                                                <DiscreteObjectKeyFrame KeyTime="0">
-                                                    <DiscreteObjectKeyFrame.Value>
-                                                        <Visibility>Visible</Visibility>
-                                                    </DiscreteObjectKeyFrame.Value>
-                                                </DiscreteObjectKeyFrame>
-                                            </ObjectAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="ButtonCollapsed"/>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
-                            <Border x:Name="BorderElement" CornerRadius="{TemplateBinding CornerRadius}" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Grid.ColumnSpan="3" Grid.RowSpan="1" Grid.Row="1"/>
-                            <ContentPresenter x:Name="HeaderContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" Grid.ColumnSpan="3" FontWeight="Normal" Foreground="{ThemeResource TextControlHeaderForeground}" Margin="{ThemeResource AutoSuggestBoxTopHeaderMargin}" Grid.Row="0" TextWrapping="Wrap" Visibility="Collapsed" x:DeferLoadStrategy="Lazy"/>
-                            <ScrollViewer x:Name="ContentElement" AutomationProperties.AccessibilityView="Raw" HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}" HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}" IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}" IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}" IsTabStop="False" IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}" Margin="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" Grid.Row="1" VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}" VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}" ZoomMode="Disabled"/>
-                            <ContentControl x:Name="PlaceholderTextContentPresenter" Content="{TemplateBinding PlaceholderText}" Grid.ColumnSpan="3" Foreground="{ThemeResource PlaceHolderTextThemeBrush}" IsTabStop="False" IsHitTestVisible="False" Margin="{TemplateBinding BorderThickness}" Padding="32 8 12 0" Grid.Row="1"/>
-                            <Button x:Name="DeleteButton" AutomationProperties.AccessibilityView="Raw" BorderThickness="{TemplateBinding BorderThickness}" Grid.Column="1" FontSize="{TemplateBinding FontSize}" IsTabStop="False" MinWidth="34" Grid.Row="1" Style="{StaticResource DeleteButtonStyle}" VerticalAlignment="Stretch" Visibility="Collapsed" Width="{TemplateBinding Height}"/>
-                            <Button x:Name="QueryButton" AutomationProperties.AccessibilityView="Raw" BorderThickness="{TemplateBinding BorderThickness}" Grid.Column="2" FontSize="{TemplateBinding FontSize}" IsTabStop="False" MinWidth="34" Grid.Row="1" Style="{StaticResource QueryButtonStyle}" VerticalAlignment="Stretch" Width="{TemplateBinding Height}"/>
-                            <ContentPresenter x:Name="DescriptionPresenter" AutomationProperties.AccessibilityView="Raw" Content="{TemplateBinding Description}" Grid.ColumnSpan="3" Foreground="{ThemeResource SystemControlDescriptionTextForegroundBrush}" Grid.Row="2" x:Load="False"/>
-                            <FontIcon HorizontalAlignment="Left" Margin="8,0" FontSize="12" Grid.RowSpan="1" Grid.Row="1" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE721;" Foreground="#ffffff" Opacity=".3"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="AutoSuggestBoxStyle1" TargetType="AutoSuggestBox">
-            <Setter Property="VerticalAlignment" Value="Top"/>
-            <Setter Property="IsTabStop" Value="False"/>
-            <Setter Property="TextBoxStyle" Value="{StaticResource AutoSuggestBoxTextBoxStyle}"/>
-            <Setter Property="UseSystemFocusVisuals" Value="{ThemeResource IsApplicationFocusVisualKindReveal}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="AutoSuggestBox">
-                        <Grid x:Name="LayoutRoot">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="Orientation">
-                                    <VisualState x:Name="Landscape"/>
-                                    <VisualState x:Name="Portrait"/>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
-                            <TextBox x:Name="TextBox" Padding="32 8 12 0" CornerRadius="{TemplateBinding CornerRadius}" ScrollViewer.BringIntoViewOnFocusChange="False" Description="{TemplateBinding Description}" DesiredCandidateWindowAlignment="BottomEdge" Header="{TemplateBinding Header}" Margin="0" PlaceholderText="{TemplateBinding PlaceholderText}" Style="{TemplateBinding TextBoxStyle}" UseSystemFocusVisuals="{TemplateBinding UseSystemFocusVisuals}" Width="{TemplateBinding Width}" Canvas.ZIndex="0"/>
-                            <Popup x:Name="SuggestionsPopup">
-                                <Border x:Name="SuggestionsContainer" CornerRadius="10" Margin="0 8 0 0">
-                                    <ListView x:Name="SuggestionsList" Background="Transparent" BorderThickness="{ThemeResource AutoSuggestListBorderThemeThickness}" BorderBrush="{ThemeResource AutoSuggestBoxSuggestionsListBorderBrush}" DisplayMemberPath="{TemplateBinding DisplayMemberPath}" ItemContainerStyle="{TemplateBinding ItemContainerStyle}" ItemTemplate="{TemplateBinding ItemTemplate}" IsItemClickEnabled="True" ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}" MaxHeight="{ThemeResource AutoSuggestListMaxHeight}" Margin="0" Padding="0"/>
-                                </Border>
-                            </Popup>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
         <Style x:Key="ListViewItemContainerStyle1" TargetType="ListViewItem">
             <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}"/>
             <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}"/>
@@ -493,7 +253,6 @@
                             </StackPanel>
                         </Flyout>
                     </Button.Flyout>
-
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE713;"/>
                 </Button>
                 <Button x:Name="UserAccountButton"
@@ -510,14 +269,14 @@
                             <Image Source="{Binding Profile.Image}"/>
                         </Border>
                         <Grid Background="#0D0D0D"
-                                BorderBrush="#0D0D0D"
-                                CornerRadius="50"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Margin="4"
-                                Padding="2"
-                                Height="18"
-                                Width="18">
+                              BorderBrush="#0D0D0D"
+                              CornerRadius="50"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Bottom"
+                              Margin="4"
+                              Padding="2"
+                              Height="18"
+                              Width="18">
                             <Border Background="White"
                                   CornerRadius="40">
                                 <Image Source="/Assets/Spotify_Icon_RGB_Green.png"/>
@@ -535,7 +294,8 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <muxc:ProgressBar Foreground="White"
+            <muxc:ProgressBar x:Name="ProgressBar"
+                              Foreground="White"
                               Height="2"
                               Grid.ColumnSpan="100"
                               Grid.RowSpan="100"
@@ -552,30 +312,23 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto" MinWidth="256"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock x:Name="ContentTitle"
-                               FontSize="20"
-                               FontWeight="Bold"
-                               Foreground="{ThemeResource PrimaryForeground}"
-                               Text="Playlist Manager"
-                               Margin="0,0, 12, 0"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
-                <Grid x:Name="SearchPanel"
-                      Grid.Column="1"
-                      Padding="12,0,0,0">
-                    <AutoSuggestBox Name="SearchBar"
-                                    CornerRadius="10"
-                                    PlaceholderText="Search"
-                                    Height="36"
-                                    Padding="12, 8"
-                                    MaxWidth="350"
-                                    Text="{Binding SearchText, Mode=TwoWay}"
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource AutoSuggestBoxStyle1}">
-
-                    </AutoSuggestBox>
-                </Grid>
+                <TextBlock x:Name="ContentTitle"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="{ThemeResource PrimaryForeground}"
+                           Text="Playlist Manager"
+                           Margin="0,0, 12, 0"
+                           VerticalAlignment="Center"/>
+                <AutoSuggestBox Name="SearchBar"
+                                Grid.Column="1"
+                                CornerRadius="10"
+                                PlaceholderText="Search"
+                                Height="36"
+                                Padding="12, 8"
+                                MaxWidth="350"
+                                Text="{Binding SearchText, Mode=TwoWay}"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource AutoSuggestBoxStyle1}"/>
             </Grid>
             <Grid x:Name="ContentMeta"
                   Background="#0C0C0C"
@@ -583,10 +336,30 @@
                   Grid.Row="1"
                   Padding="16 8 4 8"
                   Margin="0, 8, 16, 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid Height="24"
+                      Width="24"
+                      Margin="0,0,8,0"
+                      VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE946;" 
+                              FontSize="16" 
+                              Foreground="{ThemeResource SecondaryThemeBrush}"
+                              Visibility="{Binding IsPlaylistsLoading, Converter={StaticResource BoolToVisibilityInverseConverter}}"/>
+                    <muxc:ProgressRing IsActive="{Binding IsPlaylistsLoading}" 
+                                       Height="24" 
+                                       Width="24" 
+                                       BorderThickness="2"
+                                       Foreground="{ThemeResource PrimaryForeground}"
+                                       Visibility="{Binding IsPlaylistsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
                 <StackPanel Orientation="Horizontal" 
+                            Grid.Column="1"
                             Visibility="{Binding SearchText, Converter={StaticResource EmptyStringToObjectInverseConverter}}"
                             VerticalAlignment="Center">
-                    <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource SecondaryThemeBrush}" Margin="0,0,8,0"/>
                     <TextBlock FontSize="14"
                                Foreground="{ThemeResource SecondaryForeground}"
                                Margin="0,0,4,0"
@@ -616,9 +389,9 @@
                                Text="in your library."/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal"
+                            Grid.Column="1"
                             VerticalAlignment="Center"
                             Visibility="{Binding SearchText, Converter={StaticResource EmptyStringToObjectConverter}}">
-                    <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource SecondaryThemeBrush}" Margin="0,0,8,0"/>
                     <TextBlock FontSize="14"
                                Foreground="{ThemeResource SecondaryForeground}"
                                Margin="0,0,4,0"
@@ -657,6 +430,7 @@
                                Text="”"/>
                 </StackPanel>
                 <Button x:Name="RefreshPlaylistButton"
+                        Grid.Column="2"
                         extensions:Mouse.Cursor="Hand"
                         Command="{Binding RefreshCommand}"
                         Foreground="#FDA500"
@@ -735,20 +509,24 @@
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid x:Name="Content" Grid.Row="1">
+                <Grid x:Name="Content" 
+                      Grid.Row="1">
                     <ListView x:Name="ContentView"
-                              Padding="0,0,16,0"
+                              Padding="0,0,0,0"
+                              Margin="-16 0 0 0"
                               IsItemClickEnabled="True"
                               model:ItemClickCommand.Command="{Binding PlaylistItemClickCommand}"
                               SelectionMode="None"
                               ItemsSource="{Binding AdvancedCollectionView}"
                               ItemContainerStyle="{StaticResource ListViewItemContainerStyle1}">
-                      
+                     
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="model:Playlist">
-                                <Grid Height="64" Opacity=".9"
+                                <Grid Height="64" 
+                                      Opacity=".9"
                                       Background="Transparent"
-                                      extensions:Mouse.Cursor="Hand">
+                                      extensions:Mouse.Cursor="Hand"
+                                      Padding="16 0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="auto"/>
@@ -772,6 +550,7 @@
                                         </Core:EventTriggerBehavior>
                                     </Interactivity:Interaction.Behaviors>
                                     <Grid x:Name="SelectedBackground"
+                                          Margin="-16 0"
                                           Background="{ThemeResource ListViewItemBackgroundSelected}"
                                           Grid.ColumnSpan="100"
                                           Grid.RowSpan="100"
@@ -782,16 +561,15 @@
                                             <ColumnDefinition Width="auto"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Grid Height="24"
+                                        <Grid x:Name="Index"
+                                              Height="24"
                                               Width="24"
                                               Margin="0,0,16,0">
                                             <TextBlock FontSize="16"
                                                        Text="{Binding IndexA}"
                                                        Foreground="{ThemeResource SecondaryForeground}"
                                                        HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center">
-                                                
-                                            </TextBlock>
+                                                       VerticalAlignment="Center"/>                                            
                                         </Grid>
                                         <Grid x:Name="Thumbnail"
                                               Grid.Column="1"
@@ -800,7 +578,8 @@
                                               Width="48"
                                               Margin="0,0,24,0">
                                             <Image Source="{Binding Image}"/>
-                                            <Button Style="{StaticResource TextBlockButtonStyle}"
+                                            <Button x:Name="PlayButton"
+                                                    Style="{StaticResource TextBlockButtonStyle}"
                                                     CommandParameter="{Binding}"
                                                     Command="{Binding DataContext.PlayItemCommand, ElementName=page}"
                                                     Foreground="WhiteSmoke"
@@ -824,7 +603,8 @@
                                                 <FontIcon Glyph="&#xE102;"/>
                                             </Button>
                                         </Grid>
-                                        <Grid Grid.Column="2" 
+                                        <Grid x:Name="Details"
+                                              Grid.Column="2" 
                                               Margin="0,0,12,0"
                                               VerticalAlignment="Center">
                                             <Grid.RowDefinitions>
@@ -904,7 +684,6 @@
                                                 <Grid.BorderBrush>
                                                     <SolidColorBrush Color="White" Opacity=".1"/>
                                                 </Grid.BorderBrush>
-                                            
                                             </Grid>
                                         </Grid>
                                     </Button>
@@ -959,896 +738,30 @@
                 </Grid>
             </Grid>
         </Grid>
-        <Grid x:Name="RightBar"
-              Grid.Column="2"
-              Background="#0C0C0C"
-              Padding="16, 36, 16, 16"
-              Width="390">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <Grid x:Name="RightBarHeader"
-                  Margin="0, 8"
-                  Visibility="{Binding HasSelectedPlaylists, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid Height="44">
-                    <TextBlock Text="SELECTED PLAYLISTS"
-                               FontWeight="SemiBold"
-                               FontSize="14"
-                               Style="{StaticResource SubtitleTextBlockStyle}"
-                               Margin="8 0 0 0"
-                               VerticalAlignment="Center"/>
-                    <!--<FontIcon Glyph="&#xE762;" FontSize="16" HorizontalAlignment="Left" Margin="4 2 0 0"/>-->
-                </Grid>
-            </Grid>
-            <Grid x:Name="RightBarContent"
-                  Grid.Row="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid Height="44"
-                      Margin="0,0,0,8"
-                      Visibility="{Binding HasSelectedPlaylists, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Grid Height="36"
-                          Background="#131313"
-                          CornerRadius="10"
-                          Padding="16, 0 8 0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center">
-                            <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource SecondaryThemeBrush}" Margin="0,0,8,0"/>
-                            <TextBlock FontSize="14"
-                                       Foreground="{ThemeResource PrimaryForeground}"
-                                       Margin="0,0,2,0"
-                                       Text="{Binding SelectedPlaylistCollection.Count, FallbackValue=0}"/>
-                            <TextBlock FontSize="14"
-                                       Foreground="{ThemeResource PrimaryForeground}"
-                                       Margin="0,0,4,0"
-                                       Text="playlists"/>
-                            <TextBlock FontSize="14"
-                                       Foreground="{ThemeResource SecondaryForeground}"
-                                       Margin="0,0,4,0"
-                                       Text="with"/>
-                            <TextBlock FontSize="14"
-                                       Foreground="{ThemeResource PrimaryForeground}"
-                                       Margin="0,0,2,0"
-                                       Text="{Binding TotalSelectedPlaylistTracks, FallbackValue=0}"/>
-                            <TextBlock FontSize="14"
-                                       Foreground="{ThemeResource PrimaryForeground}"
-                                       Margin="0,0,4,0"
-                                       Text="tracks"/>
-                        </StackPanel>
-                        <Button x:Name="ClearSelectedButton2"
-                                Grid.Column="1"
-                                extensions:Mouse.Cursor="Hand"
-                                Command="{Binding ClearSelectedCommand}"
-                                Foreground="#FDA500"
-                                Height="40" Opacity=".87"
-                                Content="Clear"
-                                FontWeight="SemiBold"
-                                Padding="16,0"
-                                Style="{StaticResource TextBlockButtonStyle}">
-
-                        </Button>
-                    </Grid>
-                </Grid>
-                <ListView x:Name="SelectedContentView"
-                          Grid.Row="1"
-                          SelectionMode="None"
-                          IsItemClickEnabled="True"
-                          model:ItemClickCommand.Command="{Binding PlaylistItemClickCommand}"
-                          ItemsSource="{Binding SelectedPlaylistCollection}"
-                          ItemContainerStyle="{StaticResource ListViewItemContainerStyle1}">
-            
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="model:Playlist">
-                            <Grid Height="56"
-                                  Background="Transparent"
-                                  extensions:Mouse.Cursor="Hand"
-                                  Padding="8,0,8,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Interactivity:Interaction.Behaviors>
-                                    <Core:EventTriggerBehavior EventName="PointerEntered">
-                                        <Core:CallMethodAction TargetObject="{Binding ElementName=SelectedContentViewPlayBtnFadeIn}" MethodName="StartAnimation"/>
-                                    </Core:EventTriggerBehavior>
-                                    <Core:EventTriggerBehavior EventName="PointerExited">
-                                        <Core:CallMethodAction TargetObject="{Binding ElementName=SelectedContentViewPlayBtnFadeOut}" MethodName="StartAnimation"/>
-                                    </Core:EventTriggerBehavior>
-                                </Interactivity:Interaction.Behaviors>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="auto"/>
-                                        <ColumnDefinition Width="auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Height="24"
-                                          Width="24"
-                                          Margin="0,0,12,0">
-                                        <TextBlock FontSize="14"
-                                                   Text="{Binding IndexB, FallbackValue=0}"
-                                                   Foreground="{ThemeResource PrimaryForeground}"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center">
-
-                                        </TextBlock>
-                                    </Grid>
-                                    <Grid x:Name="Thumbnail"
-                                              Grid.Column="1"
-                                              Background="#111111"
-                                              Height="40"
-                                              Width="40"
-                                              Margin="0,0,12,0">
-                                        <Image Source="{Binding Image}"/>
-                                        <Button Style="{StaticResource TextBlockButtonStyle}"
-                                                CommandParameter="{Binding}"
-                                                Command="{Binding DataContext.PlayItemCommand, ElementName=page}"
-                                                Foreground="WhiteSmoke"
-                                                Height="40"
-                                                Width="40"
-                                                Opacity="0"
-                                                Padding="0"
-                                                HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch">
-                                            <Button.Background>
-                                                <media:AcrylicBrush BackgroundSource="Backdrop"
-                                                                    TintColor="#000000"
-                                                                    TintOpacity="0.30"
-                                                                    BlurAmount="2" 
-                                                                    FallbackColor="#000000"/>
-                                            </Button.Background>
-                                            <Interactivity:Interaction.Behaviors>
-                                                <ToolkitBehaviors:Fade x:Name="SelectedContentViewPlayBtnFadeIn" Duration="250" Delay="0" AutomaticallyStart="False" Value="1" EasingMode="EaseOut" EasingType="Linear" />
-                                                <ToolkitBehaviors:Fade x:Name="SelectedContentViewPlayBtnFadeOut" Duration="250" Delay="0" AutomaticallyStart="False" Value="0" EasingMode="EaseOut" EasingType="Linear" />
-                                            </Interactivity:Interaction.Behaviors>
-                                            <FontIcon Glyph="&#xE102;"/>
-                                        </Button>
-                                    </Grid>
-                                    <Grid Grid.Column="2" 
-                                              Margin="0,0,16,0"
-                                              VerticalAlignment="Center">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="auto"/>
-                                            <RowDefinition Height="auto"/>
-                                        </Grid.RowDefinitions>
-                                        <TextBlock x:Name="Title"
-                                                   FontSize="14"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{ThemeResource PrimaryForeground}"
-                                                   Text="{Binding Title, FallbackValue=Title}"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   TextWrapping="NoWrap"
-                                                   Margin="0,0,0,0"/>
-                                        <Grid Grid.Row="1">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock FontSize="14"
-                                                       Foreground="{ThemeResource SecondaryForeground}"
-                                                       Text="By"
-                                                       Margin="0,0,4,0"/>
-                                            <TextBlock x:Name="Owner"
-                                                       Grid.Column="1"
-                                                       FontSize="14"
-                                                       Foreground="{ThemeResource SecondaryForeground}"
-                                                       Text="{Binding Owner.Title, FallbackValue=Owner}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
-                                <Grid Grid.Column="1">
-                                    <Button x:Name="RemoveSelectedButton"
-                                            VerticalAlignment="Stretch"
-                                            Padding="16,0"
-                                            Foreground="{ThemeResource SecondaryForeground}"
-                                            Command="{Binding ElementName=page, Path=DataContext.UnselectPlaylistCommand}" 
-                                            CommandParameter="{Binding}"
-                                            Style="{StaticResource TextBlockButtonStyle}">
-                                        <FontIcon Glyph="&#xE10A;" FontSize="16"/>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </Grid>
-            <Grid x:Name="RightBarActions"
-                  Grid.Row="2"
-                  Height="44"
-                  Visibility="{Binding HasSelectedPlaylists, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button Command="{Binding ClearSelectedCommand}"
-                        extensions:Mouse.Cursor="Hand"
-                        Style="{StaticResource TextBlockButtonStyle}"
-                        ToolTipService.ToolTip="Clear Selected Playlists"
-                        VerticalAlignment="Stretch">
-                    <StackPanel Orientation="Horizontal">
-                       <TextBlock Text="{Binding SelectedPlaylistCollection.Count, FallbackValue=0}" 
-                                  FontSize="14" 
-                                  Foreground="{ThemeResource PrimaryForeground}"
-                                  Margin="0 0 0 0"
-                                  VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                <StackPanel Grid.Column="1" 
-                            Height="32"
-                            HorizontalAlignment="Right" 
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center">
-                    <Button x:Name="PlayButton"
-                            Background="#161616"
-                            Grid.Column="1"
-                            Command="{Binding PlaySelectedCommand}"
-                            CornerRadius="10"
-                            extensions:Mouse.Cursor="Hand"
-                            Foreground="{ThemeResource PrimaryForeground}"
-                            Padding="16 0"
-                            VerticalAlignment="Stretch"
-                            IsEnabled="{Binding CanPlay}">
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon Glyph="&#xE768;" FontSize="14"/>
-                            <TextBlock Text="Play" FontSize="12" Margin="8 0 0 0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="MergeButton"
-                            Background="#161616"
-                            IsEnabled="{Binding CanMerge}"
-                            Command="{Binding ShowMergeDialogCommand}"
-                            CornerRadius="10"
-                            extensions:Mouse.Cursor="Hand"
-                            Foreground="{ThemeResource PrimaryForeground}"
-                            Margin="8 0 0 0"
-                            Padding="16 0"
-                            VerticalAlignment="Stretch">
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon Glyph="&#xEA3C;" FontSize="14"/>
-                            <TextBlock Text="Merge" FontSize="12" Margin="8 0 0 0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="UnfollowButton"
-                            Background="#161616"
-                            Command="{Binding UnfollowSelectedCommand}"
-                            CornerRadius="10"
-                            IsEnabled="{Binding CanPlay}"
-                            extensions:Mouse.Cursor="Hand"
-                            Foreground="{ThemeResource PrimaryForeground}"
-                            Margin="8 0 0 0"
-                            Padding="16 0"
-                            VerticalAlignment="Stretch">
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon Glyph="&#xE10A;" FontSize="14"/>
-                            <TextBlock Text="Unfollow" FontSize="12" Margin="8 0 0 0"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-            </Grid>
-            <StackPanel x:Name="NoPlaylistMessage"
-                  Grid.RowSpan="100"
-                  HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  Visibility="{Binding HasSelectedPlaylists, Converter={StaticResource BoolToVisibilityInverseConverter}}">
-                <FontIcon Glyph="&#xED11;" 
-                          FontSize="16" 
-                          FontWeight="Light" 
-                          Foreground="{ThemeResource SecondaryForeground}"
-                          Margin="0 0 0 8"/>
-                <TextBlock FontSize="14" 
-                           Foreground="{ThemeResource SecondaryForeground}"
-                           FontFamily="Segoe UI"
-                           TextAlignment="Center"
-                           HorizontalAlignment="Left"
-                           TextWrapping="WrapWholeWords"
-                           MaxWidth="250">
-                           <Span xml:space="preserve"><Run>You haven't added any playlist yet, please select one or more to</Run><Bold FontWeight="SemiBold" Foreground="{ThemeResource SecondaryThemeBrush}"> Play</Bold><Run>,</Run><Bold FontWeight="SemiBold" Foreground="{ThemeResource SecondaryThemeBrush}"> Merge</Bold><Run>, or</Run><Bold FontWeight="SemiBold" Foreground="{ThemeResource SecondaryThemeBrush}"> Unfollow</Bold><Run>.</Run></Span>
-                </TextBlock>
-            </StackPanel>
-            <Grid x:Name="RightBarLoading"
-                  Grid.RowSpan="100"
-                  Margin="-16, -40, -16, -16"
-                  Visibility="{Binding IsRightBarBusy, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid.Background>
-                    <media:AcrylicBrush
-                      BackgroundSource="Backdrop"
-                      TintColor="#010101"
-                      TintOpacity="0.70"
-                      BlurAmount="12"/>
-
-                </Grid.Background>
-                <muxc:ProgressRing IsActive="{Binding IsRightBarBusy}" 
-                                   Height="40" Width="40"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Foreground="WhiteSmoke"/>
-            </Grid>
-        </Grid>
-        <Grid x:Name="TracksView"
-              Grid.Column="2"
-              Background="#0C0C0C"
-              Padding="16, 36, 16, 16"
-              Width="390"
-              Visibility="{Binding IsTracksViewOpen, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=collapsed}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <animations:Implicit.ShowAnimations>
-                    <animations:ScalarAnimation Target="Translation.X" Duration="00:00:00.4000000" From="390" To="0"/>
-                    <animations:OpacityAnimation Duration="00:00:00.3000000" To="1"/>
-                </animations:Implicit.ShowAnimations>
-            <animations:Implicit.HideAnimations>
-                <animations:ScalarAnimation Target="Translation.X" Duration="00:00:00.1500000" To="390"/>
-                <animations:OpacityAnimation Duration="00:00:00.1500000" To="0"/>
-            </animations:Implicit.HideAnimations>
-            <Grid x:Name="TracksViewHeader">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                </Grid.RowDefinitions>
-                <Grid Height="44">
-                    <ToggleButton x:Name="CloseTracksViewBtn"
-                                  Style="{StaticResource TextBlockButtonStyle}"
-                                  extensions:Mouse.Cursor="Hand"
-                                  IsChecked="{Binding ElementName=page, Path=DataContext.IsTracksViewOpen, Mode=TwoWay}"
-                                  Height="32"
-                                  FontSize="16"
-                                  Foreground="{ThemeResource PrimaryForeground}"
-                                  Padding="16 0"
-                                  Margin="-12 0 0 0"
-                                  VerticalAlignment="Stretch">
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon Glyph="&#xE26B;" FontSize="12"/>
-                            <TextBlock Text="Close"
-                                       Margin="8 0 0 2"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </ToggleButton>
-                </Grid>
-                <UserControl Grid.Row="1"
-                             Margin="0 8 0 0">
-                    <Grid x:Name="TracksViewInfo">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid Background="{ThemeResource ItemBackgroundThemeBrush}"
-                              Margin="0 0 16 0"
-                              Height="96"
-                              Width="96">
-                            <Image Source="{Binding ActivePlaylist.Image}" Stretch="UniformToFill"/>
-                        </Grid>
-                        <Grid Grid.Column="1">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="{Binding ActivePlaylist.Title, FallbackValue=Untitled}"
-                                       FontSize="18"
-                                       FontWeight="Bold"
-                                       Foreground="{ThemeResource PrimaryForeground}"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding ActivePlaylist.Owner.Title, FallbackValue=Unknown}"
-                                           FontSize="14" MaxWidth="130"
-                                           Foreground="{ThemeResource SecondaryThemeBrush}"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <StackPanel Orientation="Horizontal"
-                                            Grid.Column="1"
-                                            VerticalAlignment="Center">
-                                    <Ellipse Fill="White" 
-                                             Opacity=".3" 
-                                             Height="3"
-                                             Width="3"
-                                             VerticalAlignment="Center"
-                                             Margin="6 0"/>
-                                    <TextBlock FontSize="14"
-                                               Margin="0,0,4,0"
-                                               Foreground="{ThemeResource SecondaryForeground}"
-                                               Text="{Binding ActivePlaylist.Count, FallbackValue=0}"
-                                               TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock FontSize="14"
-                                               Margin="0,0,4,0"
-                                               Foreground="{ThemeResource SecondaryForeground}"
-                                               Text="songs"/>
-                                </StackPanel>
-                            </Grid>
-                            <StackPanel Orientation="Horizontal"
-                                        Grid.Row="2" 
-                                        VerticalAlignment="Bottom">
-                                <Button Background="#141414"
-                                        extensions:Mouse.Cursor="Hand"
-                                        CornerRadius="10"
-                                        CommandParameter="{Binding ActivePlaylist}" 
-                                        Command="{Binding UnfollowPlaylistCommand}"
-                                        FontSize="11"
-                                        FontWeight="SemiBold"
-                                        Foreground="{ThemeResource PrimaryForeground}"
-                                        Padding="4 0 16 0"
-                                        Margin="0 0 8 0"
-                                        Height="32">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Grid BorderThickness="1"
-                                              CornerRadius="24"
-                                              Height="24"
-                                              Width="24">
-                                            <Grid.Background>
-                                                <SolidColorBrush Color="Black" Opacity=".2"/>
-                                            </Grid.Background>
-                                                <FontIcon Glyph="&#xE73E;" FontSize="16"/>
-                                            </Grid>
-                                        <TextBlock Margin="8,0,0,1"
-                                                   Text="FOLLOWING"
-                                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                                <Button extensions:Mouse.Cursor="Hand"
-                                        Grid.Column="2"
-                                        Foreground="{ThemeResource SecondaryForeground}"
-                                        HorizontalContentAlignment="Center"
-                                        VerticalAlignment="Stretch"
-                                        Width="48"
-                                        Style="{StaticResource TextBlockButtonStyle}">
-                                        <Button.Flyout>
-                                            <MenuFlyout>
-                                                <MenuFlyoutItem Text="Play"
-                                                                Command="{Binding PlayItemCommand}" 
-                                                                CommandParameter="{Binding ActivePlaylist}">
-                                                    <MenuFlyoutItem.Icon>
-                                                        <FontIcon Glyph="&#xE102;"/>
-                                                    </MenuFlyoutItem.Icon>
-                                                </MenuFlyoutItem>
-                                                <MenuFlyoutItem Text="Edit"
-                                                                Command="{Binding ShowEditPlaylistDialogCommand}" 
-                                                                CommandParameter="{Binding ActivePlaylist}"
-                                                                Visibility="{Binding ActivePlaylist.CanModify, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                    <MenuFlyoutItem.Icon>
-                                                        <FontIcon Glyph="&#xE104;"/>
-                                                    </MenuFlyoutItem.Icon>
-                                                </MenuFlyoutItem>
-                                                <MenuFlyoutItem Text="Clone"
-                                                                Command="{Binding ShowCloneDialogCommand}" 
-                                                                CommandParameter="{Binding ActivePlaylist}">
-                                                    <MenuFlyoutItem.Icon>
-                                                        <FontIcon Glyph="&#xE8AF;"/>
-                                                    </MenuFlyoutItem.Icon>
-                                                </MenuFlyoutItem>
-                                            </MenuFlyout>
-                                        </Button.Flyout>
-                                        <FontIcon Glyph="&#xE712;" FontSize="16"/>
-                                    </Button>
-                            </StackPanel>
-                        </Grid>
-                        <Grid Grid.Row="1"
-                              Padding="0 12 0 0"
-                              Grid.ColumnSpan="10"
-                              Visibility="{Binding ActivePlaylist.Description, Converter={StaticResource EmptyStringToObjectConverter}}">
-                            <TextBlock Text="{Binding ActivePlaylist.Description}"
-                                       FontSize="14"
-                                       Foreground="{ThemeResource SecondaryForeground}"
-                                       Margin="4 0 0 1"
-                                       MaxHeight="60"
-                                       TextWrapping="Wrap"
-                                       TextTrimming="CharacterEllipsis"
-                                       VerticalAlignment="Center"/>
-                        </Grid>
-                    </Grid>
-                </UserControl>
-                <Grid Grid.Row="3"
-                      Margin="0,8,0,0">
-                    <Grid Height="36"
-                          Background="#121212"
-                          CornerRadius="10"
-                          Padding="8, 0 0 0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal"
-                                    VerticalAlignment="Center">
-                            <Grid Height="24"
-                                  Width="24"
-                                  Margin="0,0,8,0">
-                                <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource SecondaryThemeBrush}"
-                                          Visibility="{Binding IsTracksLoading, Converter={StaticResource BoolToVisibilityInverseConverter}}"/>
-                                <muxc:ProgressRing IsActive="{Binding IsTracksLoading}" 
-                                      Height="24" Width="24" BorderThickness="2"
-                                      Foreground="{ThemeResource PrimaryForeground}"
-                                                   Visibility="{Binding IsTracksLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            </Grid>
-                            <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Center"
-                                        Margin="0,0,0,2"
-                                        Visibility="{Binding IsTracksLoading, Converter={StaticResource BoolToVisibilityInverseConverter}}">
-                                <TextBlock Text="There are"
-                                           FontSize="14"
-                                           Foreground="{ThemeResource SecondaryForeground}"
-                                           Margin="0,0,4,0"/>
-                                <TextBlock Text="{Binding TracksCollectionView.Count, FallbackValue=0}"
-                                           Foreground="{ThemeResource PrimaryForeground}"
-                                           FontSize="14"
-                                           Margin="0,0,4,0"/>
-                                <TextBlock Text="tracks"
-                                           FontSize="14"
-                                           Foreground="{ThemeResource PrimaryForeground}"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Center"
-                                        Visibility="{Binding IsTracksLoading, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="Loading"
-                                           FontSize="14"
-                                           Foreground="{ThemeResource SecondaryForeground}"
-                                           Margin="0,0,4,0"/>
-                                <TextBlock Text="{Binding TracksCollectionView.Count, FallbackValue=0}"
-                                           Foreground="{ThemeResource PrimaryForeground}"
-                                           FontSize="14"
-                                           Margin="0,0,4,0"/>
-                                <TextBlock Text="of"
-                                           FontSize="14"
-                                           Foreground="{ThemeResource SecondaryForeground}"
-                                           Margin="0,0,4,0"/>
-                                <TextBlock Text="{Binding ActivePlaylist.Count, FallbackValue=0}"
-                                           FontSize="14"
-                                           Foreground="{ThemeResource PrimaryForeground}"/>
-                            </StackPanel>
-                        </StackPanel>
-                        <Button Grid.Column="1"
-                                extensions:Mouse.Cursor="Hand"
-                                Command="{Binding ClearSelectedTracksCommand}"
-                                Foreground="#FDA500"
-                                Height="40" Opacity=".87"
-                                FontWeight="SemiBold"
-                                IsEnabled="{Binding HasSelectedTracks}"
-                                Padding="16,0"
-                                Style="{StaticResource TextBlockButtonStyle}">
-                            <TextBlock Text="Clear"/>
-                        </Button>
-                    </Grid>
-                </Grid>
-                <Grid x:Name="TrackSearchPanel"
-                      Grid.Row="2"
-                      Margin="0,16,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="auto"/>
-                    </Grid.ColumnDefinitions>
-                    <AutoSuggestBox Name="TrackSearchBar"
-                                    Background="{ThemeResource InputBoxThemeBrush}"
-                                    BorderThickness="0"
-                                    PlaceholderText="Filter by name, artist or album"
-                                    Height="36"
-                                    Padding="12, 8"
-                                    CornerRadius="10 0 0 10"
-                                    Text="{Binding TrackSearchText, Mode=TwoWay}"
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource AutoSuggestBoxStyle1}">
-                        
-                    </AutoSuggestBox>
-                    <ComboBox x:Name="TracksViewSortCategory"
-                              extensions:Mouse.Cursor="Hand"
-                              Background="#161616"
-                              BorderThickness="0"
-                              Grid.Column="1"
-                              CornerRadius="0 10 10 0"
-                              Foreground="{ThemeResource PrimaryForeground}"
-                              Margin="0, 0, 0, 0"
-                              Padding="16, 0 0 0"
-                              Width="96"
-                              VerticalAlignment="Stretch"
-                              PlaceholderText="Default"
-                              ItemsSource="{Binding TracksSortList}"
-                              SelectedItem="{Binding SelectedTrackSort, Mode=TwoWay}">
-                        
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate x:DataType="model:Sorting">
-                                <TextBlock Text="{Binding Title}"
-                                           FontSize="14"
-                                           FontWeight="Normal" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-                </Grid>
-            </Grid>
-            <ListView x:Name="TracksContentView"
-                      Grid.Row="1"
-                      Margin="0 8 -16 0"
-                      Padding="0 0 16 0"
-                      SelectionMode="None"
-                      IsItemClickEnabled="True"
-                      model:ItemClickCommand.Command="{Binding TracksViewItemClickCommand}"
-                      ItemsSource="{Binding TracksCollectionView}"
-                      ItemContainerStyle="{StaticResource ListViewItemContainerStyle1}">
-
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="model:Track">
-                            <Grid Height="56"
-                                  Background="Transparent"
-                                  extensions:Mouse.Cursor="Hand"
-                                  Padding="8,0,8,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Interactivity:Interaction.Behaviors>
-                                    <Core:EventTriggerBehavior EventName="PointerEntered">
-                                        <Core:CallMethodAction TargetObject="{Binding ElementName=TracksViewPlayBtnFadeIn}" MethodName="StartAnimation"/>
-                                    </Core:EventTriggerBehavior>
-                                    <Core:EventTriggerBehavior EventName="PointerExited">
-                                        <Core:CallMethodAction TargetObject="{Binding ElementName=TracksViewPlayBtnFadeOut}" MethodName="StartAnimation"/>
-                                    </Core:EventTriggerBehavior>
-                                </Interactivity:Interaction.Behaviors>
-                                <Grid x:Name="SelectedTracksBackground"
-                                      Background="{ThemeResource ListViewItemBackgroundSelected}"
-                                      Grid.ColumnSpan="100"
-                                      Grid.RowSpan="100"
-                                      Margin="-16 0"
-                                      Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="auto"/>
-                                        <ColumnDefinition Width="auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Height="24"
-                                          Width="24"
-                                          Margin="0,0,12,0">
-                                        <TextBlock FontSize="14"
-                                                   Text="{Binding IndexA, FallbackValue=0}"
-                                                   Foreground="{ThemeResource SecondaryForeground}"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center">
-
-                                        </TextBlock>
-                                        <Grid Height="20"
-                                              Width="20" 
-                                              BorderThickness="1"
-                                              CornerRadius="24"
-                                              Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <Grid.Background>
-                                                <SolidColorBrush Color="White" Opacity=".9"/>
-                                            </Grid.Background>
-                                            <FontIcon Glyph="&#xE73E;" FontSize="14" Foreground="Black"/>
-                                        </Grid>
-                                    </Grid>
-                                    <Grid Grid.Column="1"
-                                              Background="#010101"
-                                              Height="40"
-                                              Width="40"
-                                              Margin="0,0,12,0">
-                                        <Image Source="{Binding Image}" Stretch="UniformToFill"/>
-                                        <Button Style="{StaticResource TextBlockButtonStyle}"
-                                                CommandParameter="{Binding}"
-                                                Command="{Binding DataContext.PlayItemCommand, ElementName=page}"
-                                                Foreground="WhiteSmoke"
-                                                Height="40"
-                                                Width="40"
-                                                Opacity="0"
-                                                Padding="0"
-                                                HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch">
-                                            <Button.Background>
-                                                <media:AcrylicBrush BackgroundSource="Backdrop"
-                                                                    TintColor="#000000"
-                                                                    TintOpacity="0.30"
-                                                                    BlurAmount="2" 
-                                                                    FallbackColor="#000000"/>
-                                            </Button.Background>
-                                            <Interactivity:Interaction.Behaviors>
-                                                <ToolkitBehaviors:Fade x:Name="TracksViewPlayBtnFadeIn" Duration="250" Delay="0" AutomaticallyStart="False" Value="1" EasingMode="EaseOut" EasingType="Linear" />
-                                                <ToolkitBehaviors:Fade x:Name="TracksViewPlayBtnFadeOut" Duration="250" Delay="0" AutomaticallyStart="False" Value="0" EasingMode="EaseOut" EasingType="Linear" />
-                                            </Interactivity:Interaction.Behaviors>
-                                            <FontIcon Glyph="&#xE102;"/>
-                                        </Button>
-                                    </Grid>
-                                    <Grid Grid.Column="2" 
-                                              Margin="0,0,8,0"
-                                              VerticalAlignment="Center">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="auto"/>
-                                            <RowDefinition Height="auto"/>
-                                        </Grid.RowDefinitions>
-                                        <TextBlock FontSize="14"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{ThemeResource PrimaryForeground}"
-                                                   Text="{Binding Title, FallbackValue=Title}"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   TextWrapping="NoWrap"
-                                                   Margin="0,0,0,0"/>
-                                        <Grid Grid.Row="1">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Border Background="#C8C8D1" 
-                                                    CornerRadius="1"
-                                                    Margin="0 0 8 0"
-                                                    Height="12" 
-                                                    Width="12"
-                                                    Visibility="{Binding IsExplicit, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                <TextBlock FontSize="10"
-                                                           FontWeight="Bold"
-                                                           Foreground="Black"
-                                                           Text="E"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"/>
-                                            </Border>
-                                            <TextBlock FontSize="14"
-                                                       Grid.Column="1"
-                                                       Foreground="{ThemeResource SecondaryForeground}"
-                                                       Text="{Binding Artist, FallbackValue=Unknown}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
-                                <Grid Grid.Column="1">
-                                    <Button x:Name="TrackOptions"
-                                            extensions:Mouse.Cursor="Hand"
-                                            Grid.Column="2"
-                                            Foreground="{ThemeResource SecondaryForeground}"
-                                            HorizontalContentAlignment="Center"
-                                            VerticalAlignment="Stretch"
-                                            Width="48"
-                                            Style="{StaticResource TextBlockButtonStyle}">
-                                        <Button.Flyout>
-                                            <MenuFlyout>
-                                                <MenuFlyoutItem Text="Queue"
-                                                                Command="{Binding DataContext.AddToQueueCommand, ElementName=page}" 
-                                                                CommandParameter="{Binding}">
-                                                    <MenuFlyoutItem.Icon>
-                                                        <FontIcon Glyph="&#xE104;"/>
-                                                    </MenuFlyoutItem.Icon>
-                                                </MenuFlyoutItem>
-                                                <MenuFlyoutItem Text="Add to"
-                                                                Command="{Binding DataContext.ShowCloneDialogCommand, ElementName=page}" 
-                                                                CommandParameter="{Binding}">
-                                                    <MenuFlyoutItem.Icon>
-                                                        <FontIcon Glyph="&#xE109;"/>
-                                                    </MenuFlyoutItem.Icon>
-                                                </MenuFlyoutItem>
-                                                <MenuFlyoutSeparator/>
-                                                <MenuFlyoutItem Text="Remove item" 
-                                                                CommandParameter="{Binding}" 
-                                                                Command="{Binding DataContext.RemoveTrackCommand, ElementName=page}"
-                                                                Visibility="{Binding DataContext.ActivePlaylist.CanModify, ElementName=page, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                    <MenuFlyoutItem.Icon>
-                                                        <FontIcon Glyph="&#xE106;"/>
-                                                    </MenuFlyoutItem.Icon>
-                                                </MenuFlyoutItem>
-                                            </MenuFlyout>
-                                        </Button.Flyout>
-                                        <FontIcon Glyph="&#xE712;" FontSize="16"/>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            <Grid Height="44" 
-                  Grid.Row="2"
-                  Grid.RowSpan="10" 
-                  VerticalAlignment="Bottom"
-                  Visibility="{Binding HasSelectedTracks, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <animations:Implicit.ShowAnimations>
-                    <animations:ScalarAnimation Target="Translation.Y" Duration="00:00:00.3000000" From="50" To="0"/>
-                    <animations:OpacityAnimation Duration="00:00:00.3000000" To="1"/>
-                </animations:Implicit.ShowAnimations>
-                <animations:Implicit.HideAnimations>
-                    <animations:ScalarAnimation Target="Translation.Y" Duration="00:00:00.1500000" To="50"/>
-                    <animations:OpacityAnimation Duration="00:00:00.1500000" To="0"/>
-                </animations:Implicit.HideAnimations>
-                
-                <Button Command="{Binding ClearSelectedTracksCommand}"
-                        extensions:Mouse.Cursor="Hand"
-                        Style="{StaticResource TextBlockButtonStyle}"
-                        ToolTipService.ToolTip="Clear Selected Tracks"
-                        VerticalAlignment="Stretch">
-                    <StackPanel Orientation="Horizontal">
-                        <FontIcon Glyph="&#xE1EF;" FontSize="16" Foreground="{ThemeResource PrimaryForeground}" Margin="0,0,8,0"/>
-                       <TextBlock Text="{Binding SelectedTracks.Count, FallbackValue=0}" 
-                                  FontSize="14" 
-                                  Foreground="{ThemeResource PrimaryForeground}"
-                                  Margin="0 0 0 1"
-                                  VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                <StackPanel Grid.Column="1"
-                            Height="32"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Right">
-                    <Button Background="#161616"
-                            Command="{Binding PlaySelectedTracksCommand}"
-                            CornerRadius="10"
-                            extensions:Mouse.Cursor="Hand"
-                            Foreground="{ThemeResource PrimaryForeground}"
-                            Padding="16 0"
-                            VerticalAlignment="Stretch"
-                            IsEnabled="{Binding IsTracksViewBusy, Converter={StaticResource BoolNegationConverter}}">
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon Glyph="&#xE768;" FontSize="14"/>
-                            <TextBlock Text="Play" FontSize="12" Margin="8 0 0 0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button Background="#161616"
-                            Command="{Binding RemoveSelectedTracksCommand}"
-                            CornerRadius="10"
-                            extensions:Mouse.Cursor="Hand"
-                            Foreground="{ThemeResource PrimaryForeground}"
-                            Margin="8 0 0 0"
-                            Padding="16 0"
-                            VerticalAlignment="Stretch"
-                            IsEnabled="{Binding IsTracksViewBusy, Converter={StaticResource BoolNegationConverter}}">
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon Glyph="&#xE10A;" FontSize="14"/>
-                            <TextBlock Text="Remove" FontSize="12" Margin="8 0 0 0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button extensions:Mouse.Cursor="Hand"
-                            Foreground="{ThemeResource PrimaryForeground}"
-                            Margin="8 0 0 0"
-                            Padding="16 0"
-                            VerticalAlignment="Stretch"
-                            IsEnabled="{Binding IsTracksViewBusy, Converter={StaticResource BoolNegationConverter}}"
-                            Style="{StaticResource TextBlockButtonStyle}">
-                        <Button.Flyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Text="Create new playlist" Command="{Binding ShowCreatePlaylistTracksDialogCommand}">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xED11;"/>
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
-                                <MenuFlyoutItem Text="Add to other playlist" Command="{Binding AddSelectedTracksToPlaylistCommand}">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE8D6;"/>
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
-                            </MenuFlyout>
-                        </Button.Flyout>
-                        <FontIcon Glyph="&#xE712;" FontSize="16"/>
-                    </Button>
-                </StackPanel>
-            </Grid>
-            <Grid Grid.RowSpan="10" 
-                  Margin="-16, -36, -16, -16"
-                  Visibility="{Binding IsTracksViewBusy, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=collapsed}">
-                <Grid.Background>
-                    <media:AcrylicBrush
-                          BackgroundSource="Backdrop"
-                          TintColor="#010101"
-                          TintOpacity="0.55"
-                          BlurAmount="3"/>
-                </Grid.Background>
-                <muxc:ProgressRing IsActive="{Binding IsTracksViewBusy}" 
-                              Height="48" Width="48"
-                              Foreground="{ThemeResource PrimaryForeground}"/>
-            </Grid>
-        </Grid>
+        <UserControl x:Name="SelectedPlaylistControl"
+                     Grid.Column="2"
+                     Content="{Binding SelectedPlaylistControl}"
+                     Visibility="{Binding IsSelectedPlaylistViewOpen, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=collapsed}">
+                    <animations:Implicit.ShowAnimations>
+                        <animations:ScalarAnimation Target="Translation.X" Duration="00:00:00.4000000" From="390" To="0"/>
+                    </animations:Implicit.ShowAnimations>
+                    <animations:Implicit.HideAnimations>
+                        <animations:ScalarAnimation Target="Translation.X" Duration="00:00:00.1500000" To="390"/>
+                    </animations:Implicit.HideAnimations>           
+        </UserControl>
+        <UserControl x:Name="TracksViewControl"
+                     Grid.Column="2"
+                     Content="{Binding TracksViewControl}"
+                     Visibility="{Binding IsTracksViewOpen, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=collapsed}">
+                    <animations:Implicit.ShowAnimations>
+                        <animations:ScalarAnimation Target="Translation.X" Duration="00:00:00.4000000" From="390" To="0"/>
+                        <animations:OpacityAnimation Duration="00:00:00.3000000" To="1"/>
+                    </animations:Implicit.ShowAnimations>
+                    <animations:Implicit.HideAnimations>
+                        <animations:ScalarAnimation Target="Translation.X" Duration="00:00:00.1500000" To="390"/>
+                        <animations:OpacityAnimation Duration="00:00:00.1500000" To="0"/>
+                    </animations:Implicit.HideAnimations>
+        </UserControl>
         <Grid Height="32" 
               VerticalAlignment="Top" 
               Grid.RowSpan="100"
@@ -1862,16 +775,27 @@
 
             </Grid>
         </Grid>
-        <Grid x:Name="LoginView"
+        <Grid x:Name="DialogBackdrop"
               Grid.ColumnSpan="100"
               Grid.RowSpan="100"
-              Visibility="{Binding ShowLogin, Converter={StaticResource BoolToVisibilityConverter}}">
+              Visibility="{Binding IsDialogOpen, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=collapsed}">
             <Grid.Background>
-                <media:AcrylicBrush
-                      BackgroundSource="Backdrop"
-                      TintColor="#010101"
-                      TintOpacity="0.85"
-                      BlurAmount="12"/>
+                <media:AcrylicBrush BackgroundSource="Backdrop"
+                                    TintColor="#000000"
+                                    TintOpacity="0.70"
+                                    BlurAmount="5" 
+                                    FallbackColor="#000000"/>
+            </Grid.Background>
+        </Grid>
+        <Grid x:Name="LoginView"
+                Grid.ColumnSpan="100"
+                Grid.RowSpan="100"
+                Visibility="{Binding ShowLogin, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=collapsed}">
+            <Grid.Background>
+                <media:AcrylicBrush BackgroundSource="Backdrop"
+                                    TintColor="#010101"
+                                    TintOpacity="0.85"
+                                    BlurAmount="12"/>
             </Grid.Background>
             <StackPanel MaxWidth="300" VerticalAlignment="Center">
                 <Image Source="/Assets/with_shadow.png" Stretch="Uniform" Margin="0 0 0 24" Width="200"/>
@@ -1881,7 +805,8 @@
                            TextAlignment="Center"
                            HorizontalAlignment="Left"
                            TextWrapping="WrapWholeWords"/>
-                <Button RequestedTheme="Dark" 
+                <Button x:Name="ConnectSpotify"
+                        RequestedTheme="Dark" 
                         extensions:Mouse.Cursor="Hand"
                         Background="White"
                         Margin="0 24 0 12" 
@@ -1914,31 +839,26 @@
                         VerticalAlignment="Stretch"
                         VerticalContentAlignment="Center"
                         Style="{StaticResource TextBlockButtonStyle}">
-                        <TextBlock Text="OR REFRESH APP" FontSize="12" TextDecorations="Underline"/>
-                    </Button>
+                    <TextBlock Text="OR REFRESH APP" FontSize="12" TextDecorations="Underline"/>
+                </Button>
             </StackPanel>
-
-
-            <ProgressBar Grid.ColumnSpan="100"
-                     IsIndeterminate="{Binding IsLoading}"
-                     Foreground="White" 
-                         Margin="36"
-                     VerticalAlignment="Top"
-                     Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
         </Grid>
-        <Grid x:Name="DialogBackdrop"
-              Grid.ColumnSpan="100"
-              Grid.RowSpan="100"
-              Visibility="{Binding IsDialogOpen, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Grid.Background>
-                <media:AcrylicBrush BackgroundSource="Backdrop"
-                                    TintColor="#000000"
-                                    TintOpacity="0.70"
-                                    BlurAmount="5" 
-                                    FallbackColor="#000000"/>
-            </Grid.Background>
-        </Grid>
+
+        <ToggleButton Grid.ColumnSpan="10"
+                      CornerRadius="16"
+                      extensions:Mouse.Cursor="Hand"
+                      IsChecked="{Binding IsSelectedPlaylistViewOpen, Mode=TwoWay}"
+                      Background="{ThemeResource PrimaryThemeBrush}"
+                      Foreground="{ThemeResource PrimaryForeground}"
+                      Height="44"
+                      Width="44"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Center"
+                      Margin="24"
+                      Visibility="{Binding IsSelectedPlaylistViewOpen, Converter={StaticResource BoolToVisibilityInverseConverter}}">
+            <FontIcon Glyph="&#xE700;" FontSize="16"/>
+        </ToggleButton>
+        
         <UserControl x:Name="MessageBox"
                      Height="64"
                      Grid.Column="1" VerticalAlignment="Bottom"

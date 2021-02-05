@@ -1,0 +1,355 @@
+﻿<UserControl x:Name="page"
+             x:Class="spotify.playlist.merger.Views.SelectedPlaylistView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:spotify.playlist.merger.Views"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             
+             xmlns:model="using:spotify.playlist.merger.Models"
+             xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+             xmlns:extensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+             xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
+             xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+             xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
+             xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+             xmlns:Core="using:Microsoft.Xaml.Interactions.Core"
+             xmlns:ToolkitBehaviors="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
+             DataContext="{Binding MainPageInstance, Source={StaticResource Locator}}"
+             
+             RequestedTheme="Dark"
+             Width="390">
+
+    <UserControl.Resources>
+        <Thickness x:Key="ContentDialogPadding">0</Thickness>
+        <SolidColorBrush x:Name="ButtonBackground" Color="#161616"/>
+        <converters:BoolToObjectConverter x:Key="BoolToVisibilityInverseConverter"
+                                          TrueValue="Collapsed"
+                                          FalseValue="Visible"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+    
+    <Grid x:Name="Main"
+          Background="#0C0C0C"
+          Padding="16, 36, 16, 16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid x:Name="Header"
+              Margin="0, 8"
+              Visibility="{Binding HasSelectedPlaylists, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Grid x:Name="Close" 
+                  Height="44">
+                <ToggleButton x:Name="CloseButton"
+                              Style="{StaticResource TextBlockButtonStyle}"
+                              extensions:Mouse.Cursor="Hand"
+                              IsChecked="{Binding IsSelectedPlaylistViewOpen, Mode=TwoWay}"
+                              FontSize="16"
+                              Foreground="{ThemeResource PrimaryForeground}"
+                              Padding="16 0"
+                              Margin="-12 0 0 0"
+                              VerticalAlignment="Stretch">
+                    <FontIcon Glyph="&#xE700;" FontSize="16"/>
+                </ToggleButton>
+            </Grid>
+            <Grid x:Name="Title"
+                  Grid.Row="1"
+                  Height="44">
+                <TextBlock Text="SELECTED PLAYLISTS"
+                           FontWeight="SemiBold"
+                           FontSize="14"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Margin="8 0 0 0"
+                           VerticalAlignment="Center"/>
+            </Grid>
+            <Grid x:Name="Meta" 
+                  Grid.Row="2"
+                  Height="44"
+                  Visibility="{Binding HasSelectedPlaylists, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid Height="36"
+                      Background="#131313"
+                      CornerRadius="10"
+                      Padding="16, 0 8 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{ThemeResource SecondaryThemeBrush}" Margin="0,0,8,0"/>
+                        <TextBlock FontSize="14"
+                                       Foreground="{ThemeResource PrimaryForeground}"
+                                       Margin="0,0,2,0"
+                                       Text="{Binding SelectedPlaylistCollection.Count, FallbackValue=0}"/>
+                        <TextBlock FontSize="14"
+                                       Foreground="{ThemeResource PrimaryForeground}"
+                                       Margin="0,0,4,0"
+                                       Text="playlists"/>
+                        <TextBlock FontSize="14"
+                                       Foreground="{ThemeResource SecondaryForeground}"
+                                       Margin="0,0,4,0"
+                                       Text="with"/>
+                        <TextBlock FontSize="14"
+                                       Foreground="{ThemeResource PrimaryForeground}"
+                                       Margin="0,0,2,0"
+                                       Text="{Binding TotalSelectedPlaylistTracks, FallbackValue=0}"/>
+                        <TextBlock FontSize="14"
+                                       Foreground="{ThemeResource PrimaryForeground}"
+                                       Margin="0,0,4,0"
+                                       Text="tracks"/>
+                    </StackPanel>
+                    <Button x:Name="ClearSelectedButton2"
+                                Grid.Column="1"
+                                extensions:Mouse.Cursor="Hand"
+                                Command="{Binding ClearSelectedCommand}"
+                                Foreground="#FDA500"
+                                Height="40" Opacity=".87"
+                                Content="Clear"
+                                FontWeight="SemiBold"
+                                Padding="16,0"
+                                Style="{StaticResource TextBlockButtonStyle}">
+
+                    </Button>
+                </Grid>
+            </Grid>
+        </Grid>
+        <Grid x:Name="Content"
+                  Grid.Row="1">
+            <ListView x:Name="SelectedContentView"
+                          Grid.Row="1"
+                          Margin="-16 0"
+                          SelectionMode="None"
+                          IsItemClickEnabled="True"
+                          model:ItemClickCommand.Command="{Binding PlaylistItemClickCommand}"
+                          ItemsSource="{Binding SelectedPlaylistCollection}"
+                          ItemContainerStyle="{StaticResource GlobalListViewItemContainerStyle}">
+
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="model:Playlist">
+                        <Grid Height="56"
+                                  Background="Transparent"
+                                  extensions:Mouse.Cursor="Hand"
+                                  Padding="24 0 16 0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Interactivity:Interaction.Behaviors>
+                                <Core:EventTriggerBehavior EventName="PointerEntered">
+                                    <Core:CallMethodAction TargetObject="{Binding ElementName=SelectedContentViewPlayBtnFadeIn}" MethodName="StartAnimation"/>
+                                </Core:EventTriggerBehavior>
+                                <Core:EventTriggerBehavior EventName="PointerExited">
+                                    <Core:CallMethodAction TargetObject="{Binding ElementName=SelectedContentViewPlayBtnFadeOut}" MethodName="StartAnimation"/>
+                                </Core:EventTriggerBehavior>
+                            </Interactivity:Interaction.Behaviors>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Height="24"
+                                          Width="24"
+                                          Margin="0,0,12,0">
+                                    <TextBlock FontSize="14"
+                                                   Text="{Binding IndexB, FallbackValue=0}"
+                                                   Foreground="{ThemeResource PrimaryForeground}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center">
+
+                                    </TextBlock>
+                                </Grid>
+                                <Grid x:Name="Thumbnail"
+                                              Grid.Column="1"
+                                              Background="#111111"
+                                              Height="40"
+                                              Width="40"
+                                              Margin="0,0,12,0">
+                                    <Image Source="{Binding Image}"/>
+                                    <Button Style="{StaticResource TextBlockButtonStyle}"
+                                                CommandParameter="{Binding}"
+                                                Command="{Binding DataContext.PlayItemCommand, ElementName=page}"
+                                                Foreground="WhiteSmoke"
+                                                Height="40"
+                                                Width="40"
+                                                Opacity="0"
+                                                Padding="0"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch">
+                                        <Button.Background>
+                                            <media:AcrylicBrush BackgroundSource="Backdrop"
+                                                                    TintColor="#000000"
+                                                                    TintOpacity="0.30"
+                                                                    BlurAmount="2" 
+                                                                    FallbackColor="#000000"/>
+                                        </Button.Background>
+                                        <Interactivity:Interaction.Behaviors>
+                                            <ToolkitBehaviors:Fade x:Name="SelectedContentViewPlayBtnFadeIn" Duration="250" Delay="0" AutomaticallyStart="False" Value="1" EasingMode="EaseOut" EasingType="Linear" />
+                                            <ToolkitBehaviors:Fade x:Name="SelectedContentViewPlayBtnFadeOut" Duration="250" Delay="0" AutomaticallyStart="False" Value="0" EasingMode="EaseOut" EasingType="Linear" />
+                                        </Interactivity:Interaction.Behaviors>
+                                        <FontIcon Glyph="&#xE102;"/>
+                                    </Button>
+                                </Grid>
+                                <Grid Grid.Column="2" 
+                                              Margin="0,0,16,0"
+                                              VerticalAlignment="Center">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock x:Name="Title"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource PrimaryForeground}"
+                                                   Text="{Binding Title, FallbackValue=Title}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   TextWrapping="NoWrap"
+                                                   Margin="0,0,0,0"/>
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock FontSize="14"
+                                                       Foreground="{ThemeResource SecondaryForeground}"
+                                                       Text="By"
+                                                       Margin="0,0,4,0"/>
+                                        <TextBlock x:Name="Owner"
+                                                       Grid.Column="1"
+                                                       FontSize="14"
+                                                       Foreground="{ThemeResource SecondaryForeground}"
+                                                       Text="{Binding Owner.Title, FallbackValue=Owner}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <Button x:Name="RemoveSelectedButton"
+                                            VerticalAlignment="Stretch"
+                                            Padding="16,0"
+                                            Foreground="{ThemeResource SecondaryForeground}"
+                                            Command="{Binding ElementName=page, Path=DataContext.UnselectPlaylistCommand}" 
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource TextBlockButtonStyle}">
+                                    <FontIcon Glyph="&#xE10A;" FontSize="16"/>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <StackPanel x:Name="NoPlaylistMessage"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding HasSelectedPlaylists, Converter={StaticResource BoolToVisibilityInverseConverter}}">
+                <FontIcon Glyph="&#xED11;" 
+                          FontSize="16" 
+                          FontWeight="Light" 
+                          Foreground="{ThemeResource SecondaryForeground}"
+                          Margin="0 0 0 8"/>
+                <TextBlock FontSize="14" 
+                           Foreground="{ThemeResource SecondaryForeground}"
+                           FontFamily="Segoe UI"
+                           TextAlignment="Center"
+                           HorizontalAlignment="Left"
+                           TextWrapping="WrapWholeWords"
+                           MaxWidth="250">
+                        <Span xml:space="preserve"><Run>You haven't added any playlist yet, please select one or more to</Run><Bold FontWeight="SemiBold" Foreground="{ThemeResource SecondaryThemeBrush}"> Play</Bold><Run>,</Run><Bold FontWeight="SemiBold" Foreground="{ThemeResource SecondaryThemeBrush}"> Merge</Bold><Run>, or</Run><Bold FontWeight="SemiBold" Foreground="{ThemeResource SecondaryThemeBrush}"> Unfollow</Bold><Run>.</Run></Span>
+                </TextBlock>
+            </StackPanel>
+
+        </Grid>
+        <Grid x:Name="Footer"
+                  Grid.Row="2"
+                  Height="44"
+                  Visibility="{Binding HasSelectedPlaylists, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Command="{Binding ClearSelectedCommand}"
+                    extensions:Mouse.Cursor="Hand"
+                    Style="{StaticResource TextBlockButtonStyle}"
+                    ToolTipService.ToolTip="Clear Selected Playlists"
+                    VerticalAlignment="Stretch">
+                <TextBlock Text="{Binding SelectedPlaylistCollection.Count, FallbackValue=0}" 
+                           FontSize="14" 
+                           Foreground="{ThemeResource PrimaryForeground}"
+                           VerticalAlignment="Center"/>
+            </Button>
+            <StackPanel Grid.Column="1" 
+                        Height="32"
+                        HorizontalAlignment="Right" 
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center">
+                <Button x:Name="PlayButton"
+                        Background="{ThemeResource ButtonBackground}"
+                        Command="{Binding PlaySelectedCommand}"
+                        CornerRadius="10"
+                        extensions:Mouse.Cursor="Hand"
+                        Foreground="{ThemeResource PrimaryForeground}"
+                        Padding="16 0"
+                        VerticalAlignment="Stretch"
+                        IsEnabled="{Binding CanPlay}">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE768;" FontSize="14"/>
+                        <TextBlock Text="Play" FontSize="12" Margin="8 0 0 0"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="MergeButton"
+                        Background="{ThemeResource ButtonBackground}"
+                        IsEnabled="{Binding CanMerge}"
+                        Command="{Binding ShowMergeDialogCommand}"
+                        CornerRadius="10"
+                        extensions:Mouse.Cursor="Hand"
+                        Foreground="{ThemeResource PrimaryForeground}"
+                        Margin="8 0 0 0"
+                        Padding="16 0"
+                        VerticalAlignment="Stretch">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xEA3C;" FontSize="14"/>
+                        <TextBlock Text="Merge" FontSize="12" Margin="8 0 0 0"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="UnfollowButton"
+                        Background="{ThemeResource ButtonBackground}"
+                        Command="{Binding UnfollowSelectedCommand}"
+                        CornerRadius="10"
+                        IsEnabled="{Binding CanPlay}"
+                        extensions:Mouse.Cursor="Hand"
+                        Foreground="{ThemeResource PrimaryForeground}"
+                        Margin="8 0 0 0"
+                        Padding="16 0"
+                        VerticalAlignment="Stretch">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE10A;" FontSize="14"/>
+                        <TextBlock Text="Unfollow" FontSize="12" Margin="8 0 0 0"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <Grid x:Name="LoadingIndicator"
+                  Grid.RowSpan="100"
+                  Margin="-16, -36, -16, -16"
+                  Visibility="{Binding IsRightBarBusy, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=collapsed}">
+            <Grid.Background>
+                <media:AcrylicBrush
+                      BackgroundSource="Backdrop"
+                      TintColor="#010101"
+                      TintOpacity="0.70"
+                      BlurAmount="12"/>
+
+            </Grid.Background>
+            <muxc:ProgressRing IsActive="{Binding IsRightBarBusy}" Height="40" Width="40" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="WhiteSmoke"/>
+        </Grid>
+    </Grid>
+</UserControl>

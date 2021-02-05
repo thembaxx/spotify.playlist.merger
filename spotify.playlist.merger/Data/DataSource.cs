@@ -85,46 +85,36 @@ namespace spotify.playlist.merger.Data
             }
         }
 
-        public async Task<bool> GetPlaylists()
+        private Paging<SimplePlaylist> _tempPage = null;
+        public async Task<int> GetUsersPlaylistsCount()
         {
-            Messenger.Default.Send(new MessengerHelper
+            try
             {
-                Item = true,
-                Action = MessengerAction.IsLoading,
-            });
-
-            if (startIndex == 0)
-            {
-                page = await SpotifyApi.GetInitialPlaylist(limit);
-                startIndex += page.Items.Count;
-                var items = ConvertPlaylists(page.Items);
-                
-                //add items to collection
-                ViewModels.MainPageViewModel.Current.AddToCollection(items);
+                _tempPage = await SpotifyApi.GetInitialPlaylist(limit);
+                return _tempPage.Total.Value;
             }
-
-            //get the rest of the playlists
-            while (startIndex < page.Total)
+            catch (Exception)
             {
-                var results = await SpotifyApi.GetPlaylists(startIndex, limit);
-                startIndex += results.Count;
-                var items = ConvertPlaylists(results);
-                
-                ViewModels.MainPageViewModel.Current.AddToCollection(items);
-                //ViewModels.MainPageViewModel.Current.AddToCollection(files);
-
-                //delay to avoid api limit
-                //await Task.Delay(3000);
+                return -1;
             }
+        }
 
-            startIndex = 0;
-
-            Messenger.Default.Send(new MessengerHelper
+        public async Task<List<Playlist>> GetPlaylistsAsync(int startIndex, int limit = 20)
+        {
+            try
             {
-                Item = false,
-                Action = MessengerAction.IsLoading,
-            });
-            return true;
+                if (startIndex == 0 && _tempPage != null)
+                    return ConvertPlaylists(_tempPage.Items);
+                else
+                {
+                    var items = await SpotifyApi.GetPlaylists(startIndex, limit);
+                    return ConvertPlaylists(items);
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -580,6 +570,11 @@ namespace spotify.playlist.merger.Data
         public async Task<bool> AddToQueue(string uri)
         {
             return await SpotifyApi.AddToQueue(uri);
+        }
+
+        internal async Task<bool> AddToPlaylist(IEnumerable<string> trackUris, string playlistId)
+        {
+            return await SpotifyApi.AddToPlaylist(trackUris, playlistId);
         }
     }
 }

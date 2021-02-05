@@ -570,6 +570,31 @@ namespace spotify.playlist.merger.Data
             }
         }
 
+        internal static async Task<bool> AddToPlaylist(IEnumerable<string> trackUris, string playlistId)
+        {
+            PlaylistAddItemsRequest request = new PlaylistAddItemsRequest(trackUris.ToList());
+            try
+            {
+                return (await SpotifyClient.Playlists.AddItems(playlistId, request) != null);
+
+            }
+            catch (Exception)
+            {
+                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
+                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
+                    !await IsClientValid())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                else if (SpotifyClient == null && !await IsAuthenticated())
+                {
+                    SpotifyClient = await Authenticate();
+                }
+                return (await SpotifyClient.Playlists.AddItems(playlistId, request) != null);
+
+            }
+        }
+
         public static async Task<bool> PlaybackMediaItem(string uri, int index = 0)
         {
             try

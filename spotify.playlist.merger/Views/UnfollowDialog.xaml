@@ -16,6 +16,7 @@
     Background="{ThemeResource ItemBackgroundThemeBrush}">
 
     <ContentDialog.Resources>
+        <Thickness x:Key="ContentDialogPadding">0</Thickness>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <Style x:Key="ListViewItemContainerStyle1" TargetType="ListViewItem">
             <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}"/>
@@ -87,8 +88,8 @@
             </Setter>
         </Style>
     </ContentDialog.Resources>
-    
-    <Grid Width="390">
+
+    <Grid MaxHeight="600" Width="390" Margin="24 18 24 24">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
@@ -142,14 +143,14 @@
                   MaxHeight="400"
                   MinHeight="0"
                   SelectionMode="None"
-                  Margin="0 16"
+                  Margin="-24 16"
                   Padding="4 0 0 0"
                   ItemsSource="{Binding UnfollowPlaylistCollection}"
                   ItemContainerStyle="{StaticResource ListViewItemContainerStyle1}">
-           
+            <Grid/>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Height="56" Background="Transparent">
+                    <Grid Height="56" Background="Transparent" Padding="24 0 16 0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="auto"/>
@@ -160,15 +161,6 @@
                                 <ColumnDefinition Width="auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <!--<Grid Height="24" Width="24" Margin="0,0,12,0">
-                                <TextBlock FontSize="14"
-                                            Text="{Binding IndexC, FallbackValue=0}"
-                                            Foreground="{ThemeResource PrimaryForeground}"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center">
-
-                                </TextBlock>
-                            </Grid>-->
                             <Grid x:Name="Thumbnail"
                                     Grid.Column="1"
                                     Background="#111111"
@@ -221,7 +213,7 @@
         </ListView>
         <Grid Grid.Row="2">
             <TextBlock FontSize="12" TextWrapping="WrapWholeWords" Foreground="{ThemeResource SecondaryForeground}">
-                <Span xml:space="preserve"><Run>To recover your deleted playlists, visit  </Run><Hyperlink TextDecorations="None" FontWeight="Medium" NavigateUri="https://www.spotify.com/us/account/recover-playlists/" Foreground="{ThemeResource WarningThemeBrush}">Spotify Help</Hyperlink><Run> to find instructions on how to do so.</Run></Span>
+                <Span xml:space="preserve"><Run>To recover your deleted playlists, please visit  </Run><Hyperlink TextDecorations="None" FontWeight="Medium" NavigateUri="https://www.spotify.com/us/account/recover-playlists/" Foreground="{ThemeResource WarningThemeBrush}">Spotify Help</Hyperlink><Run> center to find instructions on how to recover deleted playlists.</Run></Span>
             </TextBlock>
         </Grid>
         <Grid Grid.Row="3" 
@@ -232,7 +224,7 @@
                 <ColumnDefinition Width="8"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button Background="{ThemeResource DangerThemeBrush}"
+            <Button Background="{ThemeResource PrimaryThemeBrush}"
                     CornerRadius="10"
                     Content="Unfollow" 
                     extensions:Mouse.Cursor="Hand"
