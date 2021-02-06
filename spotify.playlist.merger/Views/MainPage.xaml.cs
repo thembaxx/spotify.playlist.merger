@@ -2,7 +2,6 @@
 using Microsoft.Toolkit.Uwp.UI.Extensions;
 using spotify.playlist.merger.Models;
 using System;
-using System.Linq;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -19,6 +18,7 @@ namespace spotify.playlist.merger.Views
     {
         public static MainPage Current;
         private readonly PlaylistDialog playlistDialog;
+        private readonly AddToPlaylistDialog addToPlaylistDialog;
         private UnfollowDialog _unfollowDialog;
 
         public MainPage()
@@ -29,6 +29,7 @@ namespace spotify.playlist.merger.Views
             Initialize();
             playlistDialog = new PlaylistDialog();
             _unfollowDialog = new UnfollowDialog();
+            addToPlaylistDialog = new AddToPlaylistDialog();
             RegisterMessenger();
         }
 
@@ -81,6 +82,14 @@ namespace spotify.playlist.merger.Views
                     else if (_unfollowDialog != null)
                         _unfollowDialog.Hide();
                     break;
+                case DialogType.AddToPlaylist:
+                    if (manager.Action == DialogAction.Show)
+                    {
+                        await addToPlaylistDialog.ShowAsync();
+                    }
+                    else if (addToPlaylistDialog != null)
+                        addToPlaylistDialog.Hide();
+                    break;
             }
         }
 
@@ -98,14 +107,20 @@ namespace spotify.playlist.merger.Views
 
                     }
                     break;
-                case MessengerAction.ScrollToItem:
-                    if(helper.Target == TargetView.Tracks)
-                    {
-                        if (helper.Item == null && TracksContentView.Items != null) helper.Item = TracksContentView.Items.FirstOrDefault();
-                        TracksContentView.ScrollIntoView(helper.Item, ScrollIntoViewAlignment.Leading);
-                    }
-                    break;
             }
+        }
+
+        private void MediaItem_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            FrameworkElement senderElement = sender as FrameworkElement;
+            FlyoutBase flyoutBase = FlyoutBase.GetAttachedFlyout(senderElement);
+            FlyoutShowOptions options = new FlyoutShowOptions
+            {
+                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                Position = e.GetPosition(senderElement),
+                ShowMode = FlyoutShowMode.Standard
+            };
+            flyoutBase.ShowAt(senderElement, options);
         }
     }
 }

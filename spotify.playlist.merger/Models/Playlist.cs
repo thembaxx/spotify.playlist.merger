@@ -69,5 +69,25 @@
             get { return _owner; }
             set { SetProperty(this._owner, value, () => this._owner = value); }
         }
+
+        internal Playlist Clone()
+        {
+            return new Playlist
+            {
+                Id = Id,
+                Title = Title,
+                Uri = Uri,
+                Image = Image,
+                Description = Description,
+                Count = Count,
+                Duration = Duration,
+                Owner = Owner,
+                Type = Type,
+                IndexA = IndexA,
+                IndexB = IndexB,
+                IndexC = IndexC,
+                CanModify = CanModify,
+            };
+        }
     }
 }
