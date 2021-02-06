@@ -1,9 +1,11 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Toolkit.Uwp.UI;
 using spotify.playlist.merger.Data;
 using spotify.playlist.merger.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace spotify.playlist.merger.ViewModels
@@ -23,6 +25,17 @@ namespace spotify.playlist.merger.ViewModels
             }
         }
 
+        private string _mergeProgressText;
+        public string MergeProgressText
+        {
+            get => _mergeProgressText;
+            set
+            {
+                _mergeProgressText = value;
+                RaisePropertyChanged("MergeProgressText");
+            }
+        }
+
         private RelayCommand _mergeCommand;
         public RelayCommand MergeCommand
         {
@@ -32,7 +45,7 @@ namespace spotify.playlist.merger.ViewModels
                 {
                     _mergeCommand = new RelayCommand(() =>
                     {
-                        MergePlaylist();
+                        MergePlaylist(SelectedPlaylistCollection);
                     });
                 }
                 return _mergeCommand;
@@ -67,49 +80,117 @@ namespace spotify.playlist.merger.ViewModels
                 {
                     _mergeSelectedPlaylistCommand = new RelayCommand(() =>
                     {
-                        MergePlaylist();
+                        MergePlaylist(SelectedPlaylistCollection);
                     });
                 }
                 return _mergeSelectedPlaylistCommand;
             }
         }
 
-        private async void MergePlaylist()
+        private async void MergePlaylist(IEnumerable<Playlist> playlists)
         {
+            if (string.IsNullOrEmpty(PlaylistDialogName) || playlists.Count() == 0)
+                return;
+
+            MergeProgressText = string.Concat("Preparing to merge ", playlists.Count(), " playlists...");
+
             IsDialogBusy = true;
+            List<string> trackUris = new List<string>();
+            int currentIndex = 1;
 
-            //display a dialog for the time being to get name
-            if (!string.IsNullOrEmpty(PlaylistDialogName) && SelectedPlaylistCollection.Count > 0)
+            foreach (var playlist in playlists)
             {
-                var playlist = await DataSource.Current.MergeSpotifyPlaylists(PlaylistDialogName, PlaylistDialogDescription, SelectedPlaylistCollection, _base64JpegData);
-                if (playlist != null)
+                int total = playlist.Count;
+                int startIndex = 0;
+                List<string> uris;
+
+                MergeProgressText = string.Concat("Processing playlist ", currentIndex, " of ", playlists.Count(), ": getting tracks...");
+                while (startIndex < total - 1)
                 {
-                    if (UnfollowAfterMerge)
+                    uris = await DataSource.Current.GetTrackUrisAsync(playlist.Id, startIndex);
+
+                    if (uris == null || uris.Count == 0) break;
+                    startIndex += uris.Count - 1;
+                    int i = 1;
+                    foreach (var uri in uris)
                     {
-                        await DataSource.Current.UnfollowSpotifyPlaylist(SelectedPlaylistCollection.Select(c => c.Id));
-                        UnfollowAfterMerge = false;
+                        if (!trackUris.Contains(uri)) trackUris.Add(uri);
                     }
 
-                    HidePlaylistDialog(DialogType.Merge);
+                    
+                }
 
-                    ResetPlaylistDialog();
-                    var selected = SelectedPlaylistCollection.ToList();
-                    foreach (var item in selected)
+                currentIndex++;
+            }
+
+            MergeProgressText = string.Concat("Successfully processed ", trackUris.Count, " of ", playlists.Sum(c => c.Count), " tracks.");
+
+            var newPlaylist = await DataSource.Current.CreateSpotifyPlaylist(PlaylistDialogName, PlaylistDialogDescription, _base64JpegData);
+            if (newPlaylist != null)
+            {
+                MergeProgressText = string.Concat("Playlist(", newPlaylist.Title, " created, adding tracks to new playlist.");
+                if (trackUris.Count > 100)
+                {
+                    int startIndex = 0;
+                    int endIndex = 0;
+                    while (startIndex < trackUris.Count - 1)
                     {
-                        item.IsSelected = false;
-                        SelectedPlaylistCollection.Remove(item);
+                        endIndex = ((startIndex + 100) < trackUris.Count - 1) ? 100 : ((trackUris.Count - startIndex));
+                        var batch = trackUris.GetRange(startIndex, endIndex);
+                        startIndex += batch.Count - 1;
+
+                        MergeProgressText = string.Concat("Playlist(", newPlaylist.Title, " created, adding tracks(", ((startIndex + 1) / trackUris.Count)*100, "%)");
+
+                        if (!await DataSource.Current.AddToPlaylist(batch, newPlaylist.Id))
+                            break;
                     }
-
-                    //add to first position, scroll to top
-                    AdvancedCollectionView.Insert(0, playlist);
-                    _playlistCollectionCopy.Add(playlist);
-                    UpdateItemIndex(AdvancedCollectionView);
-
-                    ShowNotification(NotificationType.Success, "Successfuly merged selected playlists.");
                 }
                 else
-                    ShowNotification(NotificationType.Error, "An error occured, failed to merge playlists.");
+                    await DataSource.Current.AddToPlaylist(trackUris, newPlaylist.Id);
+
+
+                MergeProgressText = string.Concat("Mergin playlists complete.");
+
+                IsPlaylistsLoading = true;
+
+                HidePlaylistDialog(DialogType.Merge);
+                ResetPlaylistDialog();
+                IsDialogBusy = false;
+
+                newPlaylist = await DataSource.Current.GetFullPlaylistAsync(newPlaylist.Id);
+
+                AdvancedCollectionView.Insert(0, newPlaylist);
+                _playlistCollectionCopy.Add(newPlaylist);
+                if (UnfollowAfterMerge)
+                {
+                    var unfollowed = await DataSource.Current.UnfollowSpotifyPlaylist(SelectedPlaylistCollection.Select(c => c.Id));
+                    RemoveItems(unfollowed);
+                }
+
+                var items = SelectedPlaylistCollection;
+                foreach (var item in items)
+                {
+                    item.IsSelected = false;
+                    SelectedPlaylistCollection.Remove(item);
+                }
+
+                using (AdvancedCollectionView.DeferRefresh())
+                {
+                    UpdateItemIndex(AdvancedCollectionView);
+                    Messenger.Default.Send(new MessengerHelper
+                    {
+                        Item = AdvancedCollectionView.FirstOrDefault(),
+                        Action = MessengerAction.ScrollToItem,
+                        Target = TargetView.Playlist
+                    });
+                }
+
+                ShowNotification(NotificationType.Success, "Successfuly merged selected playlists.");
+
+                IsPlaylistsLoading = false;
             }
+            else
+                ShowNotification(NotificationType.Error, "An error occured, failed to merge playlists.");
 
             IsDialogBusy = false;
         }

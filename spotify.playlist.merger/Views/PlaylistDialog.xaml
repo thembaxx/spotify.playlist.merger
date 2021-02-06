@@ -323,7 +323,7 @@
         </Style>
     </ContentDialog.Resources>
 
-    <Grid Width="432">
+    <Grid Width="390">
         <Grid Padding="24,18,24,24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
@@ -464,6 +464,7 @@
                             Background="{ThemeResource PrimaryThemeBrush}"
                             extensions:Mouse.Cursor="Hand"
                             Command="{Binding ClonePlaylistCommand}"
+                            CommandParameter="{Binding CurrentPlaylist}"
                             HorizontalAlignment="Stretch"
                             Foreground="{ThemeResource PrimaryForeground}"
                             VerticalAlignment="Stretch"
@@ -485,10 +486,36 @@
         </Grid>
         <Grid Grid.RowSpan="10" 
               Background="{ThemeResource LoadingBackgroundThemeBrush}"
-              Visibility="{Binding IsDialogBusy, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=collapsed}">
+              Visibility="{Binding IsDialogBusy, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=collapsedz}">
             <muxc:ProgressRing IsActive="{Binding IsDialogBusy}" 
-                          Height="48" Width="48"
-                          Foreground="{ThemeResource BrandColorThemeBrush}"/>
+                               Height="48" 
+                               Width="48"
+                               Foreground="White"/>
+            <Grid Height="44"
+                  CornerRadius="10"
+                  Margin="24"
+                  Padding="16 0"
+                  VerticalAlignment="Bottom"
+                  Visibility="{Binding IsMergeMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.Background>
+                    <SolidColorBrush Color="#161616"/>
+                </Grid.Background>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <FontIcon Glyph="&#xE946;" 
+                          FontSize="16" 
+                          Margin="0 2 0 0"
+                          Foreground="{ThemeResource SecondaryThemeBrush}"/>
+                <TextBlock Text="{Binding MergeProgressText}"
+                           Grid.Column="1"
+                           FontSize="14"
+                           Margin="8 0 0 0"
+                           Foreground="{ThemeResource SecondaryForeground}"
+                           TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center"/>
+            </Grid>
         </Grid>
     </Grid>
 </ContentDialog>

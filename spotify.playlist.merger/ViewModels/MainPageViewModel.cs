@@ -107,7 +107,7 @@ namespace spotify.playlist.merger.ViewModels
                 switch (result.Type)
                 {
                     case DialogType.Merge:
-                        MergePlaylist();
+                        MergePlaylist(SelectedPlaylistCollection);
                         break;
                     case DialogType.Unfollow:
                         await UnfollowPlaylists();
@@ -310,17 +310,6 @@ namespace spotify.playlist.merger.ViewModels
             if (collectionView == null) return;
             for (int i = 0; i < collectionView.Count; i++)
                 ((MediaItemBase)collectionView[i]).IndexA = i + 1;
-
-            //for (int i = 0; i < AdvancedCollectionView.Count; i++)
-            //    ((Playlist)AdvancedCollectionView[i]).IndexA = i + 1;
-
-            //foreach (var item in AdvancedCollectionView)
-            //{
-            //    if (item is Playlist playlist)
-            //    {
-            //        playlist.IndexA = AdvancedCollectionView.IndexOf(item) + 1;
-            //    }
-            //}
         }
 
         private void RemoveItems(IEnumerable<string> playlistIds)
@@ -334,6 +323,12 @@ namespace spotify.playlist.merger.ViewModels
             {
                 item = _playlistCollectionCopy.Where(c => c.Id == id).FirstOrDefault();
                 if (item != null) _playlistCollectionCopy.Remove(item);
+
+                item = SelectedPlaylistCollection.Where(c => c.Id == id).FirstOrDefault();
+                if(item != null)
+                {
+                    SelectedPlaylistCollection.Remove(item);
+                }
             }
 
             using (AdvancedCollectionView.DeferRefresh())

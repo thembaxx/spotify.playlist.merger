@@ -273,7 +273,7 @@ namespace spotify.playlist.merger.ViewModels
 
             while (startIndex < total)
             {
-                tracks = await DataSource.Current.GetTracksPaged(playlist.Id, startIndex, pageSizeLimit);
+                tracks = await DataSource.Current.GetTracksAsync(playlist.Id, startIndex, pageSizeLimit);
 
                 if (tracks == null || tracks.Count == 0) break;
                 startIndex += tracks.Count;

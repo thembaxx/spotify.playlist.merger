@@ -10,7 +10,6 @@ namespace spotify.playlist.merger.Data
     public class DataSource
     {
         private User _loggedInUserProfile;
-        private int startIndex = 0;
         private readonly int limit = 20;
 
         public static DataSource Current = new DataSource();
@@ -39,7 +38,6 @@ namespace spotify.playlist.merger.Data
         public void Logout()
         {
             _loggedInUserProfile = null;
-            startIndex = 0;
             SpotifyApi.LogOut();
         }
 
@@ -70,8 +68,48 @@ namespace spotify.playlist.merger.Data
             }
         }
 
+        #region Playback
+
+        public async Task<bool> PlaySpotifyMedia(IEnumerable<string> uris, int index = 0)
+        {
+            try
+            {
+                if (await SpotifyApi.PlayMedia(uris.ToList(), index))
+                {
+                    return true;
+                }
+                else
+                {
+                    return await Helpers.OpenSpotifyAppAsync(uris.ToList()[index], null);
+                }
+            }
+            catch (Exception)
+            {
+                return await Helpers.OpenSpotifyAppAsync(uris.ToList()[index], null);
+            }
+        }
+
+        public async Task<bool> PlaybackMediaItem(MediaItemBase item, int index = 0)
+        {
+            return await SpotifyApi.PlaybackMediaItem(item.Uri, index);
+        }
+
+        public static async Task<bool> PlaybackItems(List<string> uris, int index = 0)
+        {
+            return await SpotifyApi.PlaybackItems(uris, index);
+        }
+
+        public async Task<bool> AddToQueue(string uri)
+        {
+            return await SpotifyApi.AddToQueue(uri);
+        }
+
+        #endregion
+
+        #region Playlists
+
         private Paging<SimplePlaylist> _tempPage = null;
-        public async Task<int> GetUsersPlaylistsCount()
+        public async Task<int> GetPlaylistsCountAsync()
         {
             try
             {
@@ -92,9 +130,39 @@ namespace spotify.playlist.merger.Data
                     return ConvertPlaylists(_tempPage.Items);
                 else
                 {
-                    var items = await SpotifyApi.GetPlaylists(startIndex, limit);
+                    var items = await SpotifyApi.GetPlaylistsAsync(startIndex, limit);
                     return ConvertPlaylists(items);
                 }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<Playlist> GetFullPlaylistAsync(string playlistId)
+        {
+            try
+            {
+                var item = await SpotifyApi.GetPlaylistAsync(playlistId);
+                return ConvertPlaylists(new List<FullPlaylist> { item }).FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        internal async Task<bool> AddToPlaylist(IEnumerable<string> trackUris, string playlistId)
+        {
+            return await SpotifyApi.AddToPlaylist(trackUris, playlistId);
+        }
+
+        public async Task<SnapshotResponse> RemoveFromPlaylist(string playlistId, IEnumerable<string> uris)
+        {
+            try
+            {
+                return await SpotifyApi.RemoveFromPlaylist(playlistId, uris);
             }
             catch (Exception)
             {
@@ -112,17 +180,16 @@ namespace spotify.playlist.merger.Data
         /// The tracks to add to the newly created playlist (Optional).
         /// </param>
         /// <returns></returns>
-        public async Task<Playlist> CreateSpotifyPlaylist(string name, string description, IEnumerable<string> trackIds, string base64Jpg = null)
+        public async Task<Playlist> CreateSpotifyPlaylist(string name, string description, string base64Jpg = null)
         {
             try
             {
-                var playlist = await SpotifyApi.CreateSpotifyPlaylist(name, description, trackIds, base64Jpg);
+                var playlist = await SpotifyApi.CreateSpotifyPlaylist(name, description, base64Jpg);
                 var converted = ConvertPlaylists(new List<FullPlaylist> { playlist });
                 return converted.FirstOrDefault();
             }
             catch (Exception)
             {
-                await Helpers.DisplayDialog("Error", "An error occured while creating your playlist");
                 return null;
             }
         }
@@ -150,73 +217,6 @@ namespace spotify.playlist.merger.Data
             {
                 await Helpers.DisplayDialog("Error", "An error occured while creating your playlist");
                 return null;
-            }
-        }
-
-        /// <summary>
-        /// Merges 2 or more playlists into 1 new playlist.
-        /// </summary>
-        /// <param name="name">
-        /// The name of the new playlist.
-        /// </param>
-        /// <param name="playlists">
-        /// The list of playlists to merge.
-        /// </param>
-        /// <param name="base64Jpg">
-        /// The playlist cover in base64 string format (Optional). 
-        /// </param>
-        /// <param name="img">
-        /// The cover image if using a custom cover image for the playlist.
-        /// </param>
-        /// <returns>
-        /// The newly create playlist.
-        /// </returns>
-        public async Task<Playlist> MergeSpotifyPlaylists(string name, string description, IEnumerable<Playlist> playlists, string base64Jpg = null)
-        {
-            try
-            {
-                if (playlists.Count() <= 1)
-                    return null;
-
-                List<string> trackIds = new List<string>();
-                foreach (var playlist in playlists)
-                {
-                    var items = await GetTrackIds(playlist.Id);
-                    if (items != null)
-                    {
-                        foreach (var trackId in items)
-                        {
-                            if (!trackIds.Contains(trackId))
-                            {
-                                trackIds.Add(trackId);
-                            }
-                        }
-                    }
-                }
-                return await CreateSpotifyPlaylist(name, description, trackIds, base64Jpg);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        public async Task<bool> PlaySpotifyMedia(IEnumerable<string> uris, int index = 0)
-        {
-            try
-            {
-                if (await SpotifyApi.PlayMedia(uris.ToList(), index))
-                {
-                    return true;
-                }
-                else
-                {
-                    return await Helpers.OpenSpotifyAppAsync(uris.ToList()[index], null);
-                }
-            }
-            catch (Exception)
-            {
-                return await Helpers.OpenSpotifyAppAsync(uris.ToList()[index], null);
             }
         }
 
@@ -328,145 +328,59 @@ namespace spotify.playlist.merger.Data
             }
         }
 
-        public async Task<List<string>> GetTrackIds(string id)
+        #endregion
+
+        #region Tracks
+
+        public async Task<List<Track>> GetTracksAsync(string playlistId, int startIndex, int limit = 20)
         {
             try
             {
-                List<string> items = new List<string>();
-                Paging<PlaylistTrack<IPlayableItem>> _tracksPage = await SpotifyApi.GetTracksPage(id);
-                foreach (var item in _tracksPage.Items)
+                var page = await SpotifyApi.GetTracksAsync(playlistId, startIndex, limit);
+                if (page == null || page.Items == null) return null;
+                return ConvertTracks(page.Items);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<List<string>> GetTrackIdsAsync(string playlistId, int startIndex, int limit = 20)
+        {
+            try
+            {
+                var page = await SpotifyApi.GetTracksAsync(playlistId, startIndex, limit);
+                if (page == null || page.Items == null) return null;
+
+                List<string> ids = new List<string>();
+                foreach (var item in page.Items)
+                {
+                    if (item.Track is FullTrack track) 
+                        ids.Add(track.Id);
+                }
+                return ids;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<List<string>> GetTrackUrisAsync(string playlistId, int startIndex, int limit = 20)
+        {
+            try
+            {
+                var page = await SpotifyApi.GetTracksAsync(playlistId, startIndex, limit);
+                if (page == null || page.Items == null) return null;
+
+                List<string> uris = new List<string>();
+                foreach (var item in page.Items)
                 {
                     if (item.Track is FullTrack track)
-                    {
-                        if (items.Find(c => c == track.Uri) == null) items.Add(track.Uri);
-                    }
+                        uris.Add(track.Uri);
                 }
-
-                if (items.Count < _tracksPage.Total)
-                {
-                    var tracks = await SpotifyApi.GetTracks(_tracksPage);
-                    foreach (var item in tracks)
-                    {
-                        if (item.Track is FullTrack track)
-                        {
-                            if (items.Find(c => c == track.Uri) == null) items.Add(track.Uri);
-                        }
-                    }
-                }
-                return items;
-            }
-            catch (Exception)
-            {
-                await Helpers.DisplayDialog("Error", "An error occured, please give it another shot and make sure your internet connection is working");
-                return null;
-            }
-        }
-
-        public async Task<List<string>> GetPlaylistTrackUris(string id, int total)
-        {
-            try
-            {
-                startIndex = 0;
-                var page = await SpotifyApi.GetPlaylistTrackUris(id, startIndex, limit);
-                if (page != null && page.Items != null)
-                {
-                    startIndex += page.Items.Count;
-                    List<string> items = new List<string>();
-                    foreach (var item in page.Items)
-                    {
-                        if (item.Track is FullTrack track)
-                        {
-                            if (!items.Contains(track.Uri)) items.Add(track.Uri);
-                        }
-                    }
-
-                    while (startIndex < total)
-                    {
-                        var _page = await SpotifyApi.GetPlaylistTrackUris(id, startIndex, limit);
-                        startIndex += page.Items.Count;
-
-                        foreach (var item in _page.Items)
-                        {
-                            if (item.Track is FullTrack track)
-                            {
-                                if (!items.Contains(track.Uri)) items.Add(track.Uri);
-                            }
-                        }
-                    }
-                    return items;
-                }
-                return null;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        public async Task<List<Track>> GetPlaylistTracks(string id, int total)
-        {
-            try
-            {
-                startIndex = 0;
-                var page = await SpotifyApi.GetPlaylistTrackUris(id, startIndex, limit);
-                if (page != null && page.Items != null)
-                {
-                    startIndex += page.Items.Count;
-                    List<Track> items = new List<Track>();
-                    items.AddRange(ConvertTracks(page.Items));
-
-                    while (startIndex < total)
-                    {
-                        var _page = await SpotifyApi.GetPlaylistTrackUris(id, startIndex, limit);
-
-                        if (_page == null) break;
-                        startIndex += page.Items.Count;
-
-                        var _items = ConvertTracks(_page.Items);
-                        if (_items != null)
-                        {
-                            foreach (var item in _items)
-                            {
-                                if (items.Find(c => c.Id == item.Id) == null)
-                                    items.Add(item);
-                            }
-                        }
-                    }
-                    return items;
-                }
-                return null;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        public async Task<List<Track>> GetTracksPaged(string id, int startIndex, int limit = 20)
-        {
-            try
-            {
-                var page = await SpotifyApi.GetPlaylistTrackUris(id, startIndex, limit);
-                if (page != null && page.Items != null)
-                {
-                    return ConvertTracks(page.Items);
-                }
-                return null;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        public async Task<SnapshotResponse> RemoveFromPlaylist(string playlistId, IEnumerable<string> uris)
-        {
-            try
-            {
-                return await SpotifyApi.RemoveFromPlaylist(playlistId, uris);
+                return uris;
             }
             catch (Exception)
             {
@@ -547,24 +461,6 @@ namespace spotify.playlist.merger.Data
             }
         }
 
-        public async Task<bool> PlaybackMediaItem(MediaItemBase item, int index = 0)
-        {
-            return await SpotifyApi.PlaybackMediaItem(item.Uri, index);
-        }
-
-        public static async Task<bool> PlaybackItems(List<string> uris, int index = 0)
-        {
-            return await SpotifyApi.PlaybackItems(uris, index);
-        }
-
-        public async Task<bool> AddToQueue(string uri)
-        {
-            return await SpotifyApi.AddToQueue(uri);
-        }
-
-        internal async Task<bool> AddToPlaylist(IEnumerable<string> trackUris, string playlistId)
-        {
-            return await SpotifyApi.AddToPlaylist(trackUris, playlistId);
-        }
+        #endregion
     }
 }
