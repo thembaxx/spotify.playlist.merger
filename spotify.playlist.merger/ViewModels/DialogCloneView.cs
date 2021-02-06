@@ -67,7 +67,7 @@ namespace spotify.playlist.merger.ViewModels
                             //add to first position, scroll to top
                             AdvancedCollectionView.Insert(0, playlist);
                             _playlistCollectionCopy.Insert(0, playlist);
-                            UpdateItemPosition();
+                            UpdateItemIndex(AdvancedCollectionView);
                         }
                         if (playlist != null && UnfollowAfterClone)
                         {

@@ -378,7 +378,7 @@ namespace spotify.playlist.merger.Data
                 Limit = limit,
                 Offset = startIndex
             };
-           
+
             try
             {
                 return (await SpotifyClient.Playlists.CurrentUsers(request)).Items;
@@ -604,7 +604,7 @@ namespace spotify.playlist.merger.Data
                     ContextUri = uri,
                     OffsetParam = new PlayerResumePlaybackRequest.Offset { Position = index },
                 };
-               
+
 
                 return await SpotifyClient.Player.ResumePlayback(request);
             }

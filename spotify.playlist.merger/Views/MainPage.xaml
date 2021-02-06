@@ -31,75 +31,6 @@
         <converters:EmptyStringToObjectConverter x:Key="EmptyStringToObjectInverseConverter" 
                                                  EmptyValue="Visible"
                                                  NotEmptyValue="Collapsed"/>
-        <Style x:Key="ListViewItemContainerStyle1" TargetType="ListViewItem">
-            <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}"/>
-            <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}"/>
-            <Setter Property="Background" Value="{ThemeResource ListViewItemBackground}"/>
-            <Setter Property="Foreground" Value="{ThemeResource ListViewItemForeground}"/>
-            <Setter Property="TabNavigation" Value="Local"/>
-            <Setter Property="IsHoldingEnabled" Value="True"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="0,0,0,0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="MinWidth" Value="{ThemeResource ListViewItemMinWidth}"/>
-            <Setter Property="MinHeight" Value="0"/>
-            <Setter Property="AllowDrop" Value="False"/>
-            <Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}"/>
-            <Setter Property="FocusVisualMargin" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListViewItem">
-                        <ListViewItemPresenter x:Name="Root" CheckBrush="{ThemeResource ListViewItemCheckBrush}" ContentMargin="{TemplateBinding Padding}" CheckBoxBrush="{ThemeResource ListViewItemCheckBoxBrush}" ContentTransitions="{TemplateBinding ContentTransitions}" CheckMode="{ThemeResource ListViewItemCheckMode}" DragOpacity="{ThemeResource ListViewItemDragThemeOpacity}" DisabledOpacity="{ThemeResource ListViewItemDisabledThemeOpacity}" DragBackground="{ThemeResource ListViewItemDragBackground}" DragForeground="{ThemeResource ListViewItemDragForeground}" FocusBorderBrush="{ThemeResource ListViewItemFocusBorderBrush}" FocusVisualMargin="{TemplateBinding FocusVisualMargin}" FocusSecondaryBorderBrush="{ThemeResource ListViewItemFocusSecondaryBorderBrush}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Control.IsTemplateFocusTarget="True" PressedBackground="{ThemeResource ListViewItemBackgroundPressed}" PlaceholderBackground="{ThemeResource ListViewItemPlaceholderBackground}" PointerOverForeground="{ThemeResource ListViewItemForegroundPointerOver}" PointerOverBackground="{ThemeResource ListViewItemBackgroundPointerOver}" RevealBorderThickness="{ThemeResource ListViewItemRevealBorderThemeThickness}" ReorderHintOffset="{ThemeResource ListViewItemReorderHintThemeOffset}" RevealBorderBrush="{ThemeResource ListViewItemRevealBorderBrush}" RevealBackground="{ThemeResource ListViewItemRevealBackground}" SelectedForeground="{ThemeResource ListViewItemForegroundSelected}" SelectionCheckMarkVisualEnabled="{ThemeResource ListViewItemSelectionCheckMarkVisualEnabled}" SelectedBackground="{ThemeResource ListViewItemBackgroundSelected}" SelectedPressedBackground="{ThemeResource ListViewItemBackgroundSelectedPressed}" SelectedPointerOverBackground="{ThemeResource ListViewItemBackgroundSelectedPointerOver}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}">
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Normal"/>
-                                    <VisualState x:Name="Selected"/>
-                                    <VisualState x:Name="PointerOver">
-                                        <VisualState.Setters>
-                                            <Setter Target="Root.(RevealBrush.State)" Value="PointerOver"/>
-                                            <Setter Target="Root.RevealBorderBrush" Value="{ThemeResource ListViewItemRevealBorderBrushPointerOver}"/>
-                                        </VisualState.Setters>
-                                    </VisualState>
-                                    <VisualState x:Name="PointerOverSelected">
-                                        <VisualState.Setters>
-                                            <Setter Target="Root.(RevealBrush.State)" Value="PointerOver"/>
-                                            <Setter Target="Root.RevealBorderBrush" Value="{ThemeResource ListViewItemRevealBorderBrushPointerOver}"/>
-                                        </VisualState.Setters>
-                                    </VisualState>
-                                    <VisualState x:Name="PointerOverPressed">
-                                        <VisualState.Setters>
-                                            <Setter Target="Root.(RevealBrush.State)" Value="Pressed"/>
-                                            <Setter Target="Root.RevealBorderBrush" Value="{ThemeResource ListViewItemRevealBorderBrushPressed}"/>
-                                        </VisualState.Setters>
-                                    </VisualState>
-                                    <VisualState x:Name="Pressed">
-                                        <VisualState.Setters>
-                                            <Setter Target="Root.(RevealBrush.State)" Value="Pressed"/>
-                                            <Setter Target="Root.RevealBorderBrush" Value="{ThemeResource ListViewItemRevealBorderBrushPressed}"/>
-                                        </VisualState.Setters>
-                                    </VisualState>
-                                    <VisualState x:Name="PressedSelected">
-                                        <VisualState.Setters>
-                                            <Setter Target="Root.(RevealBrush.State)" Value="Pressed"/>
-                                            <Setter Target="Root.RevealBorderBrush" Value="{ThemeResource ListViewItemRevealBorderBrushPressed}"/>
-                                        </VisualState.Setters>
-                                    </VisualState>
-                                </VisualStateGroup>
-                                <VisualStateGroup x:Name="DisabledStates">
-                                    <VisualState x:Name="Enabled"/>
-                                    <VisualState x:Name="Disabled">
-                                        <VisualState.Setters>
-                                            <Setter Target="Root.RevealBorderThickness" Value="0"/>
-                                        </VisualState.Setters>
-                                    </VisualState>
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
-                        </ListViewItemPresenter>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Page.Resources>
 
     <Grid>
@@ -116,7 +47,7 @@
                 <Button x:Name="SettingsButton"
                         extensions:Mouse.Cursor="Hand"
                         FontSize="16"
-                        Foreground="{ThemeResource SecondaryForeground}"
+                        Foreground="{ThemeResource PrimaryForeground}"
                         Height="48"
                         HorizontalAlignment="Stretch"
                         Style="{StaticResource TextBlockButtonStyle}">
@@ -313,7 +244,7 @@
                     <ColumnDefinition Width="auto" MinWidth="256"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="ContentTitle"
-                           FontSize="20"
+                           FontSize="16"
                            FontWeight="Bold"
                            Foreground="{ThemeResource PrimaryForeground}"
                            Text="Playlist Manager"
@@ -347,6 +278,7 @@
                       VerticalAlignment="Center">
                     <FontIcon Glyph="&#xE946;" 
                               FontSize="16" 
+                              Margin="0 1 0 0"
                               Foreground="{ThemeResource SecondaryThemeBrush}"
                               Visibility="{Binding IsPlaylistsLoading, Converter={StaticResource BoolToVisibilityInverseConverter}}"/>
                     <muxc:ProgressRing IsActive="{Binding IsPlaylistsLoading}" 
@@ -518,7 +450,7 @@
                               model:ItemClickCommand.Command="{Binding PlaylistItemClickCommand}"
                               SelectionMode="None"
                               ItemsSource="{Binding AdvancedCollectionView}"
-                              ItemContainerStyle="{StaticResource ListViewItemContainerStyle1}">
+                              ItemContainerStyle="{StaticResource GlobalListViewItemContainerStyle}">
                      
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="model:Playlist">
@@ -526,7 +458,8 @@
                                       Opacity=".9"
                                       Background="Transparent"
                                       extensions:Mouse.Cursor="Hand"
-                                      Padding="16 0">
+                                      Padding="16 0"
+                                      RightTapped="MediaItem_RightTapped">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="auto"/>
@@ -549,6 +482,39 @@
                                             <Core:CallMethodAction TargetObject="{Binding ElementName=ContentViewCountOffsetOut}" MethodName="StartAnimation"/>
                                         </Core:EventTriggerBehavior>
                                     </Interactivity:Interaction.Behaviors>
+                                    <FlyoutBase.AttachedFlyout>
+                                        <MenuFlyout>
+                                                <MenuFlyoutItem Text="Play"
+                                                                Command="{Binding DataContext.PlayItemCommand, ElementName=page}" 
+                                                                CommandParameter="{Binding}">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE102;"/>
+                                                    </MenuFlyoutItem.Icon>
+                                                    </MenuFlyoutItem>
+                                                    <MenuFlyoutItem Text="Edit"
+                                                                    Command="{Binding DataContext.ShowEditPlaylistDialogCommand, ElementName=page}" 
+                                                                    CommandParameter="{Binding}"
+                                                                    Visibility="{Binding CanModify, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                        <MenuFlyoutItem.Icon>
+                                                            <FontIcon Glyph="&#xE104;"/>
+                                                        </MenuFlyoutItem.Icon>
+                                                    </MenuFlyoutItem>
+                                                    <MenuFlyoutItem Text="Clone"
+                                                                    Command="{Binding DataContext.ShowCloneDialogCommand, ElementName=page}" 
+                                                                    CommandParameter="{Binding}">
+                                                        <MenuFlyoutItem.Icon>
+                                                            <FontIcon Glyph="&#xE8AF;"/>
+                                                        </MenuFlyoutItem.Icon>
+                                                    </MenuFlyoutItem>
+                                                    <MenuFlyoutItem Text="Unfollow" 
+                                                                    CommandParameter="{Binding}" 
+                                                                    Command="{Binding DataContext.UnfollowPlaylistCommand, ElementName=page}">
+                                                        <MenuFlyoutItem.Icon>
+                                                            <FontIcon Glyph="&#xE10A;"/>
+                                                        </MenuFlyoutItem.Icon>
+                                                    </MenuFlyoutItem>
+                                                </MenuFlyout>
+                                    </FlyoutBase.AttachedFlyout>
                                     <Grid x:Name="SelectedBackground"
                                           Margin="-16 0"
                                           Background="{ThemeResource ListViewItemBackgroundSelected}"
@@ -662,7 +628,7 @@
                                             extensions:Mouse.Cursor="Hand"
                                             CommandParameter="{Binding}"
                                             Command="{Binding ElementName=page, Path=DataContext.ToggleSelectedPlaylistCommand}"
-                                            Margin="64,0,8,0"
+                                            Margin="16,0,8,0"
                                             VerticalAlignment="Stretch"
                                             Width="64"
                                             Style="{StaticResource TextBlockButtonStyle}">
@@ -850,13 +816,18 @@
                       IsChecked="{Binding IsSelectedPlaylistViewOpen, Mode=TwoWay}"
                       Background="{ThemeResource PrimaryThemeBrush}"
                       Foreground="{ThemeResource PrimaryForeground}"
-                      Height="44"
-                      Width="44"
+                      Padding="12"
                       HorizontalAlignment="Right"
                       VerticalAlignment="Center"
-                      Margin="24"
+                      Margin="48 24"
                       Visibility="{Binding IsSelectedPlaylistViewOpen, Converter={StaticResource BoolToVisibilityInverseConverter}}">
-            <FontIcon Glyph="&#xE700;" FontSize="16"/>
+            <StackPanel>
+                <FontIcon Glyph="&#xE700;" FontSize="16"/>
+                <TextBlock FontSize="16"
+                           HorizontalAlignment="Center"
+                           Margin="0 8 0 0"
+                           Text="{Binding SelectedPlaylistCollection.Count, FallbackValue=0}"/>
+            </StackPanel>
         </ToggleButton>
         
         <UserControl x:Name="MessageBox"

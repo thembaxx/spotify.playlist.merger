@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using Windows.UI.Xaml;
 
 namespace spotify.playlist.merger.ViewModels
@@ -27,7 +26,7 @@ namespace spotify.playlist.merger.ViewModels
         private async void Initialize()
         {
             IsLoading = true;
-     
+
             ClientID = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
             ClientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
             await DataSource.Current.Initialize();
@@ -42,6 +41,10 @@ namespace spotify.playlist.merger.ViewModels
 
                 IsLoading = false;
                 await LoadPlaylistsAsync();
+
+                //check if user follows any spotify playlists, if none remove from category
+                if (!_playlistCollectionCopy.Any(c => c.Type == PlaylistCategoryType.Spotify))
+                    PlaylistCategoryCollection.Remove(PlaylistCategoryCollection.Where(c => c.Type == PlaylistCategoryType.Spotify).FirstOrDefault());
             }
             else if (string.IsNullOrEmpty(ClientID) || string.IsNullOrEmpty(ClientSecret))
             {
@@ -69,12 +72,11 @@ namespace spotify.playlist.merger.ViewModels
             ResetPlaylistDialog();
             UnfollowAfterMerge = false;
             _playlistCollectionCopy.Clear();
-            _filteredPlaylistCollection.Clear();
             AdvancedCollectionView = null;
             TotalTracks = 0;
             SelectedPlaylistCollection.CollectionChanged -= SelectedPlaylistCollection_CollectionChanged;
             SelectedPlaylistCollection.Clear();
-            if(PlaylistCategoryCollection != null) PlaylistCategoryCollection.Clear();
+            if (PlaylistCategoryCollection != null) PlaylistCategoryCollection.Clear();
             SelectedPlaylistCategory = null;
             ResetTracksView();
             if (init) Initialize();
@@ -221,12 +223,8 @@ namespace spotify.playlist.merger.ViewModels
                     {
                         IsLoading = true;
 
-                        if (item is Track track && ActivePlaylist != null)
-                        {
-                            int index = TracksCollectionView.IndexOf(item);
-                            if (index < 0) index = 0; 
-                            await DataSource.Current.PlaybackMediaItem(ActivePlaylist, index);
-                        }
+                        if (item is Track track)
+                            await PlayTrack(track, ActivePlaylist, TrackSearchText);
                         else
                             await DataSource.Current.PlaybackMediaItem(item, 0);
 
@@ -293,6 +291,9 @@ namespace spotify.playlist.merger.ViewModels
 
         #region Collections
 
+        public ObservableCollection<Sorting> TracksSortList { get; } = new ObservableCollection<Sorting>(Sorting._tracksSortList);
+        public ObservableCollection<Sorting> PlaylistSortList { get; } = new ObservableCollection<Sorting>(Sorting._playlistSortList);
+
         ObservableCollection<PlaylistCategory> _playlistCategoryCollection;
         public ObservableCollection<PlaylistCategory> PlaylistCategoryCollection
         {
@@ -303,6 +304,24 @@ namespace spotify.playlist.merger.ViewModels
         #endregion
 
         #region Methods
+
+        private void UpdateItemIndex(AdvancedCollectionView collectionView)
+        {
+            if (collectionView == null) return;
+            for (int i = 0; i < collectionView.Count; i++)
+                ((MediaItemBase)collectionView[i]).IndexA = i + 1;
+
+            //for (int i = 0; i < AdvancedCollectionView.Count; i++)
+            //    ((Playlist)AdvancedCollectionView[i]).IndexA = i + 1;
+
+            //foreach (var item in AdvancedCollectionView)
+            //{
+            //    if (item is Playlist playlist)
+            //    {
+            //        playlist.IndexA = AdvancedCollectionView.IndexOf(item) + 1;
+            //    }
+            //}
+        }
 
         private void RemoveItems(IEnumerable<string> playlistIds)
         {
@@ -315,9 +334,6 @@ namespace spotify.playlist.merger.ViewModels
             {
                 item = _playlistCollectionCopy.Where(c => c.Id == id).FirstOrDefault();
                 if (item != null) _playlistCollectionCopy.Remove(item);
-
-                item = _filteredPlaylistCollection.Where(c => c.Id == id).FirstOrDefault();
-                if (item != null) _filteredPlaylistCollection.Remove(item);
             }
 
             using (AdvancedCollectionView.DeferRefresh())
@@ -328,7 +344,7 @@ namespace spotify.playlist.merger.ViewModels
                     if (it != null) AdvancedCollectionView.Remove(it);
                 }
             }
-            UpdateItemPosition();
+            UpdateItemIndex(AdvancedCollectionView);
         }
 
         #endregion
@@ -354,7 +370,7 @@ namespace spotify.playlist.merger.ViewModels
             {
                 _isNotificationOpen = value;
                 RaisePropertyChanged("IsNotificationOpen");
-                if(!value) StopTimer();
+                if (!value) StopTimer();
             }
         }
 

@@ -2,7 +2,6 @@
 using Microsoft.Toolkit.Uwp.UI.Extensions;
 using spotify.playlist.merger.Models;
 using System;
-using System.Linq;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -109,6 +108,19 @@ namespace spotify.playlist.merger.Views
                     }
                     break;
             }
+        }
+
+        private void MediaItem_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            FrameworkElement senderElement = sender as FrameworkElement;
+            FlyoutBase flyoutBase = FlyoutBase.GetAttachedFlyout(senderElement);
+            FlyoutShowOptions options = new FlyoutShowOptions
+            {
+                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                Position = e.GetPosition(senderElement),
+                ShowMode = FlyoutShowMode.Standard
+            };
+            flyoutBase.ShowAt(senderElement, options);
         }
     }
 }

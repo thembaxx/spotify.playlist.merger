@@ -343,7 +343,8 @@
                     <Grid Height="56"
                           Background="Transparent"
                           extensions:Mouse.Cursor="Hand"
-                          Padding="0 0 16 0">
+                          Padding="0 0 16 0"
+                          RightTapped="MediaItem_RightTapped">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="auto"/>
@@ -356,6 +357,33 @@
                                 <Core:CallMethodAction TargetObject="{Binding ElementName=TracksViewPlayBtnFadeOut}" MethodName="StartAnimation"/>
                             </Core:EventTriggerBehavior>
                         </Interactivity:Interaction.Behaviors>
+                        <FlyoutBase.AttachedFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Text="Add To Queue"
+                                                Command="{Binding DataContext.AddToQueueCommand, ElementName=page}" 
+                                                CommandParameter="{Binding}">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE104;"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="Add to other playlist"
+                                                Command="{Binding DataContext.AddTrackToPlaylistCommand, ElementName=page}" 
+                                                CommandParameter="{Binding}">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE109;"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem Text="Remove from playlist" 
+                                                CommandParameter="{Binding}" 
+                                                Command="{Binding DataContext.RemoveTrackCommand, ElementName=page}"
+                                                Visibility="{Binding DataContext.ActivePlaylist.CanModify, ElementName=page, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE106;"/>
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                </MenuFlyout>
+                        </FlyoutBase.AttachedFlyout>
                         <Grid x:Name="SelectedTracksBackground"
                               Background="{ThemeResource ListViewItemBackgroundSelected}"
                               Grid.ColumnSpan="100"

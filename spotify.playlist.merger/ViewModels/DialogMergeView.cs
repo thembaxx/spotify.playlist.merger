@@ -103,7 +103,7 @@ namespace spotify.playlist.merger.ViewModels
                     //add to first position, scroll to top
                     AdvancedCollectionView.Insert(0, playlist);
                     _playlistCollectionCopy.Add(playlist);
-                    UpdateItemPosition();
+                    UpdateItemIndex(AdvancedCollectionView);
 
                     ShowNotification(NotificationType.Success, "Successfuly merged selected playlists.");
                 }

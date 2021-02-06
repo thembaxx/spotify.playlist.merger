@@ -5,11 +5,9 @@ using Microsoft.Toolkit.Uwp.UI;
 using spotify.playlist.merger.Data;
 using spotify.playlist.merger.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.UI.Xaml;
 
 namespace spotify.playlist.merger.ViewModels
 {
@@ -168,9 +166,6 @@ namespace spotify.playlist.merger.ViewModels
 
                         item = _playlistCollectionCopy.Where(c => c.Id == id).FirstOrDefault();
                         if (item != null) _playlistCollectionCopy.Remove(item);
-
-                        item = _filteredPlaylistCollection.Where(c => c.Id == id).FirstOrDefault();
-                        if (item != null) _filteredPlaylistCollection.Remove(item);
                     }
 
                     if (ActivePlaylist != null && ActivePlaylist.Id == id && IsTracksViewOpen)
@@ -187,7 +182,7 @@ namespace spotify.playlist.merger.ViewModels
                         var it = AdvancedCollectionView.Where(c => ((Playlist)c).Id == id).FirstOrDefault();
                         if (it != null) AdvancedCollectionView.Remove(it);
                     }
-                    UpdateItemPosition();
+                    UpdateItemIndex(AdvancedCollectionView);
                 }
 
                 ShowNotification(NotificationType.Success, "Successfuly unfollowed selected playlists.");

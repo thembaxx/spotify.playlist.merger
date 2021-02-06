@@ -7,10 +7,10 @@ namespace spotify.playlist.merger.Models
     {
         public Sorting(string title, string property, SortType type, SortDirection sortDirection)
         {
-            this.Title = title;
-            this.Property = property;
-            this.Type = type;
-            this.SortDirection = sortDirection;
+            Title = title;
+            Property = property;
+            Type = type;
+            SortDirection = sortDirection;
         }
 
         public static List<Sorting> _playlistSortList = new List<Sorting>
@@ -25,6 +25,8 @@ namespace spotify.playlist.merger.Models
             new Sorting("Title", "Title", SortType.Name, SortDirection.Ascending),
             new Sorting("Artist", "Artist", SortType.Artist, SortDirection.Ascending),
             new Sorting("Album", "Album", SortType.Album, SortDirection.Ascending),
+            new Sorting("Duration", "Duration", SortType.Duration, SortDirection.Descending),
+            new Sorting("Date added", "DateAdded", SortType.DateAdded, SortDirection.Descending),
         };
 
         public string Title { get; set; }
@@ -38,7 +40,7 @@ namespace spotify.playlist.merger.Models
             Artist,
             Album,
             Name,
-            Date,
+            DateAdded,
             Size,
             Duration,
             Owner

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.ObjectModel;
 
 namespace spotify.playlist.merger.Models
 {
@@ -20,23 +20,9 @@ namespace spotify.playlist.merger.Models
             set { SetProperty(this._title, value, () => this._title = value); }
         }
 
-        private int _count;
-        public int Count
+        public static ObservableCollection<PlaylistCategory> GetCategoryItems()
         {
-            get { return _count; }
-            set { SetProperty(this._count, value, () => this._count = value); }
-        }
-
-        private bool _hasResults;
-        public bool HasResults
-        {
-            get { return _hasResults; }
-            set { SetProperty(this._hasResults, value, () => this._hasResults = value); }
-        }
-
-        public static List<PlaylistCategory> GetCategoryItems()
-        {
-            return new List<PlaylistCategory>
+            return new ObservableCollection<PlaylistCategory>
             {
                 new PlaylistCategory("All playlists", PlaylistCategoryType.All),
                 new PlaylistCategory("My playlists", PlaylistCategoryType.MyPlaylist),

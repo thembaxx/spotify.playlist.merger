@@ -1,5 +1,4 @@
-﻿using GalaSoft.MvvmLight.Messaging;
-using spotify.playlist.merger.Models;
+﻿using spotify.playlist.merger.Models;
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
@@ -13,21 +12,8 @@ namespace spotify.playlist.merger.Data
         private User _loggedInUserProfile;
         private int startIndex = 0;
         private readonly int limit = 20;
-        private Paging<SimplePlaylist> page;
 
-        public static DataSource _current;
-        public static DataSource Current
-        {
-            get
-            {
-                if (_current == null)
-                {
-                    _current = new DataSource();
-                }
-                return _current;
-            }
-            set { _current = value; }
-        }
+        public static DataSource Current = new DataSource();
 
         public DataSource() { Current = this; }
 
@@ -54,7 +40,6 @@ namespace spotify.playlist.merger.Data
         {
             _loggedInUserProfile = null;
             startIndex = 0;
-            page = null;
             SpotifyApi.LogOut();
         }
 
@@ -443,7 +428,7 @@ namespace spotify.playlist.merger.Data
                         {
                             foreach (var item in _items)
                             {
-                                if (items.Find(c => c.Id == item.Id) == null) 
+                                if (items.Find(c => c.Id == item.Id) == null)
                                     items.Add(item);
                             }
                         }
@@ -497,6 +482,7 @@ namespace spotify.playlist.merger.Data
                 string artist = "";
                 string album = "";
                 string image = "";
+                DateTime dateAdded = new DateTime();
                 foreach (var playlistTrack in tracks)
                 {
                     try
@@ -527,7 +513,9 @@ namespace spotify.playlist.merger.Data
                             }
                             else
                                 artist = "Unknown";
-                           
+
+                            if (playlistTrack.AddedAt.HasValue) dateAdded = playlistTrack.AddedAt.Value;
+
                             results.Add(new Track(track.Id,
                                 track.Name,
                                 track.Uri,
@@ -535,7 +523,8 @@ namespace spotify.playlist.merger.Data
                                 artist,
                                 album,
                                 track.DurationMs,
-                                track.Explicit));
+                                track.Explicit,
+                                dateAdded));
                         }
                     }
                     catch (Exception)
@@ -547,6 +536,7 @@ namespace spotify.playlist.merger.Data
                     artist = "";
                     album = "";
                     image = "";
+                    dateAdded = new DateTime();
                 }
 
                 return results;

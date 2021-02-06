@@ -23,6 +23,10 @@
             <SolidColorBrush x:Key="ApplicationPageBackgroundThemeBrush" Color="#010101"/>
             <SolidColorBrush x:Key="InputBoxHoverThemeBrush" Color="#767680" Opacity="0.1"/>
             <SolidColorBrush x:Key="InputBoxThemeBrush" Color="#767680" Opacity="0.24"/>
+            <SolidColorBrush x:Key="ComboBoxItemRevealBackgroundSelectedPointerOver" Color="{ThemeResource BrandColorThemeColor}" Opacity=".9"/>
+            <SolidColorBrush x:Key="ComboBoxItemRevealBackgroundSelectedPressed" Color="{ThemeResource BrandColorThemeColor}" Opacity=".8"/>
+            <SolidColorBrush x:Key="ComboBoxItemRevealBackgroundSelected" Color="{ThemeResource BrandColorThemeColor}"/>
+            <SolidColorBrush x:Key="ComboBoxItemRevealBorderBrushSelected" Color="{ThemeResource BrandColorThemeColor}"/>
 
             <SolidColorBrush x:Key="PrimaryForeground" Color="#ffffff" Opacity=".87"/>
             <SolidColorBrush x:Key="SecondaryForeground" Color="#ffffff" Opacity=".6"/>
@@ -32,19 +36,22 @@
             
             <SolidColorBrush x:Key="PrimaryThemeBrush" Color="#1f299c"/>
             <SolidColorBrush x:Key="SecondaryThemeBrush" Color="#82aaff"/>
-            <SolidColorBrush x:Key="DangerThemeBrush" Color="#C62828"/>
+            <!--<SolidColorBrush x:Key="DangerThemeBrush" Color="#C62828"/>
             <SolidColorBrush x:Key="WarningThemeBrush" Color="#FDA500"/>
-            <SolidColorBrush x:Key="SuccessThemeBrush" Color="#00897b"/>
-            
-            <Color x:Key="Status-bar-color">#000</Color>
+            <SolidColorBrush x:Key="SuccessThemeBrush" Color="#00897b"/>-->
+            <SolidColorBrush x:Key="DangerThemeBrush" Color="#EA1601"/>
+            <SolidColorBrush x:Key="WarningThemeBrush" Color="#FAD202"/>
+            <SolidColorBrush x:Key="SuccessThemeBrush" Color="#64BC26"/>
+
+                <Color x:Key="Status-bar-color">#000</Color>
             <Color x:Key="Status-bar-foreground">#FFDDDDDD</Color>
             <SolidColorBrush x:Key="ItemBackgroundThemeBrush" Color="#161618"/>
             <SolidColorBrush x:Key="SecondaryItemBackgroundThemeBrush" Color="#1D1D20"/>
             <AcrylicBrush x:Key="LoadingBackgroundThemeBrush"
-                                BackgroundSource="Backdrop"
-                                TintColor="#000000" Opacity="0.7"
-                                TintOpacity="0.90" 
-                                FallbackColor="#161618"/>
+                          BackgroundSource="Backdrop"
+                          TintColor="#000000" Opacity="0.7"
+                          TintOpacity="0.90" 
+                          FallbackColor="#161618"/>
 
             <Style x:Key="GlobalListViewItemContainerStyle" TargetType="ListViewItem">
                 <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}"/>

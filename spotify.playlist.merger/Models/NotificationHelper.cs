@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace spotify.playlist.merger.Models
+﻿namespace spotify.playlist.merger.Models
 {
     public class NotificationHelper : NotificationBase
     {
@@ -12,8 +6,8 @@ namespace spotify.playlist.merger.Models
         public NotificationType Type
         {
             get => _type;
-            set 
-            { 
+            set
+            {
                 _ = SetProperty(_type, value, () => _type = value);
                 UpdateType(value);
             }

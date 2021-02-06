@@ -25,7 +25,6 @@ namespace spotify.playlist.merger.ViewModels
         }
 
         readonly List<Playlist> _playlistCollectionCopy = new List<Playlist>();
-        private readonly List<Playlist> _filteredPlaylistCollection = new List<Playlist>();
 
         ObservableCollection<string> _filterCollection = new ObservableCollection<string>();
         public ObservableCollection<string> FilterCollection
@@ -53,7 +52,7 @@ namespace spotify.playlist.merger.ViewModels
             {
                 _searchText = value;
                 RaisePropertyChanged("SearchText");
-                FilterPlaylistCollectionView();
+                FilterPlaylistView(AdvancedCollectionView, SelectedPlaylistCategory.Type, value);
             }
         }
 
@@ -65,7 +64,7 @@ namespace spotify.playlist.merger.ViewModels
             {
                 _selectedPlaylistCategory = value;
                 RaisePropertyChanged("SelectedPlaylistCategory");
-                FilterPlaylistCollectionView(true);
+                if (value != null) FilterPlaylistView(AdvancedCollectionView, value.Type, SearchText, true);
             }
         }
 
@@ -132,7 +131,7 @@ namespace spotify.playlist.merger.ViewModels
             }
         }
 
-        private async Task LoadPlaylistsAsync()
+        private async Task LoadPlaylistsAsync(int pageSizeLimit = 20)
         {
             IsPlaylistsLoading = true;
 
@@ -144,28 +143,29 @@ namespace spotify.playlist.merger.ViewModels
                 List<Playlist> items;
                 while (startIndex < playlistsCount)
                 {
-                    items = await DataSource.Current.GetPlaylistsAsync(startIndex);
+                    items = await DataSource.Current.GetPlaylistsAsync(startIndex, pageSizeLimit);
                     if (items == null || items.Count == 0) break;
                     startIndex += items.Count;
-                    if (AdvancedCollectionView == null)
+                    _playlistCollectionCopy.AddRange(items);
+                    if (AdvancedCollectionView == null || AdvancedCollectionView.Count == 0)
                     {
                         AdvancedCollectionView = new AdvancedCollectionView(items, true);
-                        UpdateItemPosition();
+                        UpdateItemIndex(AdvancedCollectionView);
                     }
                     else
                     {
                         int index = AdvancedCollectionView.Count;
                         using (AdvancedCollectionView.DeferRefresh())
                         {
-                            foreach (var playlist in items)
+                            for (int i = 0; i < items.Count; i++)
                             {
-                                playlist.IndexA = index;
-                                AdvancedCollectionView.Add(playlist);
+                                index++;
+                                items[i].IndexA = index;
+                                AdvancedCollectionView.Add(items[i]);
                             }
                         }
                     }
 
-                    _playlistCollectionCopy.AddRange(items);
                     TotalTracks = _playlistCollectionCopy.Sum(c => c.Count);
                 }
             }
@@ -173,132 +173,64 @@ namespace spotify.playlist.merger.ViewModels
             IsPlaylistsLoading = false;
         }
 
-        private void UpdateItemPosition()
-        {
-            foreach (var item in AdvancedCollectionView)
-            {
-                if (item is Playlist playlist)
-                {
-                    playlist.IndexA = AdvancedCollectionView.IndexOf(item) + 1;
-                }
-            }
-        }
-
         private void PopulateFilterCollection()
         {
-            PlaylistCategoryCollection = new ObservableCollection<PlaylistCategory>();
-            var items = PlaylistCategory.GetCategoryItems();
-            if (items != null)
-            {
-                var item = items.Where(c => c.Type == PlaylistCategoryType.MyPlaylist).FirstOrDefault();
-                item.Title = Profile.Title;
-                foreach (var it in items) PlaylistCategoryCollection.Add(it);
-
-                SelectedPlaylistCategory = PlaylistCategoryCollection.Where(c => c.Type == PlaylistCategoryType.All).FirstOrDefault();
-            }
-
+            PlaylistCategoryCollection = PlaylistCategory.GetCategoryItems();
+            var item = PlaylistCategoryCollection.Where(c => c.Type == PlaylistCategoryType.MyPlaylist).FirstOrDefault();
+            item.Title = Profile.Title;
+            SelectedPlaylistCategory = PlaylistCategoryCollection.Where(c => c.Type == PlaylistCategoryType.All).FirstOrDefault();
         }
 
-        public void FilterPlaylistCollectionView(bool isSwitchingCategory = false)
+        private void FilterPlaylistView(AdvancedCollectionView collectionView, PlaylistCategoryType categoryType, string searchText, bool isSwitchingCategory = false)
         {
-            // isSwitchingCategory allows us to use AdvancedCollectionView.DeferRefresh() 
-            //  if only switching category because using it when searching makes the autocomplete lose focus everytime
-            // the text changes
+            if (collectionView == null) return;
 
-            if (AdvancedCollectionView == null)
-                return;
+            IsPlaylistsLoading = true;
 
-            //make sure the filtered items are clear
-            _filteredPlaylistCollection.Clear();
-
-            if (!isSwitchingCategory)
+            if (isSwitchingCategory)
             {
-                if (!string.IsNullOrEmpty(SearchText))
-                {
-                    if (SelectedPlaylistCategory.Type == PlaylistCategoryType.All)
-                    {
-                        AdvancedCollectionView.Filter = c => (((Playlist)c).Title).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                        (((Playlist)c).Description).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                        (((Playlist)c).Owner.Title).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase);
-
-                        _filteredPlaylistCollection.AddRange(_playlistCollectionCopy.Where(c => c.Title.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                        c.Description.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                        c.Owner.Title.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase)));
-                    }
-                    else
-                    {
-                        AdvancedCollectionView.Filter = c => ((((Playlist)c).Title).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                        (((Playlist)c).Description).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                        (((Playlist)c).Owner.Title).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase)) &&
-                        ((Playlist)c).Type == SelectedPlaylistCategory.Type;
-
-                        _filteredPlaylistCollection.AddRange(_playlistCollectionCopy.Where(c => (c.Title.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                        c.Description.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                        c.Owner.Title.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase))));
-                    }
-                }
-                else
-                {
-                    if (SelectedPlaylistCategory.Type == PlaylistCategoryType.All)
-                    {
-                        AdvancedCollectionView.Filter = c => c != null;
-                        _filteredPlaylistCollection.AddRange(_playlistCollectionCopy);
-                    }
-                    else
-                    {
-                        AdvancedCollectionView.Filter = c => ((Playlist)c).Type == SelectedPlaylistCategory.Type;
-                        _filteredPlaylistCollection.AddRange(_playlistCollectionCopy);
-                    }
-                }
-
-                AdvancedCollectionView.RefreshFilter();
+                using (collectionView.DeferRefresh())
+                    FilterPlaylist(collectionView, categoryType, searchText);
             }
             else
             {
-                using (AdvancedCollectionView.DeferRefresh())
-                {
-                    if (!string.IsNullOrEmpty(SearchText))
-                    {
-                        if (SelectedPlaylistCategory.Type == PlaylistCategoryType.All)
-                        {
-                            AdvancedCollectionView.Filter = c => (((Playlist)c).Title).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                            (((Playlist)c).Description).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                            (((Playlist)c).Owner.Title).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase);
-
-                            _filteredPlaylistCollection.AddRange(_playlistCollectionCopy.Where(c => c.Title.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                            c.Description.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                            c.Owner.Title.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase)));
-                        }
-                        else
-                        {
-                            AdvancedCollectionView.Filter = c => ((((Playlist)c).Title).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                            (((Playlist)c).Description).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                            (((Playlist)c).Owner.Title).Contains(SearchText, StringComparison.CurrentCultureIgnoreCase)) &&
-                            ((Playlist)c).Type == SelectedPlaylistCategory.Type;
-
-                            _filteredPlaylistCollection.AddRange(_playlistCollectionCopy.Where(c => (c.Title.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                            c.Description.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase) ||
-                            c.Owner.Title.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase))));
-                        }
-                    }
-                    else
-                    {
-                        if (SelectedPlaylistCategory.Type == PlaylistCategoryType.All)
-                        {
-                            AdvancedCollectionView.Filter = c => c != null;
-                            _filteredPlaylistCollection.AddRange(_playlistCollectionCopy);
-                        }
-                        else
-                        {
-                            AdvancedCollectionView.Filter = c => ((Playlist)c).Type == SelectedPlaylistCategory.Type;
-                            _filteredPlaylistCollection.AddRange(_playlistCollectionCopy);
-                        }
-                    }
-                }
+                FilterPlaylist(collectionView, categoryType, searchText);
+                ///AdvancedCollectionView.RefreshFilter();
             }
 
             TotalTracks = AdvancedCollectionView.Sum(c => ((Playlist)c).Count);
-            UpdateItemPosition();
+            UpdateItemIndex(AdvancedCollectionView);
+
+            IsPlaylistsLoading = false;
+        }
+
+        private void FilterPlaylist(AdvancedCollectionView collectionView, PlaylistCategoryType categoryType, string searchText)
+        {
+            if (collectionView == null) return;
+
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                if (categoryType == PlaylistCategoryType.All)
+                {
+                    collectionView.Filter = c => (((Playlist)c).Title).Contains(searchText, StringComparison.CurrentCultureIgnoreCase) ||
+                    (((Playlist)c).Description).Contains(searchText, StringComparison.CurrentCultureIgnoreCase) ||
+                    (((Playlist)c).Owner.Title).Contains(searchText, StringComparison.CurrentCultureIgnoreCase);
+                }
+                else
+                {
+                    collectionView.Filter = c => ((((Playlist)c).Title).Contains(searchText, StringComparison.CurrentCultureIgnoreCase) ||
+                    (((Playlist)c).Description).Contains(searchText, StringComparison.CurrentCultureIgnoreCase) ||
+                    (((Playlist)c).Owner.Title).Contains(searchText, StringComparison.CurrentCultureIgnoreCase)) &&
+                    ((Playlist)c).Type == categoryType;
+                }
+            }
+            else
+            {
+                if (categoryType == PlaylistCategoryType.All)
+                    collectionView.Filter = c => c != null;
+                else
+                    collectionView.Filter = c => ((Playlist)c).Type == categoryType;
+            }
         }
     }
 }

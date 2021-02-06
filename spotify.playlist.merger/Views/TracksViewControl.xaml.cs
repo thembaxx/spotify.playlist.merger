@@ -1,19 +1,9 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using spotify.playlist.merger.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -37,6 +27,19 @@ namespace spotify.playlist.merger.Views
                         break;
                 }
             });
+        }
+
+        private void MediaItem_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            FrameworkElement senderElement = sender as FrameworkElement;
+            FlyoutBase flyoutBase = FlyoutBase.GetAttachedFlyout(senderElement);
+            FlyoutShowOptions options = new FlyoutShowOptions
+            {
+                Placement = FlyoutPlacementMode.RightEdgeAlignedTop,
+                Position = e.GetPosition(senderElement),
+                ShowMode = FlyoutShowMode.Standard
+            };
+            flyoutBase.ShowAt(senderElement, options);
         }
     }
 }

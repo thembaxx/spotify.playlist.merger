@@ -251,8 +251,7 @@
                         VerticalAlignment="Center"
                         Visibility="{Binding HasSelectedPlaylists, Converter={StaticResource BoolToVisibilityInverseConverter}}">
                 <FontIcon Glyph="&#xED11;" 
-                          FontSize="16" 
-                          FontWeight="Light" 
+                          FontSize="32"
                           Foreground="{ThemeResource SecondaryForeground}"
                           Margin="0 0 0 8"/>
                 <TextBlock FontSize="14" 

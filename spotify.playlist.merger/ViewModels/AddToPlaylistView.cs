@@ -191,7 +191,7 @@ namespace spotify.playlist.merger.ViewModels
                                     var _tr = TracksCollectionView.Where(c => ((Track)c).Uri == uri).FirstOrDefault();
                                     using (TracksCollectionView.DeferRefresh()) TracksCollectionView.Remove(_tr);
                                 }
-                                UpdateTracksIndex();
+                                UpdateItemIndex(TracksCollectionView);
 
                                 IsTracksLoading = false;
                             }
