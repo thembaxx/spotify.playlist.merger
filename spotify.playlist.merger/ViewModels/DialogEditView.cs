@@ -56,8 +56,11 @@ namespace spotify.playlist.merger.ViewModels
                 updatedPlaylist.Image = updatedPlaylist.Image;
                 ResetPlaylistDialog();
 
-                HidePlaylistDialog(DialogType.Merge);
+                HidePlaylistDialog(DialogType.EditPlaylist);
+                ShowNotification(NotificationType.Success, "Playlist updated succesfully.");
             }
+            else
+                ShowNotification(NotificationType.Error, "An error occured, failed to update playlist.");
 
             IsDialogBusy = false;
         }

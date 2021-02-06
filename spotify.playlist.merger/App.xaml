@@ -49,7 +49,7 @@
             <SolidColorBrush x:Key="SecondaryItemBackgroundThemeBrush" Color="#1D1D20"/>
             <AcrylicBrush x:Key="LoadingBackgroundThemeBrush"
                           BackgroundSource="Backdrop"
-                          TintColor="#000000" Opacity="0.7"
+                          TintColor="#000000" Opacity="0.90"
                           TintOpacity="0.90" 
                           FallbackColor="#161618"/>
 

@@ -244,9 +244,10 @@
         </Grid>
 
         <Grid Grid.RowSpan="10" 
+              Margin="-24 -18 -24 -24"
               Background="{ThemeResource LoadingBackgroundThemeBrush}"
               Visibility="{Binding IsDialogBusy, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=collapsed}">
-            <muxc:ProgressRing IsActive="{Binding IsDialogBusy}" Height="48" Width="48" Foreground="{ThemeResource BrandColorThemeBrush}"/>
+            <muxc:ProgressRing IsActive="{Binding IsDialogBusy}" Height="48" Width="48" Foreground="White"/>
         </Grid>
     </Grid>
 </ContentDialog>

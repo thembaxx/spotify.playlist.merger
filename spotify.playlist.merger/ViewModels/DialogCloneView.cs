@@ -1,9 +1,11 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Toolkit.Uwp.UI;
 using spotify.playlist.merger.Data;
 using spotify.playlist.merger.Models;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace spotify.playlist.merger.ViewModels
 {
@@ -48,34 +50,86 @@ namespace spotify.playlist.merger.ViewModels
             {
                 if (_clonePlaylistCommand == null)
                 {
-                    _clonePlaylistCommand = new RelayCommand<Playlist>(async (item) =>
+                    _clonePlaylistCommand = new RelayCommand<Playlist>(async (playlist) =>
                     {
+                        if (playlist == null) return;
                         IsDialogBusy = true;
 
-                        Playlist playlist = null;
-                        var trackIds = await DataSource.Current.GetPlaylistTrackUris(CurrentPlaylist.Id, CurrentPlaylist.Count);
+                        int total = playlist.Count;
+                        int startIndex = 0;
+                        List<string> uris;
+                        List<string> trackUris = new List<string>();
 
-                        if (trackIds != null)
+                        while (startIndex < total - 1)
                         {
-                            playlist = await DataSource.Current.CreateSpotifyPlaylist(PlaylistDialogName, PlaylistDialogDescription, trackIds, _base64JpegData);
+                            uris = await DataSource.Current.GetTrackUrisAsync(playlist.Id, startIndex);
+
+                            if (uris == null || uris.Count == 0) break;
+                            startIndex += uris.Count - 1;
+                            foreach (var uri in uris)
+                            {
+                                if (!trackUris.Contains(uri)) trackUris.Add(uri);
+                            }
                         }
 
-                        if (playlist != null)
+                        if (trackUris != null && trackUris.Count > 0)
                         {
-                            //remove from collection
+                            Playlist newPlaylist = await DataSource.Current.CreateSpotifyPlaylist(PlaylistDialogName, PlaylistDialogDescription, _base64JpegData);
 
-                            //add to first position, scroll to top
-                            AdvancedCollectionView.Insert(0, playlist);
-                            _playlistCollectionCopy.Insert(0, playlist);
-                            UpdateItemIndex(AdvancedCollectionView);
-                        }
-                        if (playlist != null && UnfollowAfterClone)
-                        {
-                            RemoveItems(await DataSource.Current.UnfollowSpotifyPlaylist(new List<string> { CurrentPlaylist.Id }));
-                        }
+                            if (newPlaylist != null)
+                            {
+                                if (trackUris.Count > 100)
+                                {
+                                    startIndex = 0;
+                                    int endIndex = 0;
+                                    while (startIndex < trackUris.Count - 1)
+                                    {
+                                        endIndex = ((startIndex + 100) < trackUris.Count - 1) ? 100 : ((trackUris.Count - startIndex));
+                                        var batch = trackUris.GetRange(startIndex, endIndex);
+                                        startIndex += batch.Count - 1;
 
-                        HidePlaylistDialog(DialogType.Clone);
-                        ResetPlaylistDialog();
+                                        if (!await DataSource.Current.AddToPlaylist(batch, newPlaylist.Id))
+                                            break;
+                                    }
+                                }
+                                else
+                                    await DataSource.Current.AddToPlaylist(trackUris, newPlaylist.Id);
+
+                                IsPlaylistsLoading = true;
+
+                                HidePlaylistDialog(DialogType.Clone);
+                                ResetPlaylistDialog();
+
+                                //add to first position, scroll to top
+                                if (UnfollowAfterClone)
+                                    RemoveItems(await DataSource.Current.UnfollowSpotifyPlaylist(new List<string> { CurrentPlaylist.Id }));
+
+                                AdvancedCollectionView.Insert(0, newPlaylist);
+                                _playlistCollectionCopy.Add(newPlaylist);
+                                using (AdvancedCollectionView.DeferRefresh())
+                                {
+                                    UpdateItemIndex(AdvancedCollectionView);
+                                    Messenger.Default.Send(new MessengerHelper
+                                    {
+                                        Item = AdvancedCollectionView.FirstOrDefault(),
+                                        Action = MessengerAction.ScrollToItem,
+                                        Target = TargetView.Playlist
+                                    });
+                                }
+
+                                var items = SelectedPlaylistCollection;
+                                foreach (var it in items)
+                                {
+                                    it.IsSelected = false;
+                                    SelectedPlaylistCollection.Remove(it);
+                                }
+
+                                ShowNotification(NotificationType.Success, "Successfuly cloned playlist.");
+                                IsPlaylistsLoading = false;
+                            }
+                            else
+                                ShowNotification(NotificationType.Error, "An error occured, failed to clone playlist.");
+                        }
 
                         IsDialogBusy = false;
                     });

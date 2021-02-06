@@ -135,7 +135,7 @@ namespace spotify.playlist.merger.ViewModels
         {
             IsPlaylistsLoading = true;
 
-            int playlistsCount = await DataSource.Current.GetUsersPlaylistsCount();
+            int playlistsCount = await DataSource.Current.GetPlaylistsCountAsync();
 
             if (playlistsCount > 0)
             {

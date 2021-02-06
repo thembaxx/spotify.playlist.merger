@@ -217,7 +217,7 @@ namespace spotify.playlist.merger.Data
         /// The tracks to add to the newly created playlist (Optional).
         /// </param>
         /// <returns></returns>
-        public static async Task<FullPlaylist> CreateSpotifyPlaylist(string name, string description, IEnumerable<string> trackUris, string base64Jpg = null)
+        public static async Task<FullPlaylist> CreateSpotifyPlaylist(string name, string description, string base64Jpg = null)
         {
             FullPlaylist playlist;
             PlaylistCreateRequest request = new PlaylistCreateRequest(name);
@@ -240,19 +240,6 @@ namespace spotify.playlist.merger.Data
                     SpotifyClient = await Authenticate();
                 }
                 playlist = await SpotifyClient.Playlists.Create(_user.Id, request);
-            }
-
-            if (SpotifyClient != null && playlist != null)
-            {
-                var plRequest = new PlaylistAddItemsRequest(trackUris.ToList());
-                try
-                {
-                    await SpotifyClient.Playlists.AddItems(playlist.Id, plRequest);
-                }
-                catch (Exception)
-                {
-
-                }
             }
 
             try
@@ -371,7 +358,7 @@ namespace spotify.playlist.merger.Data
         /// <returns>
         /// The list of playlists.
         /// </returns>
-        public static async Task<List<SimplePlaylist>> GetPlaylists(int startIndex, int limit)
+        public static async Task<List<SimplePlaylist>> GetPlaylistsAsync(int startIndex, int limit)
         {
             PlaylistCurrentUsersRequest request = new PlaylistCurrentUsersRequest
             {
@@ -399,11 +386,11 @@ namespace spotify.playlist.merger.Data
             }
         }
 
-        public static async Task<Paging<PlaylistTrack<IPlayableItem>>> GetTracksPage(string id)
+        public static async Task<FullPlaylist> GetPlaylistAsync(string playlistId)
         {
             try
             {
-                return (await SpotifyClient.Playlists.Get(id)).Tracks;
+                return await SpotifyClient.Playlists.Get(playlistId);
             }
             catch (Exception)
             {
@@ -417,39 +404,13 @@ namespace spotify.playlist.merger.Data
                 {
                     SpotifyClient = await Authenticate();
                 }
-                return (SpotifyClient != null) ? (await SpotifyClient.Playlists.Get(id)).Tracks : null;
+                return (SpotifyClient != null) ? await SpotifyClient.Playlists.Get(playlistId) : null;
             }
         }
 
-        public static async Task<IList<PlaylistTrack<IPlayableItem>>> GetTracks(Paging<PlaylistTrack<IPlayableItem>> page)
+        public static async Task<Paging<PlaylistTrack<IPlayableItem>>> GetTracksAsync(string playlistId, int startIndex, int limit)
         {
-            try
-            {
-                //    PlaylistGetItemsRequest r = new PlaylistGetItemsRequest
-                //{
-                //    Offset
-                //}
-                return await SpotifyClient.PaginateAll(page);
-            }
-            catch (Exception)
-            {
-                if (SpotifyClient != null && SpotifyClient.LastResponse != null &&
-                    SpotifyClient.LastResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized &&
-                    !await IsClientValid())
-                {
-                    SpotifyClient = await Authenticate();
-                }
-                else if (SpotifyClient == null && !await IsAuthenticated())
-                {
-                    SpotifyClient = await Authenticate();
-                }
-                return (SpotifyClient != null) ? await SpotifyClient.PaginateAll(page) : null;
-            }
-        }
-
-        public static async Task<Paging<PlaylistTrack<IPlayableItem>>> GetPlaylistTrackUris(string id, int startIndex, int limit)
-        {
-            PlaylistGetItemsRequest r = new PlaylistGetItemsRequest
+            PlaylistGetItemsRequest request = new PlaylistGetItemsRequest
             {
                 Offset = startIndex,
                 Limit = limit,
@@ -457,8 +418,8 @@ namespace spotify.playlist.merger.Data
 
             try
             {
-                r.Fields.Add("items(track)");
-                return await SpotifyClient.Playlists.GetItems(id, r);
+                request.Fields.Add("items(track)");
+                return await SpotifyClient.Playlists.GetItems(playlistId, request);
             }
             catch (Exception)
             {
@@ -472,7 +433,7 @@ namespace spotify.playlist.merger.Data
                 {
                     SpotifyClient = await Authenticate();
                 }
-                return (SpotifyClient != null) ? await SpotifyClient.Playlists.GetItems(id, r) : null;
+                return (SpotifyClient != null) ? await SpotifyClient.Playlists.GetItems(playlistId, request) : null;
             }
         }
 

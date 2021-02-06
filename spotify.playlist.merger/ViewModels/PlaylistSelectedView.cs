@@ -50,13 +50,6 @@ namespace spotify.playlist.merger.ViewModels
                         playlist.IndexB = 0;
                     }
                 }
-
-                //update position
-                //foreach (var item in e.OldItems)
-                //{
-                //    if (item is Playlist playlist)
-                //        playlist.PositionAlt = SelectedPlaylistCollection.IndexOf(playlist) + 1;
-                //}
             }
 
             if (e.NewItems != null)
@@ -64,10 +57,7 @@ namespace spotify.playlist.merger.ViewModels
                 foreach (var item in e.NewItems)
                 {
                     if (item is Playlist playlist)
-                    {
                         playlist.IsSelected = true;
-
-                    }
                 }
             }
         }
@@ -172,21 +162,28 @@ namespace spotify.playlist.merger.ViewModels
                     {
                         IsRightBarBusy = true;
 
-                        var playlistIds = SelectedPlaylistCollection.Select(c => c.Id).ToList();
-                        var tracks = new List<string>();
-                        foreach (var item in playlistIds)
+                        var playlists = SelectedPlaylistCollection;
+                        List<string> trackUris = new List<string>();
+
+                        foreach (var playlist in playlists)
                         {
-                            var items = await DataSource.Current.GetTrackIds(item);
-                            if (items != null)
+                            int total = playlist.Count;
+                            int startIndex = 0;
+                            List<string> uris;
+
+                            while (startIndex < total)
                             {
-                                foreach (var id in items)
-                                {
-                                    if (tracks.Find(c => c == id) == null) tracks.Add(id);
-                                }
+                                uris = await DataSource.Current.GetTrackUrisAsync(playlist.Id, startIndex);
+
+                                if (uris == null || uris.Count == 0) break;
+                                startIndex += uris.Count;
+                                foreach (var uri in uris)
+                                    if (!trackUris.Contains(uri)) trackUris.Add(uri);
                             }
                         }
-                        await DataSource.Current.PlaySpotifyMedia(tracks);
 
+                        if (trackUris.Count > 0)
+                            await DataSource.Current.PlaySpotifyMedia(trackUris);
 
                         IsRightBarBusy = false;
                     });
