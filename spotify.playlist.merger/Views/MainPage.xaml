@@ -225,7 +225,7 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <muxc:ProgressBar x:Name="ProgressBar"
+            <muxc:ProgressBar x:Name="MainProgressBar"
                               Foreground="White"
                               Height="2"
                               Grid.ColumnSpan="100"
@@ -441,9 +441,9 @@
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid x:Name="Content" 
+                <Grid x:Name="ContentView" 
                       Grid.Row="1">
-                    <ListView x:Name="ContentView"
+                    <ListView x:Name="ContentListView"
                               Padding="0,0,0,0"
                               Margin="-16 0 0 0"
                               IsItemClickEnabled="True"
@@ -454,7 +454,8 @@
                      
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="model:Playlist">
-                                <Grid Height="64" 
+                                <Grid x:Name="MediaItem"
+                                      Height="64" 
                                       Opacity=".9"
                                       Background="Transparent"
                                       extensions:Mouse.Cursor="Hand"

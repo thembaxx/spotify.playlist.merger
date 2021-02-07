@@ -111,7 +111,6 @@ namespace spotify.playlist.merger.ViewModels
 
                     if (uris == null || uris.Count == 0) break;
                     startIndex += uris.Count - 1;
-                    int i = 1;
                     foreach (var uri in uris)
                     {
                         if (!trackUris.Contains(uri)) trackUris.Add(uri);

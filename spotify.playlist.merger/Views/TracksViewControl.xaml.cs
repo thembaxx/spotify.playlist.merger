@@ -21,8 +21,8 @@ namespace spotify.playlist.merger.Views
                     case MessengerAction.ScrollToItem:
                         if (messenger.Target == TargetView.Tracks)
                         {
-                            if (messenger.Item == null && Content.Items != null) messenger.Item = Content.Items.FirstOrDefault();
-                            Content.ScrollIntoView(messenger.Item, ScrollIntoViewAlignment.Leading);
+                            if (messenger.Item == null && ContentView.Items != null) messenger.Item = ContentView.Items.FirstOrDefault();
+                            ContentView.ScrollIntoView(messenger.Item, ScrollIntoViewAlignment.Leading);
                         }
                         break;
                 }

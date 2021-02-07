@@ -224,7 +224,7 @@ namespace spotify.playlist.merger.ViewModels
                         IsLoading = true;
 
                         if (item is Track track)
-                            await PlayTrack(track, ActivePlaylist, TrackSearchText);
+                            await PlayTrack(track);
                         else
                             await DataSource.Current.PlaybackMediaItem(item, 0);
 

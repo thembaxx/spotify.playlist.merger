@@ -8,7 +8,7 @@
         {
             Description = Helpers.CleanString(description);
             Count = count;
-            Duration = duration;
+            DurationStr = duration;
             Owner = owner;
             Type = type;
             if (type == PlaylistCategoryType.MyPlaylist) CanModify = true;
@@ -49,11 +49,11 @@
             set => _ = SetProperty(_indexC, value, () => _indexC = value);
         }
 
-        private string _duration = "0";
-        public string Duration
+        private string _durationStr = "0";
+        public string DurationStr
         {
-            get { return _duration; }
-            set { SetProperty(_duration, value, () => _duration = value); }
+            get { return _durationStr; }
+            set { SetProperty(_durationStr, value, () => _durationStr = value); }
         }
 
         private bool _canModify;
@@ -80,7 +80,7 @@
                 Image = Image,
                 Description = Description,
                 Count = Count,
-                Duration = Duration,
+                DurationStr = DurationStr,
                 Owner = Owner,
                 Type = Type,
                 IndexA = IndexA,

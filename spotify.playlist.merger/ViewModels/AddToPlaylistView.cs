@@ -182,9 +182,6 @@ namespace spotify.playlist.merger.ViewModels
                                     var tr = SelectedTracks.Where(c => c.Uri == uri).FirstOrDefault();
                                     if (tr != null) SelectedTracks.Remove(tr);
 
-                                    tr = _filteredTracksCollection.Where(c => c.Uri == uri).FirstOrDefault();
-                                    if (tr != null) _filteredTracksCollection.Remove(tr);
-
                                     tr = _tracksCollectionCopy.Where(c => c.Uri == uri).FirstOrDefault();
                                     if (tr != null) _tracksCollectionCopy.Remove(tr);
 

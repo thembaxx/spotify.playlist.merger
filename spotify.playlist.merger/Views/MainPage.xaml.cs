@@ -109,7 +109,7 @@ namespace spotify.playlist.merger.Views
                     break;
                 case MessengerAction.ScrollToItem:
                     if (helper.Item != null)
-                        ContentView.ScrollIntoView(helper.Item, ScrollIntoViewAlignment.Leading);
+                        ContentListView.ScrollIntoView(helper.Item, ScrollIntoViewAlignment.Leading);
                     break;
             }
         }
