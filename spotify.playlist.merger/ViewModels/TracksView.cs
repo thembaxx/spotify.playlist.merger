@@ -249,7 +249,6 @@ namespace spotify.playlist.merger.ViewModels
         {
             ActivePlaylist = null;
             if (TracksCollectionView != null) TracksCollectionView.Clear();
-            _filteredTracksCollection.Clear();
             _tracksCollectionCopy.Clear();
             SelectedTracks.Clear();
             TrackSearchText = null;
@@ -303,7 +302,13 @@ namespace spotify.playlist.merger.ViewModels
                     }
                 }
             }
+
             UpdateItemIndex(TracksCollectionView);
+            if (ActivePlaylist != null)
+            {
+                ActivePlaylist.Count = _tracksCollectionCopy.Count;
+                ActivePlaylist.DurationStr = Helpers.MillisecondsToString(_tracksCollectionCopy.Sum(c => c.Duration));
+            }
 
             IsTracksLoading = false;
         }
@@ -325,9 +330,6 @@ namespace spotify.playlist.merger.ViewModels
                         match = _tracksCollectionCopy.Find(c => c.Uri == uri);
                         if (match != null) _tracksCollectionCopy.Remove(match);
 
-                        match = _filteredTracksCollection.Find(c => c.Uri == uri);
-                        if (match != null) _filteredTracksCollection.Remove(match);
-
                         match = SelectedTracks.Where(c => c.Uri == uri).FirstOrDefault();
                         if (match != null) SelectedTracks.Remove(match);
 
@@ -340,6 +342,13 @@ namespace spotify.playlist.merger.ViewModels
                     ShowNotification(NotificationType.Success, "Track successfuly removed from playlist.");
                 else
                     ShowNotification(NotificationType.Success, uris.Count() + " tracks successfuly removed from playlist.");
+
+                //update current playlist details
+                if(ActivePlaylist != null)
+                {
+                    ActivePlaylist.Count = _tracksCollectionCopy.Count;
+                    ActivePlaylist.DurationStr = Helpers.MillisecondsToString(_tracksCollectionCopy.Sum(c => c.Duration));
+                }
             }
             else
                 ShowNotification(NotificationType.Error, "An error occured, please ensure you have an active internet connection.");
@@ -347,19 +356,25 @@ namespace spotify.playlist.merger.ViewModels
             IsTracksViewBusy = false;
         }
 
-        private async Task PlayTrack(Track track, Playlist playlist = null, string searchText = null)
+        private async Task PlayTrack(Track track)
         {
+            if (track == null) return;
+            if(TracksCollectionView == null || TracksCollectionView.Count == 0)
+            {
+                await DataSource.Current.PlaybackMediaItem(track);
+                return;
+            }
+
             IsTracksViewBusy = true;
 
-            if (!string.IsNullOrEmpty(searchText))
-                await DataSource.Current.PlaySpotifyMedia(_filteredTracksCollection.Select(c => c.Uri), _filteredTracksCollection.IndexOf(track));
-            else if (playlist != null)
+            List<string> trackUris = new List<string>();
+            foreach (var item in TracksCollectionView)
             {
-                int index = (TracksCollectionView.IndexOf(track) < 0) ? 0 : TracksCollectionView.IndexOf(track);
-                await DataSource.Current.PlaybackMediaItem(ActivePlaylist, index);
+                if (item is Track t) trackUris.Add(t.Uri);
             }
-            else
-                await DataSource.Current.PlaybackMediaItem(track);
+            int index = trackUris.IndexOf(track.Uri);
+            if (index < 0) index = 0;
+            await DataSource.Current.PlaySpotifyMedia(trackUris, index);
 
             IsTracksViewBusy = false;
         }
@@ -381,7 +396,6 @@ namespace spotify.playlist.merger.ViewModels
         }
 
         readonly List<Track> _tracksCollectionCopy = new List<Track>();
-        readonly List<Track> _filteredTracksCollection = new List<Track>();
 
         private string _trackSearchText;
         public string TrackSearchText
@@ -437,7 +451,6 @@ namespace spotify.playlist.merger.ViewModels
 
             IsTracksLoading = true;
 
-            _filteredTracksCollection.Clear();
             using (collectionView.DeferRefresh())
             {
                 if (!string.IsNullOrEmpty(searchText))
@@ -445,15 +458,10 @@ namespace spotify.playlist.merger.ViewModels
                     collectionView.Filter = c => (((Track)c).Title).Contains(searchText, StringComparison.CurrentCultureIgnoreCase) ||
                         (((Track)c).Album).Contains(searchText, StringComparison.CurrentCultureIgnoreCase) ||
                         (((Track)c).Artist).Contains(searchText, StringComparison.CurrentCultureIgnoreCase);
-
-                    _filteredTracksCollection.AddRange(_tracksCollectionCopy.Where(c => c.Title.Contains(searchText, StringComparison.CurrentCultureIgnoreCase) ||
-                    c.Album.Contains(searchText, StringComparison.CurrentCultureIgnoreCase) ||
-                    c.Artist.Contains(searchText, StringComparison.CurrentCultureIgnoreCase)));
                 }
                 else
                 {
                     collectionView.Filter = c => c != null; //bit of a hack to clear filters
-                    _filteredTracksCollection.AddRange(_tracksCollectionCopy);
                 }
             }
 

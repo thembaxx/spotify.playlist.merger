@@ -121,7 +121,7 @@
                 </Grid>
             </Grid>
         </Grid>
-        <Grid x:Name="Content"
+        <Grid x:Name="ContentView"
                   Grid.Row="1">
             <ListView x:Name="SelectedContentView"
                           Grid.Row="1"
