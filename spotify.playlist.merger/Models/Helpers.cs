@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.RegularExpressions;
@@ -12,6 +14,45 @@ namespace spotify.playlist.merger.Models
 {
     public class Helpers
     {
+
+        public static async Task<bool> SaveDeveloperCredentials(string clientId, string clientSecret)
+        {
+            try
+            {
+                string CredentialsPath = ApplicationData.Current.LocalFolder.Path + "\\developer_credentials.json";
+                if (!File.Exists(CredentialsPath))
+                {
+                    await ApplicationData.Current.LocalFolder.CreateFileAsync("developer_credentials.json");
+                }
+                IDictionary<string, string> d = new Dictionary<string, string>();
+                d.Add(new KeyValuePair<string, string>("SPOTIFY_CLIENT_ID", clientId));
+                d.Add(new KeyValuePair<string, string>("SPOTIFY_CLIENT_SECRET", clientSecret));
+                await File.WriteAllTextAsync(CredentialsPath, JsonConvert.SerializeObject(d));
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static async Task<IDictionary<string, string>> GetDeveloperCredentials()
+        {
+            try
+            {
+                string CredentialsPath = ApplicationData.Current.LocalFolder.Path + "\\developer_credentials.json";
+                if (!File.Exists(CredentialsPath))
+                    return null;
+
+                var json = await File.ReadAllTextAsync(CredentialsPath);
+                return JsonConvert.DeserializeObject<IDictionary<string, string>>(json);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         public static async Task DisplayDialog(string title, string message)
         {
             try

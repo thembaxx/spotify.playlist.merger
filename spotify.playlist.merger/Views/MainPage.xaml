@@ -20,6 +20,9 @@
       RequestedTheme="Dark">
 
     <Page.Resources>
+        <converters:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter"
+                                                 EmptyValue="Collapsed"
+                                                 NotEmptyValue="Visible"/>
         <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
         <converters:BoolToObjectConverter x:Key="BoolToVisibilityInverseConverter"
                                           TrueValue="Collapsed"
@@ -75,7 +78,7 @@
                                                Foreground="{ThemeResource PrimaryForeground}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <Grid>
+                                <Grid Visibility="{Binding Profile, Converter={StaticResource NullToVisibilityConverter}}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto"/>
                                         <RowDefinition Height="auto"/>
@@ -171,6 +174,7 @@
                                                 Command="{Binding SaveCredentialsCommand}"
                                                 extensions:Mouse.Cursor="Hand"
                                                 HorizontalAlignment="Stretch"
+                                                IsEnabled="{Binding CanSaveCredentials}"
                                                 CornerRadius="8"
                                                 Height="36"
                                                 Margin="0,0,0,8">

@@ -16,7 +16,6 @@ namespace spotify.playlist.merger.Views
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        public static MainPage Current;
         private readonly PlaylistDialog playlistDialog;
         private readonly AddToPlaylistDialog addToPlaylistDialog;
         private UnfollowDialog _unfollowDialog;
@@ -24,7 +23,6 @@ namespace spotify.playlist.merger.Views
         public MainPage()
         {
             this.InitializeComponent();
-            Current = this;
             Window.Current.SetTitleBar(DragGrid);
             Initialize();
             playlistDialog = new PlaylistDialog();
@@ -97,16 +95,6 @@ namespace spotify.playlist.merger.Views
         {
             switch (helper.Action)
             {
-                case MessengerAction.ShowSettings:
-                    try
-                    {
-                        FlyoutBase.ShowAttachedFlyout(SettingsButton);
-                    }
-                    catch (Exception)
-                    {
-
-                    }
-                    break;
                 case MessengerAction.ScrollToItem:
                     if (helper.Item != null)
                         ContentListView.ScrollIntoView(helper.Item, ScrollIntoViewAlignment.Leading);

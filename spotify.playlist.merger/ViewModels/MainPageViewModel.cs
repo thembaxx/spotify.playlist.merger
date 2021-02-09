@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 
 namespace spotify.playlist.merger.ViewModels
@@ -27,8 +28,7 @@ namespace spotify.playlist.merger.ViewModels
         {
             IsLoading = true;
 
-            ClientID = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
-            ClientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
+            await GetDeveloperCredentials();
             await DataSource.Current.Initialize();
             Profile = await DataSource.Current.GetProfile();
             if (Profile != null)
@@ -46,20 +46,30 @@ namespace spotify.playlist.merger.ViewModels
                 if (!_playlistCollectionCopy.Any(c => c.Type == PlaylistCategoryType.Spotify))
                     PlaylistCategoryCollection.Remove(PlaylistCategoryCollection.Where(c => c.Type == PlaylistCategoryType.Spotify).FirstOrDefault());
             }
-            else if (string.IsNullOrEmpty(ClientID) || string.IsNullOrEmpty(ClientSecret))
-            {
-                //show settings
-                Messenger.Default.Send(new MessengerHelper
-                {
-                    Action = MessengerAction.ShowSettings,
-                });
-                //check client id and secret
-                ShowLogin = true;
-            }
             else
                 ShowLogin = true;
 
             IsLoading = false;
+        }
+
+        private async Task<bool> GetDeveloperCredentials()
+        {
+            var d = await Helpers.GetDeveloperCredentials();
+            if (d == null) return false;
+
+            foreach (KeyValuePair<string, string> item in d)
+            {
+                if (item.Key == "SPOTIFY_CLIENT_ID")
+                    ClientID = item.Value;
+                else if (item.Key == "SPOTIFY_CLIENT_SECRET")
+                    ClientSecret = item.Value;
+            }
+
+            ClientID = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
+            ClientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
+
+            return (!string.IsNullOrEmpty(ClientID) && !string.IsNullOrEmpty(ClientSecret));
+                
         }
 
         private void Refresh(bool init = true)
@@ -118,6 +128,17 @@ namespace spotify.playlist.merger.ViewModels
 
         #region Fields
 
+        private bool _canSaveCredentials;
+        public bool CanSaveCredentials
+        {
+            get => _canSaveCredentials;
+            set
+            {
+                _canSaveCredentials = value;
+                RaisePropertyChanged("CanSaveCredentials");
+            }
+        }
+
         private bool _showLogin;
         public bool ShowLogin
         {
@@ -137,6 +158,10 @@ namespace spotify.playlist.merger.ViewModels
             {
                 _clientSecret = value;
                 RaisePropertyChanged("ClientSecret");
+                if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(ClientID)) 
+                    CanSaveCredentials = true;
+                else
+                    CanSaveCredentials = false;
             }
         }
 
@@ -148,6 +173,10 @@ namespace spotify.playlist.merger.ViewModels
             {
                 _clientID = value;
                 RaisePropertyChanged("ClientID");
+                if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(ClientSecret))
+                    CanSaveCredentials = true;
+                else
+                    CanSaveCredentials = false;
             }
         }
 
@@ -172,7 +201,7 @@ namespace spotify.playlist.merger.ViewModels
                 RaisePropertyChanged("IsPlaylistsLoading");
             }
         }
-
+        
         private User _profile;
         public User Profile
         {
@@ -195,17 +224,16 @@ namespace spotify.playlist.merger.ViewModels
             {
                 if (_saveCredentialsCommand == null)
                 {
-                    _saveCredentialsCommand = new RelayCommand(() =>
+                    _saveCredentialsCommand = new RelayCommand(async() =>
                     {
-                        if (!string.IsNullOrEmpty(ClientID))
-                        {
-                            Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_ID", ClientID);
-                        }
+                        IsLoading = true;
 
-                        if (!string.IsNullOrEmpty(ClientSecret))
-                        {
-                            Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_SECRET", ClientSecret);
-                        }
+                        if (await Helpers.SaveDeveloperCredentials(ClientID, ClientSecret))
+                            Refresh();
+                        else
+                            ShowNotification(NotificationType.Error, "An error occured, failed to save developer credentials.");
+
+                        IsLoading = false;
                     });
                 }
                 return _saveCredentialsCommand;

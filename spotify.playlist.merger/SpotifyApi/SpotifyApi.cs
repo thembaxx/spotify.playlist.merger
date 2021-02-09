@@ -143,19 +143,29 @@ namespace spotify.playlist.merger.Data
                 return null;
         }
 
-        private static void CheckCliendSecretId()
+        private static async void CheckCliendSecretId()
         {
             if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(clientSecret))
             {
-                if (string.IsNullOrEmpty(clientId))
+                var d = await Models.Helpers.GetDeveloperCredentials();
+                if (d != null)
+                {
+                    if (d == null) return;
+
+                    foreach (KeyValuePair<string, string> item in d)
+                    {
+                        if (item.Key == "SPOTIFY_CLIENT_ID")
+                            clientId = item.Value;
+                        else if (item.Key == "SPOTIFY_CLIENT_SECRET")
+                            clientSecret = item.Value;
+                    }
+                }
+                else
                 {
                     Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_ID", "de354ca4295141c6ad3a7a07086fbd32");
-                    clientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
-                }
-
-                if (string.IsNullOrEmpty(clientSecret))
-                {
                     Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_SECRET", "474efaae7656470b81a4266bebbfc4ad");
+
+                    clientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
                     clientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
                 }
             }
@@ -444,7 +454,7 @@ namespace spotify.playlist.merger.Data
                 Uris = uris,
                 OffsetParam = new PlayerResumePlaybackRequest.Offset { Position = index },
             };
-
+          
             try
             {
                 return await SpotifyClient.Player.ResumePlayback(request);
