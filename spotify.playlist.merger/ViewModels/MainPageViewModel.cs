@@ -43,7 +43,7 @@ namespace spotify.playlist.merger.ViewModels
                 await LoadPlaylistsAsync();
 
                 //check if user follows any spotify playlists, if none remove from category
-                if (!_playlistCollectionCopy.Any(c => c.Type == PlaylistCategoryType.Spotify))
+                if (!PlaylistsCollection.Any(c => c.Type == PlaylistCategoryType.Spotify))
                     PlaylistCategoryCollection.Remove(PlaylistCategoryCollection.Where(c => c.Type == PlaylistCategoryType.Spotify).FirstOrDefault());
             }
             else
@@ -81,8 +81,9 @@ namespace spotify.playlist.merger.ViewModels
             ClientSecret = null;
             ResetPlaylistDialog();
             UnfollowAfterMerge = false;
-            _playlistCollectionCopy.Clear();
+            PlaylistsCollection.Clear();
             AdvancedCollectionView = null;
+            PlaylistsCollection.Clear();
             TotalTracks = 0;
             SelectedPlaylistCollection.CollectionChanged -= SelectedPlaylistCollection_CollectionChanged;
             SelectedPlaylistCollection.Clear();
@@ -349,8 +350,8 @@ namespace spotify.playlist.merger.ViewModels
 
             foreach (var id in playlistIds)
             {
-                item = _playlistCollectionCopy.Where(c => c.Id == id).FirstOrDefault();
-                if (item != null) _playlistCollectionCopy.Remove(item);
+                item = PlaylistsCollection.Where(c => c.Id == id).FirstOrDefault();
+                if (item != null) PlaylistsCollection.Remove(item);
 
                 item = SelectedPlaylistCollection.Where(c => c.Id == id).FirstOrDefault();
                 if(item != null)

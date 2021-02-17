@@ -816,23 +816,23 @@
         </Grid>
 
         <ToggleButton Grid.ColumnSpan="10"
-                      CornerRadius="16"
+                      CornerRadius="12"
                       extensions:Mouse.Cursor="Hand"
                       IsChecked="{Binding IsSelectedPlaylistViewOpen, Mode=TwoWay}"
                       Background="{ThemeResource PrimaryThemeBrush}"
                       Foreground="{ThemeResource PrimaryForeground}"
-                      Padding="12"
+                      Height="36"
+                      Padding="0"
                       HorizontalAlignment="Right"
+                      HorizontalContentAlignment="Center"
                       VerticalAlignment="Center"
+                      VerticalContentAlignment="Center"
+                      Width="36"
                       Margin="48 24"
                       Visibility="{Binding IsSelectedPlaylistViewOpen, Converter={StaticResource BoolToVisibilityInverseConverter}}">
-            <StackPanel>
-                <FontIcon Glyph="&#xE700;" FontSize="16"/>
-                <TextBlock FontSize="16"
-                           HorizontalAlignment="Center"
-                           Margin="0 8 0 0"
-                           Text="{Binding SelectedPlaylistCollection.Count, FallbackValue=0}"/>
-            </StackPanel>
+            <TextBlock FontSize="16"
+                       HorizontalAlignment="Center"
+                       Text="{Binding SelectedPlaylistCollection.Count, FallbackValue=0}"/>
         </ToggleButton>
         
         <UserControl x:Name="MessageBox"

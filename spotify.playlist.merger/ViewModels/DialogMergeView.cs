@@ -158,8 +158,7 @@ namespace spotify.playlist.merger.ViewModels
 
                 newPlaylist = await DataSource.Current.GetFullPlaylistAsync(newPlaylist.Id);
 
-                AdvancedCollectionView.Insert(0, newPlaylist);
-                _playlistCollectionCopy.Add(newPlaylist);
+                PlaylistsCollection.Insert(0, newPlaylist);
                 if (UnfollowAfterMerge)
                 {
                     var unfollowed = await DataSource.Current.UnfollowSpotifyPlaylist(SelectedPlaylistCollection.Select(c => c.Id));
@@ -173,16 +172,13 @@ namespace spotify.playlist.merger.ViewModels
                     SelectedPlaylistCollection.Remove(item);
                 }
 
-                using (AdvancedCollectionView.DeferRefresh())
+                UpdateItemIndex(AdvancedCollectionView);
+                Messenger.Default.Send(new MessengerHelper
                 {
-                    UpdateItemIndex(AdvancedCollectionView);
-                    Messenger.Default.Send(new MessengerHelper
-                    {
-                        Item = AdvancedCollectionView.FirstOrDefault(),
-                        Action = MessengerAction.ScrollToItem,
-                        Target = TargetView.Playlist
-                    });
-                }
+                    Item = AdvancedCollectionView.FirstOrDefault(),
+                    Action = MessengerAction.ScrollToItem,
+                    Target = TargetView.Playlist
+                });
 
                 ShowNotification(NotificationType.Success, "Successfuly merged selected playlists.");
 

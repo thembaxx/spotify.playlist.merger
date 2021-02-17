@@ -164,8 +164,8 @@ namespace spotify.playlist.merger.ViewModels
                         var item = SelectedPlaylistCollection.Where(c => c.Id == id).FirstOrDefault();
                         if (item != null) SelectedPlaylistCollection.Remove(item);
 
-                        item = _playlistCollectionCopy.Where(c => c.Id == id).FirstOrDefault();
-                        if (item != null) _playlistCollectionCopy.Remove(item);
+                        item = PlaylistsCollection.Where(c => c.Id == id).FirstOrDefault();
+                        if (item != null) PlaylistsCollection.Remove(item);
                     }
 
                     if (ActivePlaylist != null && ActivePlaylist.Id == id && IsTracksViewOpen)

@@ -40,6 +40,17 @@ namespace spotify.playlist.merger.ViewModels
             }
         }
 
+        ObservableCollection<Track> _tracksCollection = new ObservableCollection<Track>();
+        public ObservableCollection<Track> TracksCollection
+        {
+            get => _tracksCollection;
+            set
+            {
+                _tracksCollection = value;
+                RaisePropertyChanged("TracksCollection");
+            }
+        }
+
         ObservableCollection<Track> _selectedTracks = new ObservableCollection<Track>();
         public ObservableCollection<Track> SelectedTracks
         {
@@ -249,7 +260,7 @@ namespace spotify.playlist.merger.ViewModels
         {
             ActivePlaylist = null;
             if (TracksCollectionView != null) TracksCollectionView.Clear();
-            _tracksCollectionCopy.Clear();
+            TracksCollection.Clear();
             SelectedTracks.Clear();
             TrackSearchText = null;
         }
@@ -269,6 +280,7 @@ namespace spotify.playlist.merger.ViewModels
             int startIndex = 0;
             List<Track> tracks;
             int index;
+            TracksCollectionView = new AdvancedCollectionView(TracksCollection, true);
 
             while (startIndex < total)
             {
@@ -276,38 +288,21 @@ namespace spotify.playlist.merger.ViewModels
 
                 if (tracks == null || tracks.Count == 0) break;
                 startIndex += tracks.Count;
-                _tracksCollectionCopy.AddRange(tracks);
-
-                if (TracksCollectionView == null || TracksCollectionView.Count == 0)
+                
+                index = TracksCollection.Count;
+                for (int i = 0; i < tracks.Count; i++)
                 {
-                    TracksCollectionView = new AdvancedCollectionView(tracks, true);
-                    index = 1;
-                    foreach (var item in tracks)
-                    {
-                        item.IndexA = index;
-                        index++;
-                    }
-                }
-                else
-                {
-                    index = TracksCollectionView.Count;
-                    using (TracksCollectionView.DeferRefresh())
-                    {
-                        foreach (var item in tracks)
-                        {
-                            item.IndexA = index;
-                            TracksCollectionView.Add(item);
-                            index++;
-                        }
-                    }
+                    index++;
+                    tracks[i].IndexA = index;
+                    TracksCollection.Add(tracks[i]);
                 }
             }
 
             UpdateItemIndex(TracksCollectionView);
             if (ActivePlaylist != null)
             {
-                ActivePlaylist.Count = _tracksCollectionCopy.Count;
-                ActivePlaylist.DurationStr = Helpers.MillisecondsToString(_tracksCollectionCopy.Sum(c => c.Duration));
+                ActivePlaylist.Count = TracksCollection.Count;
+                ActivePlaylist.DurationStr = Helpers.MillisecondsToString(TracksCollection.Sum(c => c.Duration));
             }
 
             IsTracksLoading = false;
@@ -320,15 +315,15 @@ namespace spotify.playlist.merger.ViewModels
             //should we show dialog?
             if (await DataSource.Current.RemoveFromPlaylist(playlistId, uris) != null)
             {
-                var items = _tracksCollectionCopy.Where(c => c.IsSelected).ToList();
+                var items = TracksCollection.Where(c => c.IsSelected).ToList();
                 using (TracksCollectionView.DeferRefresh())
                 {
                     Track match;
                     object _match;
                     foreach (var uri in uris)
                     {
-                        match = _tracksCollectionCopy.Find(c => c.Uri == uri);
-                        if (match != null) _tracksCollectionCopy.Remove(match);
+                        match = TracksCollection.Where(c => c.Uri == uri).FirstOrDefault();
+                        if (match != null) TracksCollection.Remove(match);
 
                         match = SelectedTracks.Where(c => c.Uri == uri).FirstOrDefault();
                         if (match != null) SelectedTracks.Remove(match);
@@ -346,8 +341,8 @@ namespace spotify.playlist.merger.ViewModels
                 //update current playlist details
                 if(ActivePlaylist != null)
                 {
-                    ActivePlaylist.Count = _tracksCollectionCopy.Count;
-                    ActivePlaylist.DurationStr = Helpers.MillisecondsToString(_tracksCollectionCopy.Sum(c => c.Duration));
+                    ActivePlaylist.Count = TracksCollection.Count;
+                    ActivePlaylist.DurationStr = Helpers.MillisecondsToString(TracksCollection.Sum(c => c.Duration));
                 }
             }
             else
@@ -394,8 +389,6 @@ namespace spotify.playlist.merger.ViewModels
                 if (value != null) SortTrackCollection(value);
             }
         }
-
-        readonly List<Track> _tracksCollectionCopy = new List<Track>();
 
         private string _trackSearchText;
         public string TrackSearchText

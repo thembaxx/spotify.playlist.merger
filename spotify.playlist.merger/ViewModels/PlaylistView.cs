@@ -24,7 +24,16 @@ namespace spotify.playlist.merger.ViewModels
             }
         }
 
-        readonly List<Playlist> _playlistCollectionCopy = new List<Playlist>();
+        ObservableCollection<Playlist> _playlistsCollection = new ObservableCollection<Playlist>();
+        public ObservableCollection<Playlist> PlaylistsCollection
+        {
+            get => _playlistsCollection;
+            set
+            {
+                _playlistsCollection = value;
+                RaisePropertyChanged("PlaylistsCollection");
+            }
+        }
 
         ObservableCollection<string> _filterCollection = new ObservableCollection<string>();
         public ObservableCollection<string> FilterCollection
@@ -135,6 +144,7 @@ namespace spotify.playlist.merger.ViewModels
         {
             IsPlaylistsLoading = true;
 
+            AdvancedCollectionView = new AdvancedCollectionView(PlaylistsCollection, true);
             int playlistsCount = await DataSource.Current.GetPlaylistsCountAsync();
 
             if (playlistsCount > 0)
@@ -146,27 +156,16 @@ namespace spotify.playlist.merger.ViewModels
                     items = await DataSource.Current.GetPlaylistsAsync(startIndex, pageSizeLimit);
                     if (items == null || items.Count == 0) break;
                     startIndex += items.Count;
-                    _playlistCollectionCopy.AddRange(items);
-                    if (AdvancedCollectionView == null || AdvancedCollectionView.Count == 0)
+
+                    int index = PlaylistsCollection.Count;
+                    for (int i = 0; i < items.Count; i++)
                     {
-                        AdvancedCollectionView = new AdvancedCollectionView(items, true);
-                        UpdateItemIndex(AdvancedCollectionView);
-                    }
-                    else
-                    {
-                        int index = AdvancedCollectionView.Count;
-                        using (AdvancedCollectionView.DeferRefresh())
-                        {
-                            for (int i = 0; i < items.Count; i++)
-                            {
-                                index++;
-                                items[i].IndexA = index;
-                                AdvancedCollectionView.Add(items[i]);
-                            }
-                        }
+                        index++;
+                        items[i].IndexA = index;
+                        PlaylistsCollection.Add(items[i]);
                     }
 
-                    TotalTracks = _playlistCollectionCopy.Sum(c => c.Count);
+                    TotalTracks = PlaylistsCollection.Sum(c => c.Count);
                 }
             }
 
@@ -195,7 +194,6 @@ namespace spotify.playlist.merger.ViewModels
             else
             {
                 FilterPlaylist(collectionView, categoryType, searchText);
-                ///AdvancedCollectionView.RefreshFilter();
             }
 
             TotalTracks = AdvancedCollectionView.Sum(c => ((Playlist)c).Count);

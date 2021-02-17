@@ -79,7 +79,7 @@ namespace spotify.playlist.merger.ViewModels
                         IsDialogBusy = true;
 
                         int index = 1;
-                        var _items = _playlistCollectionCopy;
+                        var _items = PlaylistsCollection.ToList();
                         _items = _items.OrderBy(c => c.Title).ToList();
                         List<Playlist> items = new List<Playlist>();
                         Playlist clone = null;
@@ -123,7 +123,7 @@ namespace spotify.playlist.merger.ViewModels
                         IsDialogBusy = true;
 
                         int index = 1;
-                        var _items = _playlistCollectionCopy;
+                        var _items = PlaylistsCollection.ToList();
                         _items = _items.OrderBy(c => c.Title).ToList();
                         List<Playlist> items = new List<Playlist>();
                         Playlist clone = null;
@@ -181,9 +181,8 @@ namespace spotify.playlist.merger.ViewModels
                                 {
                                     var tr = SelectedTracks.Where(c => c.Uri == uri).FirstOrDefault();
                                     if (tr != null) SelectedTracks.Remove(tr);
-
-                                    tr = _tracksCollectionCopy.Where(c => c.Uri == uri).FirstOrDefault();
-                                    if (tr != null) _tracksCollectionCopy.Remove(tr);
+                                    tr = TracksCollection.Where(c => c.Uri == uri).FirstOrDefault();
+                                    if (tr != null) TracksCollection.Remove(tr);
 
                                     var _tr = TracksCollectionView.Where(c => ((Track)c).Uri == uri).FirstOrDefault();
                                     using (TracksCollectionView.DeferRefresh()) TracksCollectionView.Remove(_tr);

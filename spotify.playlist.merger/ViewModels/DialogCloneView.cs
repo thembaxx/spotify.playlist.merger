@@ -104,18 +104,14 @@ namespace spotify.playlist.merger.ViewModels
                                 if (UnfollowAfterClone)
                                     RemoveItems(await DataSource.Current.UnfollowSpotifyPlaylist(new List<string> { CurrentPlaylist.Id }));
 
-                                AdvancedCollectionView.Insert(0, newPlaylist);
-                                _playlistCollectionCopy.Add(newPlaylist);
-                                using (AdvancedCollectionView.DeferRefresh())
+                                PlaylistsCollection.Insert(0, newPlaylist);
+                                UpdateItemIndex(AdvancedCollectionView);
+                                Messenger.Default.Send(new MessengerHelper
                                 {
-                                    UpdateItemIndex(AdvancedCollectionView);
-                                    Messenger.Default.Send(new MessengerHelper
-                                    {
-                                        Item = AdvancedCollectionView.FirstOrDefault(),
-                                        Action = MessengerAction.ScrollToItem,
-                                        Target = TargetView.Playlist
-                                    });
-                                }
+                                    Item = AdvancedCollectionView.FirstOrDefault(),
+                                    Action = MessengerAction.ScrollToItem,
+                                    Target = TargetView.Playlist
+                                });
 
                                 var items = SelectedPlaylistCollection;
                                 foreach (var it in items)
